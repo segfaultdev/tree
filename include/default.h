@@ -11,10 +11,10 @@
 #define SCALE 8
 
 // alpha, only applies to visible tiles, not to air
-#define ALPHA 191
+#define ALPHA 255
 
 // background color alpha, set to 0 to see full image
-#define BACKGROUND_ALPHA 127
+#define BACKGROUND_ALPHA 255
 
 // background image(or NULL if none)
 // NOTE: change BACKGROUND_ALPHA to see image
@@ -77,7 +77,7 @@ const char *tile_names[] = {
 };
 
 const Color tile_colors[] = {
-  (Color){0, 0, 0, BACKGROUND_ALPHA}, // Air <- Background Color
+  (Color){51, 51, 51, BACKGROUND_ALPHA}, // Air <- Background Color
   (Color){127, 63, 0, ALPHA}, // Dirt
   (Color){63, 63, 255, ALPHA}, // Water
   (Color){63, 255, 63, ALPHA}, // Grass
