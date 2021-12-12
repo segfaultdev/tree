@@ -213,7 +213,7 @@ void tick_tiles(void) {
         }
       } else if (get_tile(j, i) == tile_apple_tree) {
         int valid = 0;
-        int t = 6;
+        int t = 4;
         
         for (int dx = -t; dx <= t; dx++) {
           for (int dy = 1; dy <= 1; dy++) {
@@ -256,7 +256,7 @@ void tick_tiles(void) {
           if (get_tile(j + x, i - 1) == tile_air || get_tile(j + x, i - 1) == tile_water || get_tile(j + x, i - 1) == tile_grass || get_tile(j + x, i - 1) == tile_apple_leaves) {
             set_tile(j + x, i - 1, tile_apple_tree);
           }
-        } else if (!valid && get_water(j, i) > 3 && rand() % 2048 < (47 - get_water(j, i))) {
+        } else if (!valid && get_water(j, i) < 32 && get_water(j, i) > 3 && rand() % 2048 < (47 - get_water(j, i))) {
           int x = (rand() % 2) * 2 - 1;
           
           if ((get_tile(j + x, i) == tile_air || get_tile(j + x, i) == tile_water || get_tile(j + x, i) == tile_grass || get_tile(j + x, i) == tile_water) &&
@@ -318,7 +318,7 @@ void tick_tiles(void) {
         }
       } else if (get_tile(j, i) == tile_orange_tree) {
         int valid = 0;
-        int t = 6;
+        int t = 4;
         
         for (int dx = -t; dx <= t; dx++) {
           for (int dy = 1; dy <= 1; dy++) {
@@ -355,13 +355,13 @@ void tick_tiles(void) {
           }
         }
         
-        if (valid && rand() % 1024 < (get_water(j, i) - 6)) {
+        if (valid && rand() % 1024 < (get_water(j, i) - 10)) {
           int x = (rand() % 4) ? 0 : ((rand() % 2) * 2 - 1);
           
           if (get_tile(j + x, i - 1) == tile_air || get_tile(j + x, i - 1) == tile_water || get_tile(j + x, i - 1) == tile_grass || get_tile(j + x, i - 1) == tile_orange_leaves) {
             set_tile(j + x, i - 1, tile_orange_tree);
           }
-        } else if (!valid && get_water(j, i) > 3 && rand() % 2048 < (47 - get_water(j, i))) {
+        } else if (!valid && get_water(j, i) < 36 && get_water(j, i) > 3 && rand() % 2048 < (47 - get_water(j, i))) {
           int x = (rand() % 2) * 2 - 1;
           
           if ((get_tile(j + x, i) == tile_air || get_tile(j + x, i) == tile_water || get_tile(j + x, i) == tile_grass || get_tile(j + x, i) == tile_water) &&
