@@ -296,7 +296,7 @@ void tick_tiles(void) {
           if (valid) break;
         }
         
-        if (!valid || !(get_water(j, i) > 0 && get_water(j, i) <= 39) || get_tile(j, i - 1) == tile_apple_leaves) {
+        if (!valid || get_water(j, i) == 0 || get_tile(j, i - 1) == tile_apple_leaves) {
           set_tile(j, i, tile_air);
         }
       } else if (get_tile(j, i) == tile_apple) {
@@ -403,7 +403,7 @@ void tick_tiles(void) {
           if (valid) break;
         }
         
-        if (!valid || !(get_water(j, i) > 0 && get_water(j, i) <= 39) || get_tile(j, i - 1) == tile_orange_leaves) {
+        if (!valid || get_water(j, i) == 0 || get_tile(j, i - 1) == tile_orange_leaves) {
           set_tile(j, i, tile_air);
         }
       } else if (get_tile(j, i) == tile_orange) {
