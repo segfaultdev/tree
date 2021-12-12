@@ -34,10 +34,13 @@ enum {
   tile_iron,
   tile_apple_tree,
   tile_orange_tree,
+  tile_palm_tree,
   tile_apple_leaves,
   tile_orange_leaves,
+  tile_palm_leaves,
   tile_apple,
   tile_orange,
+  tile_coconut,
   tile_berry_bush,
   tile_red_berry,
   tile_blue_berry,
@@ -63,10 +66,13 @@ const char *tile_names[] = {
   "Iron",
   "Apple Tree",
   "Orange Tree",
+  "Palm Tree",
   "Apple Leaves",
   "Orange Leaves",
+  "Palm Leaves",
   "Apple",
   "Orange",
+  "Coconut",
   "Berry Bush",
   "Red Berry",
   "Blue Berry",
@@ -89,10 +95,13 @@ const Color tile_colors[] = {
   (Color){191, 191, 191, ALPHA}, // Iron
   (Color){63, 31, 0, ALPHA}, // Apple Tree
   (Color){95, 47, 0, ALPHA}, // Orange Tree
+  (Color){127, 95, 31, ALPHA}, // Palm Tree
   (Color){31, 127, 31, ALPHA}, // Apple Leaves
   (Color){47, 191, 47, ALPHA}, // Orange Leaves
+  (Color){127, 255, 63, ALPHA}, // Palm Leaves
   (Color){255, 31, 31, ALPHA}, // Apple
   (Color){255, 127, 31, ALPHA}, // Orange
+  (Color){191, 95, 31, ALPHA}, // Coconut
   (Color){39, 159, 39, ALPHA}, // Berry Bush
   (Color){127, 15, 15, ALPHA}, // Red Berry
   (Color){15, 15, 159, ALPHA}, // Blue Berry
@@ -116,10 +125,13 @@ const int tile_visible[] = {
   1, // Iron
   1, // Apple Tree
   1, // Orange Tree
+  1, // Palm Tree
   0, // Apple Leaves
   0, // Orange Leaves
+  0, // Palm Leaves
   0, // Apple
   0, // Orange
+  0, // Coconut
   1, // Berry Bush
   0, // Red Berry
   0, // Blue Berry
