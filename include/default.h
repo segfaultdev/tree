@@ -3,12 +3,27 @@
 
 #include <raylib.h>
 
+// nice values:
+// - 192x108,  scale 8 <- default
+// - 240x150,  scale 6
+// - 256x160,  scale 5
+// - 400x225,  scale 4
+// - 640x400,  scale 2
+// - 800x450,  scale 2
+// - 1280x800, scale 1 <- cayden don't use this
+
 // width and height in tiles
 #define WIDTH 192
 #define HEIGHT 108
 
-// pixels per tile
+// pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
 #define SCALE 8
+
+// if 1, will replace existing non-air blocks with the brush
+#define REPLACE_BLOCKS 1
+
+// if 1, will darken dirt, stone and sand when wet
+#define WET_BLOCKS 0
 
 // alpha, only applies to visible tiles, not to air
 #define ALPHA 255

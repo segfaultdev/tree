@@ -12,6 +12,17 @@ int *tree_water = NULL;
 int selection = tile_dirt;
 int brush_size = 5;
 
+int off_x = 0;
+int off_y = 0;
+
+int start_x = 0;
+int start_y = 0;
+
+int old_x = 0;
+int old_y = 0;
+
+int zoom = SCALE;
+
 void set_tile(int x, int y, int tile) {
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
   tree_tiles[x + y * WIDTH] = tile;
@@ -60,7 +71,9 @@ void set_circle(int x, int y, int tile) {
   for (int dx = -brush_size; dx <= brush_size; dx++) {
     for (int dy = -brush_size; dy <= brush_size; dy++) {
       if (dx * dx + dy * dy < brush_size * brush_size) {
-        set_tile(x + dx, y + dy, tile);
+        if (REPLACE_BLOCKS || get_tile_new(x + dx, y + dy) == tile_air || tile == tile_air) {
+          set_tile(x + dx, y + dy, tile);
+        }
       }
     }
   }
@@ -780,24 +793,61 @@ int main(int argc, const char **argv) {
     
     if (BACKGROUND_IMAGE) {
       DrawTextureEx(background, (Vector2){0, 0}, 0.0f, (float)(HEIGHT * SCALE) / background.height, WHITE);
+    } else {
+      ClearBackground((Color){31, 31, 31, 255});
     }
+    
+    int tile_x = off_x / zoom;
+    int tile_y = off_y / zoom;
     
     for (int i = 0; i < HEIGHT; i++) {
       for (int j = 0; j < WIDTH; j++) {
+        // if (j + tile_x < 0 || j + tile_x >= WIDTH || i + tile_y < 0 || i + tile_y >= HEIGHT) {
+        //   continue;
+        //}
+        
         int tile = get_tile(j, i);
-        DrawRectangle(j * SCALE, i * SCALE, SCALE, SCALE, get_color(tile));
+        Color color = get_color(tile);
+        
+        if (WET_BLOCKS && get_water(j, i) >= 24 && (tile == tile_sand || tile == tile_dirt || tile == tile_stone)) {
+          color.r *= 0.8f;
+          color.g *= 0.8f;
+          color.b *= 0.8f;
+        }
+        
+        DrawRectangle((j - tile_x) * zoom, (i - tile_y) * zoom, zoom, zoom, color);
       }
     }
     
-    int x = GetMouseX() / SCALE;
-    int y = GetMouseY() / SCALE;
+    if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
+      start_x = GetMouseX();
+      start_y = GetMouseY();
+      
+      old_x = off_x;
+      old_y = off_y;
+    } else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
+      off_x = old_x - (GetMouseX() - start_x);
+      off_y = old_y - (GetMouseY() - start_y);
+    }
     
-    for (int i = -10; i <= 10; i++) {
-      for (int j = -10; j <= 10; j++) {
+    if (IsKeyPressed(KEY_S) && zoom < 16) {
+      zoom++;
+    } else if (IsKeyReleased(KEY_A) && zoom > 1) {
+      zoom--;
+    }
+    
+    int x = GetMouseX() / zoom;
+    int y = GetMouseY() / zoom;
+    
+    for (int i = -40; i <= 40; i++) {
+      for (int j = -40; j <= 40; j++) {
         if (i * i + j * j >= brush_size * brush_size) continue;
-        DrawRectangle((j + x) * SCALE, (i + y) * SCALE, SCALE, SCALE, get_color(selection));
+        DrawRectangle((j + x) * zoom, (i + y) * zoom, zoom, zoom, get_color(selection));
       }
     }
+    
+    x += tile_x;
+    y += tile_y;
     
     DrawRectangle(WIDTH * SCALE, 0, 192, HEIGHT * SCALE, BLACK);
     int sel_y = 1;
@@ -826,7 +876,8 @@ int main(int argc, const char **argv) {
       sel_y++;
     }
     
-    if (x < WIDTH) {
+    if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() >= -(tile_x * zoom) && GetMouseY() >= -(tile_y * zoom) && GetMouseX() < WIDTH * SCALE &&
+        GetMouseY() < HEIGHT * SCALE && GetMouseX() < WIDTH * SCALE - (tile_x * zoom) && GetMouseY() < HEIGHT * SCALE - (tile_y * zoom)) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         set_circle(x, y, selection);
       } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
@@ -836,7 +887,7 @@ int main(int argc, const char **argv) {
     
     if (GetMouseWheelMove() > 0) {
       brush_size += GetMouseWheelMove();
-      if (brush_size > 10) brush_size = 10;
+      if (brush_size > 40) brush_size = 40;
     } else if (GetMouseWheelMove() < 0) {
       brush_size += GetMouseWheelMove();
       if (brush_size < 1) brush_size = 1;
