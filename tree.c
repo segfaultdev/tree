@@ -794,6 +794,20 @@ void tick_tiles(void) {
             }
           }
         }
+      } else if (get_tile(j, i) == tile_fertilizer) {
+        if (i < HEIGHT - 1 && get_tile(j, i + 1) == tile_air || get_tile(j, i + 1) == tile_water) {
+          swap(j, i, j, i + 1);
+        } else if (i < HEIGHT - 1 && (get_tile(j - 1, i + 1) == tile_air || get_tile(j - 1, i + 1) == tile_water) && (get_tile(j + 1, i + 1) == tile_air || get_tile(j + 1, i + 1) == tile_water)) {
+          if (rand() % 2) {
+            swap(j, i, j - 1, i + 1);
+          } else {
+            swap(j, i, j + 1, i + 1);
+          }
+        } else if (i < HEIGHT - 1 && get_tile(j - 1, i + 1) == tile_air || get_tile(j - 1, i + 1) == tile_water) {
+          swap(j, i, j - 1, i + 1);
+        } else if (i < HEIGHT - 1 && get_tile(j + 1, i + 1) == tile_air || get_tile(j + 1, i + 1) == tile_water) {
+          swap(j, i, j + 1, i + 1);
+        }
       }
     }
   }
@@ -804,6 +818,8 @@ void tick_water(void) {
     for (int j = 0; j < WIDTH; j++) {
       if (get_tile_new(j, i) == tile_water) {
         set_water(j, i, 47);
+      } else if (get_tile_new(j, i) == tile_fertilizer) {
+        set_water(j, i, 127);
       } else if (get_tile_new(j, i) == tile_dirt || get_tile_new(j, i) == tile_grass || get_tile_new(j, i) == tile_apple_tree || get_tile_new(j, i) == tile_apple_leaves ||
                  get_tile_new(j, i) == tile_orange_tree || get_tile_new(j, i) == tile_orange_leaves || get_tile_new(j, i) == tile_sand || get_tile_new(j, i) == tile_stone ||
                  get_tile_new(j, i) == tile_berry_bush || get_tile_new(j, i) == tile_red_berry || get_tile_new(j, i) == tile_blue_berry || get_tile_new(j, i) == tile_vines ||
@@ -811,19 +827,19 @@ void tick_water(void) {
                  get_tile_new(j, i) == tile_palm_leaves) {
         int water = get_water(j, i);
         
-        if (water < 0)  set_water(j, i, 0),  water = 0;
-        if (water > 47) set_water(j, i, 47), water = 47;
+        if (water < 0)   set_water(j, i, 0),  water = 0;
+        if (water > 127) set_water(j, i, 127), water = 127;
         
         if (water > 0 && get_water(j - 1, i) <= water && get_water(j + 1, i) <= water && get_water(j, i - 1) <= water && get_water(j, i + 1) <= water &&
             get_water(j - 1, i - 1) <= water && get_water(j + 1, i - 1) <= water && get_water(j - 1, i + 1) <= water && get_water(j + 1, i + 1) <= water) {
           set_water(j, i, water - 1);
         }
         
-        if (water < 47 && (get_water(j - 1, i) > water + 1 || get_water(j + 1, i) > water + 1 || get_water(j, i - 1) > water + 1 || get_water(j, i + 1) > water + 1)) {
+        if (water < 127 && (get_water(j - 1, i) > water + 1 || get_water(j + 1, i) > water + 1 || get_water(j, i - 1) > water + 1 || get_water(j, i + 1) > water + 1)) {
           set_water(j, i, water + 1);
         }
         
-        if (water < 47 && (get_water(j - 1, i - 1) > water + 2 || get_water(j + 1, i - 1) > water + 2 || get_water(j - 1, i + 1) > water + 2 || get_water(j + 1, i + 1) > water + 2)) {
+        if (water < 127 && (get_water(j - 1, i - 1) > water + 2 || get_water(j + 1, i - 1) > water + 2 || get_water(j - 1, i + 1) > water + 2 || get_water(j + 1, i + 1) > water + 2)) {
           set_water(j, i, water + 1);
         }
       } else {

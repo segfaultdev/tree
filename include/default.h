@@ -66,6 +66,7 @@ enum {
   tile_red_mushroom,
   tile_brown_mushroom,
   tile_fire,
+  tile_fertilizer,
   
   tile_count
 };
@@ -99,6 +100,7 @@ const char *tile_names[] = {
   "Red Mushroom",
   "Brown Mushroom",
   "Fire",
+  "Fertilizer",
 };
 
 const Color tile_colors[] = {
@@ -129,6 +131,7 @@ const Color tile_colors[] = {
   (Color){255, 95, 95, ALPHA}, // Red Mushroom
   (Color){223, 159, 127, ALPHA}, // Brown Mushroom
   (Color){255, 159, 31, ALPHA}, // Fire
+  (Color){47, 23, 0, ALPHA}, // Fertilizer
 };
 
 // set to 1 to be visible in the selection menu
@@ -160,6 +163,7 @@ const int tile_visible[] = {
   0, // Red Mushroom
   0, // Brown Mushroom
   1, // Fire
+  1, // Fertilizer
 };
 
 #endif
