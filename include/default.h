@@ -4,9 +4,11 @@
 #include <raylib.h>
 
 // nice values:
+// - 160x100,  scale 9
 // - 192x108,  scale 8 <- default
 // - 240x150,  scale 6
 // - 256x160,  scale 5
+// - 320x200,  scale 4
 // - 400x225,  scale 4
 // - 640x400,  scale 2
 // - 800x450,  scale 2
