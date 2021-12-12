@@ -933,8 +933,7 @@ int main(int argc, const char **argv) {
       sel_y++;
     }
     
-    if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() >= -(tile_x * zoom) && GetMouseY() >= -(tile_y * zoom) && GetMouseX() < WIDTH * SCALE &&
-        GetMouseY() < HEIGHT * SCALE && GetMouseX() < WIDTH * SCALE - (tile_x * zoom) && GetMouseY() < HEIGHT * SCALE - (tile_y * zoom)) {
+    if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < WIDTH * SCALE && GetMouseY() < HEIGHT * SCALE) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         set_circle(x, y, selection);
       } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
