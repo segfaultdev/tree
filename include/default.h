@@ -70,6 +70,7 @@ enum {
   tile_fertilizer,
   tile_algae,
   tile_algae_top,
+  tile_ash,
   
   tile_count
 };
@@ -107,6 +108,7 @@ const char *tile_names[] = {
   "Fertilizer",
   "Algae",
   "Algae Top",
+  "Ash",
 };
 
 const Color tile_colors[] = {
@@ -141,6 +143,7 @@ const Color tile_colors[] = {
   (Color){47, 23, 0, ALPHA}, // Fertilizer
   (Color){7, 95, 47, ALPHA}, // Algae
   (Color){23, 95, 63, ALPHA}, // Algae Top
+  (Color){23, 23, 23, ALPHA}, // Ash
 };
 
 // set to 1 to be visible in the selection menu
@@ -174,11 +177,12 @@ const int tile_visible[] = {
   0, // Brown Mushroom
   1, // Fire
   1, // Fertilizer
-  1, // Algae
+  0, // Algae
   0, // Algae Top
+  1, // Ash
 };
 
-// tiles with 1 will only be able to wet tiles of the same tile(SHOULD NOT BE CHANGED)
+// tiles with 1 will only be able to wet tiles of the same tile (SHOULD NOT BE CHANGED)
 const int tile_limited[] = {
   0, // Air
   0, // Dirt
@@ -211,6 +215,79 @@ const int tile_limited[] = {
   1, // Fertilizer
   1, // Algae
   1, // Algae Top
+  1, // Ash
+};
+
+// tiles with 1 will float above powders, making those sink (SHOULD NOT BE CHANGED)
+const int tile_light[] = {
+  1, // Air
+  0, // Dirt
+  1, // Water
+  0, // Grass
+  0, // Pink Flower
+  0, // Blue Flower
+  0, // Yellow Flower
+  0, // Stone
+  0, // Sand
+  0, // Iron
+  0, // Apple Tree
+  0, // Orange Tree
+  0, // Palm Tree
+  0, // Apple Leaves
+  0, // Orange Leaves
+  0, // Palm Leaves
+  0, // Apple
+  0, // Orange
+  0, // Coconut
+  0, // Berry Bush
+  0, // Bush Leaves
+  0, // Red Berry
+  0, // Blue Berry
+  0, // Vines
+  0, // Mushroom
+  0, // Red Mushroom
+  0, // Brown Mushroom
+  1, // Fire
+  0, // Fertilizer
+  0, // Algae
+  0, // Algae Top
+  0, // Ash
+};
+
+// tiles with 1 will generate ash instead of fire (SHOULD NOT BE CHANGED)
+const int tile_wooden[] = {
+  0, // Air
+  0, // Dirt
+  0, // Water
+  0, // Grass
+  0, // Pink Flower
+  0, // Blue Flower
+  0, // Yellow Flower
+  0, // Stone
+  0, // Sand
+  0, // Iron
+  1, // Apple Tree
+  1, // Orange Tree
+  1, // Palm Tree
+  0, // Apple Leaves
+  0, // Orange Leaves
+  0, // Palm Leaves
+  0, // Apple
+  0, // Orange
+  0, // Coconut
+  1, // Berry Bush
+  0, // Bush Leaves
+  0, // Red Berry
+  0, // Blue Berry
+  0, // Vines
+  0, // Mushroom
+  0, // Red Mushroom
+  0, // Brown Mushroom
+  0, // Fire
+  0, // Fertilizer
+  0, // Algae
+  0, // Algae Top
+  0, // Ash
 };
 
 #endif
