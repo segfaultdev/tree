@@ -5,8 +5,8 @@
 
 // nice values:
 // - 160x100,  scale 9
-// - 192x108,  scale 8 <- default
-// - 240x150,  scale 6
+// - 192x108,  scale 8
+// - 240x150,  scale 6 <- default
 // - 256x160,  scale 5
 // - 320x200,  scale 4
 // - 400x225,  scale 4
@@ -15,17 +15,17 @@
 // - 1280x800, scale 1 <- cayden don't use this
 
 // width and height in tiles
-#define WIDTH 192
-#define HEIGHT 108
+#define WIDTH 240
+#define HEIGHT 150
 
 // pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
-#define SCALE 8
+#define SCALE 6
 
 // if 1, will replace existing non-air blocks with the brush
 #define REPLACE_BLOCKS 1
 
 // if 1, will darken dirt, stone and sand when wet
-#define WET_BLOCKS 0
+#define WET_BLOCKS 1
 
 // alpha, only applies to visible tiles, not to air
 #define ALPHA 255
@@ -59,6 +59,7 @@ enum {
   tile_orange,
   tile_coconut,
   tile_berry_bush,
+  tile_bush_leaves,
   tile_red_berry,
   tile_blue_berry,
   tile_vines,
@@ -93,6 +94,7 @@ const char *tile_names[] = {
   "Orange",
   "Coconut",
   "Berry Bush",
+  "Bush Leaves",
   "Red Berry",
   "Blue Berry",
   "Vines",
@@ -123,7 +125,8 @@ const Color tile_colors[] = {
   (Color){255, 31, 31, ALPHA}, // Apple
   (Color){255, 127, 31, ALPHA}, // Orange
   (Color){191, 95, 31, ALPHA}, // Coconut
-  (Color){39, 159, 39, ALPHA}, // Berry Bush
+  (Color){19, 79, 19, ALPHA}, // Berry Bush
+  (Color){39, 159, 39, ALPHA}, // Bush Leaves
   (Color){127, 15, 15, ALPHA}, // Red Berry
   (Color){15, 15, 159, ALPHA}, // Blue Berry
   (Color){23, 95, 23, ALPHA}, // Vines
@@ -156,12 +159,46 @@ const int tile_visible[] = {
   0, // Orange
   0, // Coconut
   1, // Berry Bush
+  0, // Bush Leaves
   0, // Red Berry
   0, // Blue Berry
   0, // Vines
   1, // Mushroom
   0, // Red Mushroom
   0, // Brown Mushroom
+  1, // Fire
+  1, // Fertilizer
+};
+
+// tiles with 1 will only be able to wet tiles of the same tile(SHOULD NOT BE CHANGED)
+const int tile_limited[] = {
+  0, // Air
+  0, // Dirt
+  0, // Water
+  1, // Grass
+  0, // Pink Flower
+  0, // Blue Flower
+  0, // Yellow Flower
+  0, // Stone
+  0, // Sand
+  1, // Iron
+  0, // Apple Tree
+  0, // Orange Tree
+  0, // Palm Tree
+  1, // Apple Leaves
+  1, // Orange Leaves
+  1, // Palm Leaves
+  1, // Apple
+  1, // Orange
+  1, // Coconut
+  0, // Berry Bush
+  1, // Bush Leaves
+  1, // Red Berry
+  1, // Blue Berry
+  1, // Vines
+  0, // Mushroom
+  1, // Red Mushroom
+  1, // Brown Mushroom
   1, // Fire
   1, // Fertilizer
 };
