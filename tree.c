@@ -485,7 +485,7 @@ void tick_tiles(void) {
         } else if (i < HEIGHT - 1 && tile_light[get_tile(j + 1, i + 1)]) {
           swap(j, i, j + 1, i + 1);
         } else {
-          if (rand() % 1024 < (get_water(j, i) - 24) && get_tile(j, i - 1) == tile_air) {
+          if (rand() % 1024 < get_plant(j, i) && get_water(j, i) >= 20 && get_tile(j, i - 1) == tile_air) {
             int valid = 1;
             
             for (int dy = -12; dy <= 12; dy++) {
