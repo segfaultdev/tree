@@ -81,6 +81,7 @@ enum {
   tile_insect_orange,
   tile_insect_coconut,
   tile_insect_cone,
+  tile_fish,
   
   tile_count
 };
@@ -127,6 +128,7 @@ const char *tile_names[] = {
   "Insect Carrying Orange",
   "Insect Carrying Coconut",
   "Insect Carrying Cone",
+  "Fish"
 };
 
 const Color tile_colors[] = {
@@ -170,6 +172,7 @@ const Color tile_colors[] = {
   (Color){7, 7, 7, ALPHA}, // Insect Carrying Orange
   (Color){7, 7, 7, ALPHA}, // Insect Carrying Coconut
   (Color){7, 7, 7, ALPHA}, // Insect Carrying Cone
+  (Color){143, 143, 191, ALPHA}, // Fish
 };
 
 // set to 1 to be visible in the selection menu
@@ -214,6 +217,7 @@ const int tile_visible[] = {
   0, // Insect Carrying Orange
   0, // Insect Carrying Coconut
   0, // Insect Carrying Cone
+  1, // Fish
 };
 
 // tiles with 1 will only be able to wet tiles of the same tile (SHOULD NOT BE CHANGED)
@@ -258,6 +262,7 @@ const int tile_limited[] = {
   1, // Insect Carrying Orange
   1, // Insect Carrying Coconut
   1, // Insect Carrying Cone
+  1, // Fish
 };
 
 // tiles with 1 will float above powders, making those sink (SHOULD NOT BE CHANGED)
@@ -302,6 +307,7 @@ const int tile_light[] = {
   1, // Insect Carrying Orange
   1, // Insect Carrying Coconut
   1, // Insect Carrying Cone
+  0, // Fish
 };
 
 // tiles with 1 will generate ash instead of fire (SHOULD NOT BE CHANGED)
@@ -346,6 +352,7 @@ const int tile_wooden[] = {
   0, // Insect Carrying Orange
   0, // Insect Carrying Coconut
   0, // Insect Carrying Cone
+  0, // Fish
 };
 
 #endif

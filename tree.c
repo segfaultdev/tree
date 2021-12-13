@@ -1244,6 +1244,23 @@ void tick_tiles(void) {
           set_tile(j + x, i + y, tile_pine_tree);
           set_tile(j, i, tile_insect);
         }
+      } else if (get_tile(j, i) == tile_fish) {
+        if (i < HEIGHT - 1 && get_tile(j, i + 1) == tile_air) {
+          swap(j, i, j, i + 1);
+        } else if (get_tile(j - 1, i) == tile_water || get_tile(j + 1, i) == tile_water || get_tile(j, i - 1) == tile_water || get_tile(j, i + 1) == tile_water || get_water(j, i) >= 52) {
+          int x = (rand() % 3) - 1;
+          int y = 0;
+          
+          if (rand() % 4 == 0) {
+            y = (rand() % 3) - 1;
+          }
+          
+          if (get_tile(j + x, i + y) == tile_water) {
+            swap(j, i, j + x, i + y);
+          }
+        } else {
+          set_tile(j, i, tile_air);
+        }
       }
     }
   }
