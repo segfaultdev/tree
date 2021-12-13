@@ -52,12 +52,15 @@ enum {
   tile_apple_tree,
   tile_orange_tree,
   tile_palm_tree,
+  tile_pine_tree,
   tile_apple_leaves,
   tile_orange_leaves,
   tile_palm_leaves,
+  tile_pine_leaves,
   tile_apple,
   tile_orange,
   tile_coconut,
+  tile_cone,
   tile_berry_bush,
   tile_bush_leaves,
   tile_red_berry,
@@ -90,12 +93,15 @@ const char *tile_names[] = {
   "Apple Tree",
   "Orange Tree",
   "Palm Tree",
+  "Pine Tree",
   "Apple Leaves",
   "Orange Leaves",
   "Palm Leaves",
+  "Pine Leaves",
   "Apple",
   "Orange",
   "Coconut",
+  "Cone",
   "Berry Bush",
   "Bush Leaves",
   "Red Berry",
@@ -125,12 +131,15 @@ const Color tile_colors[] = {
   (Color){63, 31, 0, ALPHA}, // Apple Tree
   (Color){95, 47, 0, ALPHA}, // Orange Tree
   (Color){127, 95, 31, ALPHA}, // Palm Tree
+  (Color){103, 63, 0, ALPHA}, // Pine Tree
   (Color){31, 127, 31, ALPHA}, // Apple Leaves
   (Color){47, 191, 47, ALPHA}, // Orange Leaves
   (Color){127, 255, 63, ALPHA}, // Palm Leaves
+  (Color){55, 143, 31, ALPHA}, // Pine Leaves
   (Color){255, 31, 31, ALPHA}, // Apple
   (Color){255, 127, 31, ALPHA}, // Orange
   (Color){191, 95, 31, ALPHA}, // Coconut
+  (Color){159, 91, 23, ALPHA}, // Cone
   (Color){19, 79, 19, ALPHA}, // Berry Bush
   (Color){39, 159, 39, ALPHA}, // Bush Leaves
   (Color){127, 15, 15, ALPHA}, // Red Berry
@@ -161,12 +170,15 @@ const int tile_visible[] = {
   1, // Apple Tree
   1, // Orange Tree
   1, // Palm Tree
+  1, // Pine Tree
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
+  0, // Pine Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
+  0, // Cone
   1, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
@@ -197,12 +209,15 @@ const int tile_limited[] = {
   0, // Apple Tree
   0, // Orange Tree
   0, // Palm Tree
+  0, // Pine Tree
   1, // Apple Leaves
   1, // Orange Leaves
   1, // Palm Leaves
+  1, // Pine Leaves
   1, // Apple
   1, // Orange
   1, // Coconut
+  1, // Cone
   0, // Berry Bush
   1, // Bush Leaves
   1, // Red Berry
@@ -233,12 +248,15 @@ const int tile_light[] = {
   0, // Apple Tree
   0, // Orange Tree
   0, // Palm Tree
+  0, // Pine Tree
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
+  0, // Pine Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
+  0, // Cone
   0, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
@@ -269,12 +287,15 @@ const int tile_wooden[] = {
   1, // Apple Tree
   1, // Orange Tree
   1, // Palm Tree
+  1, // Pine Tree
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
+  0, // Pine Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
+  0, // Cone
   1, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
