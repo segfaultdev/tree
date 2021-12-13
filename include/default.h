@@ -68,6 +68,8 @@ enum {
   tile_brown_mushroom,
   tile_fire,
   tile_fertilizer,
+  tile_algae,
+  tile_algae_top,
   
   tile_count
 };
@@ -103,6 +105,8 @@ const char *tile_names[] = {
   "Brown Mushroom",
   "Fire",
   "Fertilizer",
+  "Algae",
+  "Algae Top",
 };
 
 const Color tile_colors[] = {
@@ -135,6 +139,8 @@ const Color tile_colors[] = {
   (Color){223, 159, 127, ALPHA}, // Brown Mushroom
   (Color){255, 159, 31, ALPHA}, // Fire
   (Color){47, 23, 0, ALPHA}, // Fertilizer
+  (Color){7, 95, 47, ALPHA}, // Algae
+  (Color){23, 95, 63, ALPHA}, // Algae Top
 };
 
 // set to 1 to be visible in the selection menu
@@ -168,6 +174,8 @@ const int tile_visible[] = {
   0, // Brown Mushroom
   1, // Fire
   1, // Fertilizer
+  1, // Algae
+  0, // Algae Top
 };
 
 // tiles with 1 will only be able to wet tiles of the same tile(SHOULD NOT BE CHANGED)
@@ -176,9 +184,9 @@ const int tile_limited[] = {
   0, // Dirt
   0, // Water
   1, // Grass
-  0, // Pink Flower
-  0, // Blue Flower
-  0, // Yellow Flower
+  1, // Pink Flower
+  1, // Blue Flower
+  1, // Yellow Flower
   0, // Stone
   0, // Sand
   1, // Iron
@@ -201,6 +209,8 @@ const int tile_limited[] = {
   1, // Brown Mushroom
   1, // Fire
   1, // Fertilizer
+  1, // Algae
+  1, // Algae Top
 };
 
 #endif
