@@ -2,12 +2,12 @@
 seg's garden simulator
 
 ## controls:
-- a: zoom out
-- s: zoom in
+- key a: zoom out
+- key s: zoom in
 - mouse wheel: change brush size
 - left click: place selected tile
 - right click: delete(place air)
-- middle click and move: move view
+- middle click(or key f) and mouse move: move view
 
 ## build:
 ```sh

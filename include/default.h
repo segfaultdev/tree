@@ -10,6 +10,7 @@
 // - 256x160,  scale 5
 // - 320x200,  scale 4
 // - 400x225,  scale 4
+// - 480x300,  scale 3 <- twice as big as default, still fast enough for most pcs
 // - 640x400,  scale 2
 // - 800x450,  scale 2
 // - 1280x800, scale 1 <- cayden don't use this
@@ -35,6 +36,7 @@
 
 // background image(or NULL if none)
 // NOTE: change BACKGROUND_ALPHA to see image
+// NOTE: does not work on some pcs, i think it's actually raylib's fault sooooooo
 #define BACKGROUND_IMAGE NULL
 // #define BACKGROUND_IMAGE "path/to/background.png"
 
@@ -74,6 +76,11 @@ enum {
   tile_algae,
   tile_algae_top,
   tile_ash,
+  tile_insect,
+  tile_insect_apple,
+  tile_insect_orange,
+  tile_insect_coconut,
+  tile_insect_cone,
   
   tile_count
 };
@@ -115,6 +122,11 @@ const char *tile_names[] = {
   "Algae",
   "Algae Top",
   "Ash",
+  "Insect",
+  "Insect Carrying Apple",
+  "Insect Carrying Orange",
+  "Insect Carrying Coconut",
+  "Insect Carrying Cone",
 };
 
 const Color tile_colors[] = {
@@ -153,6 +165,11 @@ const Color tile_colors[] = {
   (Color){7, 95, 47, ALPHA}, // Algae
   (Color){23, 95, 63, ALPHA}, // Algae Top
   (Color){23, 23, 23, ALPHA}, // Ash
+  (Color){7, 7, 7, ALPHA}, // Insect
+  (Color){7, 7, 7, ALPHA}, // Insect Carrying Apple
+  (Color){7, 7, 7, ALPHA}, // Insect Carrying Orange
+  (Color){7, 7, 7, ALPHA}, // Insect Carrying Coconut
+  (Color){7, 7, 7, ALPHA}, // Insect Carrying Cone
 };
 
 // set to 1 to be visible in the selection menu
@@ -192,6 +209,11 @@ const int tile_visible[] = {
   0, // Algae
   0, // Algae Top
   1, // Ash
+  1, // Insect
+  0, // Insect Carrying Apple
+  0, // Insect Carrying Orange
+  0, // Insect Carrying Coconut
+  0, // Insect Carrying Cone
 };
 
 // tiles with 1 will only be able to wet tiles of the same tile (SHOULD NOT BE CHANGED)
@@ -231,6 +253,11 @@ const int tile_limited[] = {
   1, // Algae
   1, // Algae Top
   1, // Ash
+  1, // Insect
+  1, // Insect Carrying Apple
+  1, // Insect Carrying Orange
+  1, // Insect Carrying Coconut
+  1, // Insect Carrying Cone
 };
 
 // tiles with 1 will float above powders, making those sink (SHOULD NOT BE CHANGED)
@@ -270,6 +297,11 @@ const int tile_light[] = {
   0, // Algae
   0, // Algae Top
   0, // Ash
+  1, // Insect
+  1, // Insect Carrying Apple
+  1, // Insect Carrying Orange
+  1, // Insect Carrying Coconut
+  1, // Insect Carrying Cone
 };
 
 // tiles with 1 will generate ash instead of fire (SHOULD NOT BE CHANGED)
@@ -309,6 +341,11 @@ const int tile_wooden[] = {
   0, // Algae
   0, // Algae Top
   0, // Ash
+  0, // Insect
+  0, // Insect Carrying Apple
+  0, // Insect Carrying Orange
+  0, // Insect Carrying Coconut
+  0, // Insect Carrying Cone
 };
 
 #endif
