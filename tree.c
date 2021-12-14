@@ -1473,7 +1473,7 @@ int main(int argc, const char **argv) {
       if (!tile_visible[i]) continue;
       
       if (selection == i) {
-        DrawRectangle(WIDTH * SCALE + 8, sel_y * 52 - 44, 176, 48, WHITE);
+        DrawRectangle(WIDTH * SCALE + 10, sel_y * 42 - 32, 172, 44, WHITE);
       }
       
       Color color = get_color(i);
@@ -1481,10 +1481,10 @@ int main(int argc, const char **argv) {
       
       color.a = 255;
       
-      DrawRectangle(WIDTH * SCALE + 12, sel_y * 52 - 40, 168, 40, color);
-      DrawText(tile_names[i], WIDTH * SCALE + 16, sel_y * 52 - 36, 20, light > 127 ? BLACK : WHITE);
+      DrawRectangle(WIDTH * SCALE + 12, sel_y * 42 - 30, 168, 40, color);
+      DrawText(tile_names[i], WIDTH * SCALE + 16, sel_y * 42 - 26, 20, light > 127 ? BLACK : WHITE);
       
-      if (GetMouseX() >= WIDTH * SCALE + 12 && GetMouseY() >= sel_y * 52 - 40 && GetMouseX() < WIDTH * SCALE + 116 && GetMouseY() < sel_y * 52) {
+      if (GetMouseX() >= WIDTH * SCALE + 12 && GetMouseY() >= sel_y * 42 - 30 && GetMouseX() < WIDTH * SCALE + 116 && GetMouseY() < sel_y * 42 + 10) {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
           selection = i;
         }

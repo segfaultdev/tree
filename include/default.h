@@ -15,6 +15,15 @@
 // - 800x450,  scale 2
 // - 1280x800, scale 1 <- cayden don't use this
 
+// TODO:
+// - add "textured" procedural dirt, stone and sand
+// - worldgen, save and restore
+// - add birch and ebony trees(first trees with no fruits!)
+// - optimize game(single draw call when no background image, faster tile, water and plant updates, etc.)
+// - add steam(generated from water and fire), which randomly turns back into water
+// - reduce erosion level(only blocks in contact)
+// - add farmland, wheat, etc.
+
 // width and height in tiles
 #define WIDTH 240
 #define HEIGHT 150
