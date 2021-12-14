@@ -17,7 +17,6 @@
 
 // TODO:
 // - worldgen, save and restore
-// - add beech(no fruit), willow(no fruit), lemon(lemon), birch(no fruit) and ebony(persimmon) trees
 // - optimize game(single draw call when no background image, faster tile, water and plant updates, etc.)
 // - add steam(generated from water and fire), which randomly turns back into water
 // - reduce erosion level(only blocks in contact)
@@ -250,17 +249,17 @@ const int tile_visible[] = {
   0, // Orange Leaves
   0, // Palm Leaves
   0, // Pine Leaves
-  1, // Beech Leaves
-  1, // Willow Leaves
-  1, // Lemon Leaves
-  1, // Birch Leaves
-  1, // Ebony Leaves
+  0, // Beech Leaves
+  0, // Willow Leaves
+  0, // Lemon Leaves
+  0, // Birch Leaves
+  0, // Ebony Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
   0, // Cone
-  1, // Lemon
-  1, // Persimmon
+  0, // Lemon
+  0, // Persimmon
   1, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
@@ -377,8 +376,8 @@ const int tile_light[] = {
   0, // Orange
   0, // Coconut
   0, // Cone
-  0, // 
-  0, // 
+  0, // Lemon
+  0, // Persimmon
   0, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
@@ -436,8 +435,8 @@ const int tile_wooden[] = {
   0, // Orange
   0, // Coconut
   0, // Cone
-  0, // 
-  0, // 
+  0, // Lemon
+  0, // Persimmon
   1, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry

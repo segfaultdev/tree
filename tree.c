@@ -156,7 +156,9 @@ void tick_tiles(void) {
             
             for (int dy = -8; dy <= 8; dy++) {
               for (int dx = -12; dx <= 12; dx++) {
-                if (get_tile(j + dx, i + dy - 1) == tile_apple_tree || get_tile(j + dx, i + dy - 1) == tile_orange_tree) {
+                if (get_tile(j + dx, i + dy - 1) == tile_apple_tree || get_tile(j + dx, i + dy - 1) == tile_orange_tree || get_tile(j + dx, i + dy - 1) == tile_lemon_tree ||
+                    get_tile(j + dx, i + dy - 1) == tile_pine_tree || get_tile(j + dx, i + dy - 1) == tile_beech_tree || get_tile(j + dx, i + dy - 1) == tile_birch_tree ||
+                    get_tile(j + dx, i + dy - 1) == tile_willow_tree || get_tile(j + dx, i + dy - 1) == tile_ebony_tree) {
                   valid = 0;
                   break;
                 } else if (dx >= -8 && dx <= 8 && (get_tile(j + dx, i + dy - 1) == tile_mushroom || get_tile(j + dx, i + dy - 1) == tile_berry_bush)) {
@@ -169,20 +171,35 @@ void tick_tiles(void) {
             }
             
             if (valid) {
-              switch (rand() % 15) {
+              switch (rand() % 24) {
                 case 0: case 1: case 2: case 3:
                   set_tile(j, i - 1, tile_apple_tree);
                   break;
                 case 4: case 5: case 6:
                   set_tile(j, i - 1, tile_orange_tree);
                   break;
-                case 7: case 8:
+                case 7: case 8: case 9:
+                  set_tile(j, i - 1, tile_lemon_tree);
+                  break;
+                case 10: case 11:
                   set_tile(j, i - 1, tile_pine_tree);
                   break;
-                case 9: case 10: case 11:
+                case 12: case 13:
+                  set_tile(j, i - 1, tile_beech_tree);
+                  break;
+                case 14: case 15:
+                  set_tile(j, i - 1, tile_birch_tree);
+                  break;
+                case 16:
+                  set_tile(j, i - 1, tile_willow_tree);
+                  break;
+                case 17:
+                  set_tile(j, i - 1, tile_ebony_tree);
+                  break;
+                case 18: case 19: case 20:
                   set_tile(j, i - 1, tile_mushroom);
                   break;
-                case 12: case 13: case 14:
+                case 21: case 22: case 23:
                   set_tile(j, i - 1, tile_berry_bush);
                   break;
               }
@@ -510,7 +527,7 @@ void tick_tiles(void) {
           }
         }
       } else if (get_tile(j, i) == tile_stone) {
-        if (rand() % 65536 < (get_water(j, i) - 40)) {
+        if (rand() % 16384 == 0 && (get_tile(j - 1, i) == tile_water || get_tile(j + 1, i) == tile_water || get_tile(j, i - 1) == tile_water || get_tile(j, i + 1) == tile_water)) {
           set_tile(j, i, tile_sand);
         } else if (rand() % 2048 < get_water(j, i)) {
           if (get_tile(j, i + 1) == tile_air) {
@@ -1898,13 +1915,13 @@ int main(int argc, const char **argv) {
     y += tile_y;
     
     DrawRectangle(WIDTH * SCALE, 0, 192, HEIGHT * SCALE, BLACK);
-    int sel_y = 1;
+    int sel_y = 0;
     
     for (int i = 1; i < tile_count; i++) {
       if (!tile_visible[i]) continue;
       
       if (selection == i) {
-        DrawRectangle(WIDTH * SCALE + 10, sel_y * 42 - 32, 172, 44, WHITE);
+        DrawRectangle(WIDTH * SCALE + 10, sel_y * 34 + 10, 172, 36, WHITE);
       }
       
       Color color = get_color(i);
@@ -1912,10 +1929,10 @@ int main(int argc, const char **argv) {
       
       color.a = 255;
       
-      DrawRectangle(WIDTH * SCALE + 12, sel_y * 42 - 30, 168, 40, color);
-      DrawText(tile_names[i], WIDTH * SCALE + 16, sel_y * 42 - 26, 20, light > 127 ? BLACK : WHITE);
+      DrawRectangle(WIDTH * SCALE + 12, sel_y * 34 + 12, 168, 32, color);
+      DrawText(tile_names[i], WIDTH * SCALE + 16, sel_y * 34 + 16, 20, light > 127 ? BLACK : WHITE);
       
-      if (GetMouseX() >= WIDTH * SCALE + 12 && GetMouseY() >= sel_y * 42 - 30 && GetMouseX() < WIDTH * SCALE + 116 && GetMouseY() < sel_y * 42 + 10) {
+      if (GetMouseX() >= WIDTH * SCALE + 12 && GetMouseY() >= sel_y * 34 + 12 && GetMouseX() < WIDTH * SCALE + 116 && GetMouseY() < sel_y * 34 + 34) {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
           selection = i;
         }
