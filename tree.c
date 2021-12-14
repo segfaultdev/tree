@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 int *old_tiles = NULL;
 int *old_water = NULL;
@@ -24,6 +25,9 @@ int old_x = 0;
 int old_y = 0;
 
 int zoom = SCALE;
+int tick = 0;
+
+int paused = 0;
 
 void set_tile(int x, int y, int tile) {
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
@@ -1856,18 +1860,21 @@ int main(int argc, const char **argv) {
   while (!WindowShouldClose()) {
     BeginDrawing();
     
+    int tile_x = off_x / zoom;
+    int tile_y = off_y / zoom;
+    
     if (BACKGROUND_IMAGE) {
       DrawTextureEx(background, (Vector2){0, 0}, 0.0f, (float)(HEIGHT * SCALE) / background.height, WHITE);
     } else {
       ClearBackground((Color){31, 31, 31, 255});
+      DrawRectangle(-tile_x * zoom, -tile_y * zoom, zoom * WIDTH, zoom * HEIGHT, tile_colors[tile_air]);
     }
-    
-    int tile_x = off_x / zoom;
-    int tile_y = off_y / zoom;
     
     for (int i = 0; i < HEIGHT; i++) {
       for (int j = 0; j < WIDTH; j++) {
         int tile = get_tile(j, i);
+        if ((!BACKGROUND_IMAGE && tile == tile_air) || !BACKGROUND_ALPHA) continue;
+        
         Color color = get_color(tile);
         
         if (tile == tile_birch_tree && (((j ^ ((j * 0x137f5eb5) << 4)) ^ ((i * 0x86ed5e13) ^ (j >> 3))) >> 1) % 4 == 0) {
@@ -1899,6 +1906,10 @@ int main(int argc, const char **argv) {
       zoom++;
     } else if (IsKeyReleased(KEY_A) && zoom > 1) {
       zoom--;
+    }
+    
+    if (IsKeyPressed(KEY_F)) {
+      paused = 1 - paused;
     }
     
     int x = GetMouseX() / zoom;
@@ -1947,6 +1958,19 @@ int main(int argc, const char **argv) {
       } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
         set_circle(x, y, tile_air);
       }
+      
+      if (get_tile_new(x, y) != tile_air) {
+        char buffer[256];
+        
+        sprintf(buffer, "Tile: \"%s\"", tile_names[get_tile_new(x, y)]);
+        DrawText(buffer, 8, 32, 20, WHITE);
+        
+        sprintf(buffer, "Moisture: %d/55", get_water_new(x, y));
+        DrawText(buffer, 8, 56, 20, WHITE);
+        
+        sprintf(buffer, "Fertile: %d/39", get_plant_new(x, y));
+        DrawText(buffer, 8, 80, 20, WHITE);
+      }
     }
     
     if (GetMouseWheelMove() > 0) {
@@ -1957,18 +1981,25 @@ int main(int argc, const char **argv) {
       if (brush_size < 1) brush_size = 1;
     }
     
-    for (int i = 0; i < 2; i++) {
-      tick_tiles();
+    if (!paused) {
       tick_water();
       tick_plant();
       
+      for (int i = 0; i < 2; i++) {
+        tick_tiles();
+        
+        memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
+        memcpy(old_water, tree_water, WIDTH * HEIGHT * sizeof(int));
+        memcpy(old_plant, tree_plant, WIDTH * HEIGHT * sizeof(int));
+      }
+    } else {
       memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
-      memcpy(old_water, tree_water, WIDTH * HEIGHT * sizeof(int));
-      memcpy(old_plant, tree_plant, WIDTH * HEIGHT * sizeof(int));
     }
     
     DrawFPS(8, 8);
     EndDrawing();
+    
+    tick++;
   }
   
   CloseWindow();
