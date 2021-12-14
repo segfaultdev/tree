@@ -16,9 +16,8 @@
 // - 1280x800, scale 1 <- cayden don't use this
 
 // TODO:
-// - add "textured" procedural dirt, stone and sand
 // - worldgen, save and restore
-// - add birch and ebony trees(first trees with no fruits!)
+// - add beech(no fruit), willow(no fruit), lemon(lemon), birch(no fruit) and ebony(persimmon) trees
 // - optimize game(single draw call when no background image, faster tile, water and plant updates, etc.)
 // - add steam(generated from water and fire), which randomly turns back into water
 // - reduce erosion level(only blocks in contact)
@@ -64,14 +63,26 @@ enum {
   tile_orange_tree,
   tile_palm_tree,
   tile_pine_tree,
+  tile_beech_tree,
+  tile_willow_tree,
+  tile_lemon_tree,
+  tile_birch_tree,
+  tile_ebony_tree,
   tile_apple_leaves,
   tile_orange_leaves,
   tile_palm_leaves,
   tile_pine_leaves,
+  tile_beech_leaves,
+  tile_willow_leaves,
+  tile_lemon_leaves,
+  tile_birch_leaves,
+  tile_ebony_leaves,
   tile_apple,
   tile_orange,
   tile_coconut,
   tile_cone,
+  tile_lemon,
+  tile_persimmon,
   tile_berry_bush,
   tile_bush_leaves,
   tile_red_berry,
@@ -113,14 +124,26 @@ const char *tile_names[] = {
   "Orange Tree",
   "Palm Tree",
   "Pine Tree",
+  "Beech Tree",
+  "Willow Tree",
+  "Lemon Tree",
+  "Birch Tree",
+  "Ebony Tree",
   "Apple Leaves",
   "Orange Leaves",
   "Palm Leaves",
   "Pine Leaves",
+  "Beech Leaves",
+  "Willow Leaves",
+  "Lemon Leaves",
+  "Birch Leaves",
+  "Ebony Leaves",
   "Apple",
   "Orange",
   "Coconut",
   "Cone",
+  "Lemon",
+  "Persimmon",
   "Berry Bush",
   "Bush Leaves",
   "Red Berry",
@@ -159,14 +182,26 @@ const Color tile_colors[] = {
   (Color){95, 47, 0, ALPHA}, // Orange Tree
   (Color){127, 95, 31, ALPHA}, // Palm Tree
   (Color){103, 63, 0, ALPHA}, // Pine Tree
+  (Color){95, 79, 7, ALPHA}, // Beech Tree
+  (Color){127, 75, 47, ALPHA}, // Willow Tree
+  (Color){95, 47, 0, ALPHA}, // Lemon Tree
+  (Color){255, 223, 159, ALPHA}, // Birch Tree
+  (Color){79, 31, 7, ALPHA}, // Ebony Tree
   (Color){31, 127, 31, ALPHA}, // Apple Leaves
   (Color){47, 191, 47, ALPHA}, // Orange Leaves
   (Color){127, 255, 63, ALPHA}, // Palm Leaves
   (Color){55, 143, 31, ALPHA}, // Pine Leaves
+  (Color){49, 159, 59, ALPHA}, // Beech Leaves
+  (Color){71, 127, 11, ALPHA}, // Willow Leaves
+  (Color){47, 191, 47, ALPHA}, // Lemon Leaves
+  (Color){131, 199, 31, ALPHA}, // Birch Leaves
+  (Color){23, 95, 7, ALPHA}, // Ebony Leaves
   (Color){255, 31, 31, ALPHA}, // Apple
   (Color){255, 127, 31, ALPHA}, // Orange
   (Color){191, 95, 31, ALPHA}, // Coconut
   (Color){159, 91, 23, ALPHA}, // Cone
+  (Color){255, 239, 47, ALPHA}, // Lemon
+  (Color){240, 69, 13, ALPHA}, // Persimmon
   (Color){19, 79, 19, ALPHA}, // Berry Bush
   (Color){39, 159, 39, ALPHA}, // Bush Leaves
   (Color){127, 15, 15, ALPHA}, // Red Berry
@@ -206,14 +241,26 @@ const int tile_visible[] = {
   1, // Orange Tree
   1, // Palm Tree
   1, // Pine Tree
+  1, // Beech Tree
+  1, // Willow Tree
+  1, // Lemon Tree
+  1, // Birch Tree
+  1, // Ebony Tree
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
   0, // Pine Leaves
+  1, // Beech Leaves
+  1, // Willow Leaves
+  1, // Lemon Leaves
+  1, // Birch Leaves
+  1, // Ebony Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
   0, // Cone
+  1, // Lemon
+  1, // Persimmon
   1, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
@@ -253,14 +300,26 @@ const int tile_limited[] = {
   0, // Orange Tree
   0, // Palm Tree
   0, // Pine Tree
+  0, // 
+  0, // 
+  0, // 
+  0, // 
+  0, // 
   1, // Apple Leaves
   1, // Orange Leaves
   1, // Palm Leaves
   1, // Pine Leaves
+  1, // 
+  1, // 
+  1, // 
+  1, // 
+  1, // 
   1, // Apple
   1, // Orange
   1, // Coconut
   1, // Cone
+  1, // Lemon
+  1, // Persimmon
   0, // Berry Bush
   1, // Bush Leaves
   1, // Red Berry
@@ -300,14 +359,26 @@ const int tile_light[] = {
   0, // Orange Tree
   0, // Palm Tree
   0, // Pine Tree
+  0, // 
+  0, // 
+  0, // 
+  0, // 
+  0, // 
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
   0, // Pine Leaves
+  0, // 
+  0, // 
+  0, // 
+  0, // 
+  0, // 
   0, // Apple
   0, // Orange
   0, // Coconut
   0, // Cone
+  0, // 
+  0, // 
   0, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
@@ -347,14 +418,26 @@ const int tile_wooden[] = {
   1, // Orange Tree
   1, // Palm Tree
   1, // Pine Tree
+  1, // 
+  1, // 
+  1, // 
+  1, // 
+  1, // 
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
   0, // Pine Leaves
+  0, // 
+  0, // 
+  0, // 
+  0, // 
+  0, // 
   0, // Apple
   0, // Orange
   0, // Coconut
   0, // Cone
+  0, // 
+  0, // 
   1, // Berry Bush
   0, // Bush Leaves
   0, // Red Berry
