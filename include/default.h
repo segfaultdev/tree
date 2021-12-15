@@ -6,27 +6,26 @@
 // nice values:
 // - 160x100,  scale 9
 // - 192x108,  scale 8
-// - 240x150,  scale 6 <- old default
-// - 256x160,  scale 5
+// - 240x150,  scale 6
+// - 256x160,  scale 5 <- default
 // - 320x200,  scale 4
-// - 400x225,  scale 4 <- default
+// - 400x225,  scale 4
 // - 480x300,  scale 3
-// - 640x400,  scale 2
+// - 640x440,  scale 2
 // - 800x450,  scale 2
-// - 1280x800, scale 1 <- cayden don't use this
+// - 1280x800, scale 1 <- cayden pweease try this
 
 // TODO:
 // - save and restore
-// - optimize game(single draw call when no background image, faster tile, water and plant updates, etc.)
 // - add steam(generated from water and fire), which randomly turns back into water
 // - add farmland, wheat, etc.
 
 // width and height in tiles
-#define WIDTH 400
-#define HEIGHT 225
+#define WIDTH 256
+#define HEIGHT 160
 
 // pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
-#define SCALE 4
+#define SCALE 5
 
 // if 1, will replace existing non-air blocks with the brush
 #define REPLACE_BLOCKS 1

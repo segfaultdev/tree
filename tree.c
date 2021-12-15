@@ -1905,10 +1905,29 @@ int main(int argc, const char **argv) {
       DrawRectangle(-tile_x * zoom, -tile_y * zoom, zoom * WIDTH, zoom * HEIGHT, tile_colors[tile_air]);
     }
     
+    int draw_count = 0;
+    
     for (int i = 0; i < HEIGHT; i++) {
+      Color prev = BLACK;
+      
+      int length = 0;
+      int start = 0;
+      
       for (int j = 0; j < WIDTH; j++) {
         int tile = get_tile(j, i);
-        if ((!BACKGROUND_IMAGE && tile == tile_air) || !BACKGROUND_ALPHA) continue;
+        
+        if ((!BACKGROUND_IMAGE && tile == tile_air) || !BACKGROUND_ALPHA) {
+          if (length) {
+            DrawRectangle((start - tile_x) * zoom, (i - tile_y) * zoom, length * zoom, zoom, prev);
+            draw_count++;
+          }
+          
+          prev = BLACK;
+          length = 0;
+          start = j;
+          
+          continue;
+        }
         
         Color color = get_color(tile);
         
@@ -1922,7 +1941,23 @@ int main(int argc, const char **argv) {
           color.b *= 0.9f;
         }
         
-        DrawRectangle((j - tile_x) * zoom, (i - tile_y) * zoom, zoom, zoom, color);
+        if (prev.r != color.r || prev.g != color.g || prev.b != color.b) {
+          if (length) {
+            DrawRectangle((start - tile_x) * zoom, (i - tile_y) * zoom, length * zoom, zoom, prev);
+            draw_count++;
+          }
+          
+          prev = color;
+          length = 0;
+          start = j;
+        }
+        
+        length++;
+      }
+      
+      if (length) {
+        DrawRectangle((start - tile_x) * zoom, (i - tile_y) * zoom, length * zoom, zoom, prev);
+        draw_count++;
       }
     }
     
@@ -1987,6 +2022,8 @@ int main(int argc, const char **argv) {
       sel_y++;
     }
     
+    char buffer[256];
+    
     if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < WIDTH * SCALE && GetMouseY() < HEIGHT * SCALE) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         set_circle(x, y, selection);
@@ -1995,24 +2032,20 @@ int main(int argc, const char **argv) {
       }
       
       if (get_tile_new(x, y) != tile_air) {
-        char buffer[256];
-        
-        sprintf(buffer, "Tile: \"%s\"", tile_names[get_tile_new(x, y)]);
+        sprintf(buffer, "Tile: %s(moisture: %d/55, fertile: %d/39)", tile_names[get_tile_new(x, y)], get_water_new(x, y), get_plant_new(x, y));
         DrawText(buffer, 8, 32, 20, WHITE);
-        
-        sprintf(buffer, "Moisture: %d/55", get_water_new(x, y));
-        DrawText(buffer, 8, 56, 20, WHITE);
-        
-        sprintf(buffer, "Fertile: %d/39", get_plant_new(x, y));
-        DrawText(buffer, 8, 80, 20, WHITE);
       } else {
         DrawText("Hover a tile to see information about it", 8, 32, 20, WHITE);
-        char buffer[256];
-        
-        sprintf(buffer, "Seed: %d", noise_seed);
-        DrawText(buffer, 8, 56, 20, WHITE);
       }
+    } else {
+      DrawText("Hover a tile to see information about it", 8, 32, 20, WHITE);
     }
+    
+    sprintf(buffer, "Draw: %.1f%%", (100.0f * draw_count) / (WIDTH * HEIGHT));
+    DrawText(buffer, 8, 56, 20, WHITE);
+    
+    sprintf(buffer, "Seed: %d", noise_seed);
+    DrawText(buffer, 8, 80, 20, WHITE);
     
     if (GetMouseWheelMove() > 0) {
       brush_size += GetMouseWheelMove();
