@@ -823,36 +823,20 @@ void tick_tiles(void) {
           continue;
         }
         
-        if (get_tile(j - 1, i) == tile_grass || get_tile(j - 1, i) == tile_flower_pink || get_tile(j - 1, i) == tile_flower_blue || get_tile(j - 1, i) == tile_flower_yellow ||
-            get_tile(j - 1, i) == tile_apple_tree || get_tile(j - 1, i) == tile_orange_tree || get_tile(j - 1, i) == tile_palm_tree || get_tile(j - 1, i) == tile_apple_leaves ||
-            get_tile(j - 1, i) == tile_orange_leaves || get_tile(j - 1, i) == tile_palm_leaves || get_tile(j - 1, i) == tile_apple || get_tile(j - 1, i) == tile_orange ||
-            get_tile(j - 1, i) == tile_coconut || get_tile(j - 1, i) == tile_berry_bush || get_tile(j - 1, i) == tile_red_berry || get_tile(j - 1, i) == tile_blue_berry ||
-            get_tile(j - 1, i) == tile_vines || get_tile(j - 1, i) == tile_mushroom || get_tile(j - 1, i) == tile_red_mushroom || get_tile(j - 1, i) == tile_brown_mushroom) {
-          if (rand() % 12 == 0) set_tile(j - 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j - 1, i)]) ? tile_ash : tile_fire);
+        if (rand() % 2 == 0 && tile_flamable[get_tile(j - 1, i)]) {
+          set_tile(j - 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j - 1, i)]) ? tile_ash : tile_fire);
         }
         
-        if (get_tile(j + 1, i) == tile_grass || get_tile(j + 1, i) == tile_flower_pink || get_tile(j + 1, i) == tile_flower_blue || get_tile(j + 1, i) == tile_flower_yellow ||
-            get_tile(j + 1, i) == tile_apple_tree || get_tile(j + 1, i) == tile_orange_tree || get_tile(j + 1, i) == tile_palm_tree || get_tile(j + 1, i) == tile_apple_leaves ||
-            get_tile(j + 1, i) == tile_orange_leaves || get_tile(j + 1, i) == tile_palm_leaves || get_tile(j + 1, i) == tile_apple || get_tile(j + 1, i) == tile_orange ||
-            get_tile(j + 1, i) == tile_coconut || get_tile(j + 1, i) == tile_berry_bush || get_tile(j + 1, i) == tile_red_berry || get_tile(j + 1, i) == tile_blue_berry ||
-            get_tile(j + 1, i) == tile_vines || get_tile(j + 1, i) == tile_mushroom || get_tile(j + 1, i) == tile_red_mushroom || get_tile(j + 1, i) == tile_brown_mushroom) {
-          if (rand() % 12 == 0) set_tile(j + 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j + 1, i)]) ? tile_ash : tile_fire);
+        if (rand() % 2 == 0 && tile_flamable[get_tile(j + 1, i)]) {
+          set_tile(j + 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j + 1, i)]) ? tile_ash : tile_fire);
         }
         
-        if (get_tile(j, i - 1) == tile_grass || get_tile(j, i - 1) == tile_flower_pink || get_tile(j, i - 1) == tile_flower_blue || get_tile(j, i - 1) == tile_flower_yellow ||
-            get_tile(j, i - 1) == tile_apple_tree || get_tile(j, i - 1) == tile_orange_tree || get_tile(j, i - 1) == tile_palm_tree || get_tile(j, i - 1) == tile_apple_leaves ||
-            get_tile(j, i - 1) == tile_orange_leaves || get_tile(j, i - 1) == tile_palm_leaves || get_tile(j, i - 1) == tile_apple || get_tile(j, i - 1) == tile_orange ||
-            get_tile(j, i - 1) == tile_coconut || get_tile(j, i - 1) == tile_berry_bush || get_tile(j, i - 1) == tile_red_berry || get_tile(j, i - 1) == tile_blue_berry ||
-            get_tile(j, i - 1) == tile_vines || get_tile(j, i - 1) == tile_mushroom || get_tile(j, i - 1) == tile_red_mushroom || get_tile(j, i - 1) == tile_brown_mushroom) {
-          if (rand() % 128 == 0) set_tile(j, i - 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i - 1)]) ? tile_ash : tile_fire);
+        if (rand() % 128 == 0 && tile_flamable[get_tile(j, i - 1)]) {
+          set_tile(j, i - 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i - 1)]) ? tile_ash : tile_fire);
         }
         
-        if (get_tile(j, i + 1) == tile_grass || get_tile(j, i + 1) == tile_flower_pink || get_tile(j, i + 1) == tile_flower_blue || get_tile(j, i + 1) == tile_flower_yellow ||
-            get_tile(j, i + 1) == tile_apple_tree || get_tile(j, i + 1) == tile_orange_tree || get_tile(j, i + 1) == tile_palm_tree || get_tile(j, i + 1) == tile_apple_leaves ||
-            get_tile(j, i + 1) == tile_orange_leaves || get_tile(j, i + 1) == tile_palm_leaves || get_tile(j, i + 1) == tile_apple || get_tile(j, i + 1) == tile_orange ||
-            get_tile(j, i + 1) == tile_coconut || get_tile(j, i + 1) == tile_berry_bush || get_tile(j, i + 1) == tile_red_berry || get_tile(j, i + 1) == tile_blue_berry ||
-            get_tile(j, i + 1) == tile_vines || get_tile(j, i + 1) == tile_mushroom || get_tile(j, i + 1) == tile_red_mushroom || get_tile(j, i + 1) == tile_brown_mushroom) {
-          if (rand() % 2 == 0) set_tile(j, i + 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i + 1)]) ? tile_ash : tile_fire);
+        if (rand() % 2 == 0 && tile_flamable[get_tile(j, i + 1)]) {
+          set_tile(j, i + 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i + 1)]) ? tile_ash : tile_fire);
         }
         
         if (i > 0 && get_tile(j, i - 1) == tile_air) {

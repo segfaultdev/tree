@@ -300,20 +300,20 @@ const int tile_limited[] = {
   0, // Orange Tree
   0, // Palm Tree
   0, // Pine Tree
-  0, // 
-  0, // 
-  0, // 
-  0, // 
-  0, // 
+  0, // Beech Tree
+  0, // Willow Tree
+  0, // Lemon Tree
+  0, // Birch Tree
+  0, // Ebony Tree
   1, // Apple Leaves
   1, // Orange Leaves
   1, // Palm Leaves
   1, // Pine Leaves
-  1, // 
-  1, // 
-  1, // 
-  1, // 
-  1, // 
+  1, // Beech Leaves
+  1, // Willow Leaves
+  1, // Lemon Leaves
+  1, // Birch Leaves
+  1, // Ebony Leaves
   1, // Apple
   1, // Orange
   1, // Coconut
@@ -359,20 +359,20 @@ const int tile_light[] = {
   0, // Orange Tree
   0, // Palm Tree
   0, // Pine Tree
-  0, // 
-  0, // 
-  0, // 
-  0, // 
-  0, // 
+  0, // Beech Tree
+  0, // Willow Tree
+  0, // Lemon Tree
+  0, // Birch Tree
+  0, // Ebony Tree
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
   0, // Pine Leaves
-  0, // 
-  0, // 
-  0, // 
-  0, // 
-  0, // 
+  0, // Beech Leaves
+  0, // Willow Leaves
+  0, // Lemon Leaves
+  0, // Birch Leaves
+  0, // Ebony Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
@@ -402,6 +402,65 @@ const int tile_light[] = {
   0, // Cacti Flower
 };
 
+// tiles with 1 will burn (SHOULD NOT BE CHANGED)
+const int tile_flamable[] = {
+  0, // Air
+  0, // Dirt
+  0, // Water
+  1, // Grass
+  1, // Pink Flower
+  1, // Blue Flower
+  1, // Yellow Flower
+  0, // Stone
+  0, // Sand
+  0, // Iron
+  1, // Apple Tree
+  1, // Orange Tree
+  1, // Palm Tree
+  1, // Pine Tree
+  1, // Beech Tree
+  1, // Willow Tree
+  1, // Lemon Tree
+  1, // Birch Tree
+  1, // Ebony Tree
+  1, // Apple Leaves
+  1, // Orange Leaves
+  1, // Palm Leaves
+  1, // Pine Leaves
+  1, // Beech Leaves
+  1, // Willow Leaves
+  1, // Lemon Leaves
+  1, // Birch Leaves
+  1, // Ebony Leaves
+  1, // Apple
+  1, // Orange
+  1, // Coconut
+  1, // Cone
+  1, // Lemon
+  1, // Persimmon
+  1, // Berry Bush
+  1, // Bush Leaves
+  1, // Red Berry
+  1, // Blue Berry
+  1, // Vines
+  1, // Mushroom
+  1, // Red Mushroom
+  1, // Brown Mushroom
+  0, // Fire
+  0, // Fertilizer
+  1, // Algae
+  1, // Algae Top
+  0, // Ash
+  1, // Insect
+  1, // Insect Carrying Apple
+  1, // Insect Carrying Orange
+  1, // Insect Carrying Coconut
+  1, // Insect Carrying Cone
+  1, // Fish
+  1, // Cacti
+  1, // Cacti Flower
+};
+
 // tiles with 1 will generate ash instead of fire (SHOULD NOT BE CHANGED)
 const int tile_wooden[] = {
   0, // Air
@@ -418,20 +477,20 @@ const int tile_wooden[] = {
   1, // Orange Tree
   1, // Palm Tree
   1, // Pine Tree
-  1, // 
-  1, // 
-  1, // 
-  1, // 
-  1, // 
+  1, // Beech Tree
+  1, // Willow Tree
+  1, // Lemon Tree
+  1, // Birch Tree
+  1, // Ebony Tree
   0, // Apple Leaves
   0, // Orange Leaves
   0, // Palm Leaves
   0, // Pine Leaves
-  0, // 
-  0, // 
-  0, // 
-  0, // 
-  0, // 
+  0, // Beech Leaves
+  0, // Willow Leaves
+  0, // Lemon Leaves
+  0, // Birch Leaves
+  0, // Ebony Leaves
   0, // Apple
   0, // Orange
   0, // Coconut
