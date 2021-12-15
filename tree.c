@@ -1,8 +1,10 @@
 #include <default.h>
+#include <perlin.h>
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 int *old_tiles = NULL;
 int *old_water = NULL;
@@ -72,6 +74,28 @@ int get_plant(int x, int y) {
 int get_plant_new(int x, int y) {
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
   return tree_plant[x + y * WIDTH];
+}
+
+void world_gen(void) {
+  for (int i = 0; i < WIDTH; i++) {
+    int height = (int)(noise_1(i / 59.7f) * 50 + noise_1(i / 61.3f) * 40 + noise_1(i / 55.1f) * 40);
+    
+    for (int j = 0; j < HEIGHT; j++) {
+      if (HEIGHT - j < height) {
+        int depth = HEIGHT - j;
+        
+        if (noise_2(i / 47.0f, j / 43.0f) >= lerp(0.4f, 0.8f, depth / 50.0f)) {
+          set_tile(i, j, tile_stone);
+        } else if (noise_2(i / 55.0f, j / 51.0f) >= lerp(0.6f, 0.9f, (height - depth) / 50.0f)) {
+          set_tile(i, j, tile_sand);
+        } else {
+          set_tile(i, j, tile_dirt);
+        }
+      } else if (HEIGHT - j < 75) {
+        set_tile(i, j, tile_water);
+      }
+    }
+  }
 }
 
 void swap(int x1, int y1, int x2, int y2) {
@@ -1857,6 +1881,17 @@ int main(int argc, const char **argv) {
     background = LoadTexture(BACKGROUND_IMAGE);
   }
   
+  srand(time(0));
+  noise_seed = rand();
+  
+  for (int i = 1; i < argc; i++) {
+    if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--seed")) {
+      noise_seed = strtol(argv[++i], NULL, 0);
+    }
+  }
+  
+  if (WORLD_GEN) world_gen();
+  
   while (!WindowShouldClose()) {
     BeginDrawing();
     
@@ -1877,7 +1912,7 @@ int main(int argc, const char **argv) {
         
         Color color = get_color(tile);
         
-        if (tile == tile_birch_tree && (((j ^ ((j * 0x137f5eb5) << 4)) ^ ((i * 0x86ed5e13) ^ (j >> 3))) >> 1) % 4 == 0) {
+        if (tile == tile_birch_tree && (((j ^ ((j * 0xED5AD4BB) << 2)) ^ ((i * 0x31848BAB) ^ (j >> 4))) >> 1) % 4 == 0) {
           color = (Color){15, 15, 15, ALPHA};
         }
         
@@ -1970,6 +2005,12 @@ int main(int argc, const char **argv) {
         
         sprintf(buffer, "Fertile: %d/39", get_plant_new(x, y));
         DrawText(buffer, 8, 80, 20, WHITE);
+      } else {
+        DrawText("Hover a tile to see information about it", 8, 32, 20, WHITE);
+        char buffer[256];
+        
+        sprintf(buffer, "Seed: %d", noise_seed);
+        DrawText(buffer, 8, 56, 20, WHITE);
       }
     }
     

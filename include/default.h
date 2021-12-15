@@ -6,34 +6,36 @@
 // nice values:
 // - 160x100,  scale 9
 // - 192x108,  scale 8
-// - 240x150,  scale 6 <- default
+// - 240x150,  scale 6 <- old default
 // - 256x160,  scale 5
 // - 320x200,  scale 4
-// - 400x225,  scale 4
-// - 480x300,  scale 3 <- twice as big as default, still fast enough for most pcs
+// - 400x225,  scale 4 <- default
+// - 480x300,  scale 3
 // - 640x400,  scale 2
 // - 800x450,  scale 2
 // - 1280x800, scale 1 <- cayden don't use this
 
 // TODO:
-// - worldgen, save and restore
+// - save and restore
 // - optimize game(single draw call when no background image, faster tile, water and plant updates, etc.)
 // - add steam(generated from water and fire), which randomly turns back into water
-// - reduce erosion level(only blocks in contact)
 // - add farmland, wheat, etc.
 
 // width and height in tiles
-#define WIDTH 240
-#define HEIGHT 150
+#define WIDTH 400
+#define HEIGHT 225
 
 // pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
-#define SCALE 6
+#define SCALE 4
 
 // if 1, will replace existing non-air blocks with the brush
 #define REPLACE_BLOCKS 1
 
 // if 1, will darken dirt, stone and sand when wet
 #define WET_BLOCKS 1
+
+// if 1, a world will be generated using perlin-like noise on startup(pass "-s NUMBER" to set the seed, will use current time by default)
+#define WORLD_GEN 1
 
 // alpha, only applies to visible tiles, not to air
 #define ALPHA 255
