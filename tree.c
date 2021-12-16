@@ -91,7 +91,7 @@ void world_gen(void) {
         } else {
           set_tile(i, j, tile_dirt);
         }
-      } else if (HEIGHT - j < 75) {
+      } else if (HEIGHT - j < 65) {
         set_tile(i, j, tile_water);
       }
     }
@@ -823,11 +823,11 @@ void tick_tiles(void) {
           continue;
         }
         
-        if (rand() % 2 == 0 && tile_flamable[get_tile(j - 1, i)]) {
+        if (rand() % 4 == 0 && tile_flamable[get_tile(j - 1, i)]) {
           set_tile(j - 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j - 1, i)]) ? tile_ash : tile_fire);
         }
         
-        if (rand() % 2 == 0 && tile_flamable[get_tile(j + 1, i)]) {
+        if (rand() % 4 == 0 && tile_flamable[get_tile(j + 1, i)]) {
           set_tile(j + 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j + 1, i)]) ? tile_ash : tile_fire);
         }
         
@@ -1956,12 +1956,6 @@ int main(int argc, const char **argv) {
       off_y = old_y - (GetMouseY() - start_y);
     }
     
-    if (IsKeyPressed(KEY_S) && zoom < 16) {
-      zoom++;
-    } else if (IsKeyReleased(KEY_A) && zoom > 1) {
-      zoom--;
-    }
-    
     if (IsKeyPressed(KEY_F)) {
       paused = 1 - paused;
     }
@@ -1978,6 +1972,12 @@ int main(int argc, const char **argv) {
     
     x += tile_x;
     y += tile_y;
+    
+    if (IsKeyPressed(KEY_S) && zoom < 16) {
+      zoom++;
+    } else if (IsKeyReleased(KEY_A) && zoom > 1) {
+      zoom--;
+    }
     
     DrawRectangle(WIDTH * SCALE, 0, 192, HEIGHT * SCALE, BLACK);
     int sel_y = 0;
