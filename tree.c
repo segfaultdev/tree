@@ -32,46 +32,118 @@ int tick = 0;
 int paused = 0;
 
 void set_tile(int x, int y, int tile) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
   tree_tiles[x + y * WIDTH] = tile;
 }
 
 int get_tile(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return tile_air;
   return old_tiles[x + y * WIDTH];
 }
 
 int get_tile_new(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return tile_air;
   return tree_tiles[x + y * WIDTH];
 }
 
 void set_water(int x, int y, int water) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
   tree_water[x + y * WIDTH] = water;
 }
 
 int get_water(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
   return old_water[x + y * WIDTH];
 }
 
 int get_water_new(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
   return tree_water[x + y * WIDTH];
 }
 
 void set_plant(int x, int y, int plant) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
   tree_plant[x + y * WIDTH] = plant;
 }
 
 int get_plant(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
   return old_plant[x + y * WIDTH];
 }
 
 int get_plant_new(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
   return tree_plant[x + y * WIDTH];
 }
@@ -81,6 +153,11 @@ void world_gen(void) {
     int height = (int)(noise_1(i / 59.7f) * 50 + noise_1(i / 61.3f) * 40 + noise_1(i / 55.1f) * 40);
     
     for (int j = 0; j < HEIGHT; j++) {
+      if (j == HEIGHT - 1 && WORLD_WRAP) {
+        set_tile(i, j, tile_stone);
+        continue;
+      }
+      
       if (HEIGHT - j < height) {
         int depth = HEIGHT - j;
         
@@ -99,8 +176,10 @@ void world_gen(void) {
 }
 
 void swap(int x1, int y1, int x2, int y2) {
-  if (x1 < 0 || y1 < 0 || x1 >= WIDTH || y1 >= HEIGHT) return;
-  if (x2 < 0 || y2 < 0 || x2 >= WIDTH || y2 >= HEIGHT) return;
+  if (!WORLD_WRAP) {
+    if (x1 < 0 || y1 < 0 || x1 >= WIDTH || y1 >= HEIGHT) return;
+    if (x2 < 0 || y2 < 0 || x2 >= WIDTH || y2 >= HEIGHT) return;
+  }
   
   int tile = get_tile_new(x1, y1);
   int water = get_water_new(x1, y1);
@@ -135,17 +214,17 @@ void tick_tiles(void) {
   for (int i = 0; i < HEIGHT; i++) {
     for (int j = 0; j < WIDTH; j++) {
       if (get_tile(j, i) == tile_water) {
-        if (i < HEIGHT - 1 && get_tile(j, i + 1) == tile_air) {
+        if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j, i + 1) == tile_air) {
           swap(j, i, j, i + 1);
-        } else if (i < HEIGHT - 1 && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air) {
           if (rand() % 2) {
             swap(j, i, j - 1, i + 1);
           } else {
             swap(j, i, j + 1, i + 1);
           }
-        } else if (i < HEIGHT - 1 && get_tile(j - 1, i + 1) == tile_air) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j - 1, i + 1) == tile_air) {
           swap(j, i, j - 1, i + 1);
-        } else if (i < HEIGHT - 1 && get_tile(j + 1, i + 1) == tile_air) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j + 1, i + 1) == tile_air) {
           swap(j, i, j + 1, i + 1);
         } else {
           if (rand() % 2) {
@@ -159,18 +238,18 @@ void tick_tiles(void) {
           }
         }
       } else if (get_tile(j, i) == tile_dirt) {
-        if (i < HEIGHT - 1 && get_tile(j, i + 1) == tile_air || get_tile(j, i + 1) == tile_water) {
+        if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j, i + 1) == tile_air || get_tile(j, i + 1) == tile_water) {
           swap(j, i, j, i + 1);
         } else if (rand() % 256 < get_water(j, i)) {
-          if (i < HEIGHT - 1 && (get_tile(j - 1, i + 1) == tile_air || get_tile(j - 1, i + 1) == tile_water) && (get_tile(j + 1, i + 1) == tile_air || get_tile(j + 1, i + 1) == tile_water)) {
+          if ((i < HEIGHT - 1 || WORLD_WRAP) && (get_tile(j - 1, i + 1) == tile_air || get_tile(j - 1, i + 1) == tile_water) && (get_tile(j + 1, i + 1) == tile_air || get_tile(j + 1, i + 1) == tile_water)) {
             if (rand() % 2) {
               swap(j, i, j - 1, i + 1);
             } else {
               swap(j, i, j + 1, i + 1);
             }
-          } else if (i < HEIGHT - 1 && get_tile(j - 1, i + 1) == tile_air || get_tile(j - 1, i + 1) == tile_water) {
+          } else if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j - 1, i + 1) == tile_air || get_tile(j - 1, i + 1) == tile_water) {
             swap(j, i, j - 1, i + 1);
-          } else if (i < HEIGHT - 1 && get_tile(j + 1, i + 1) == tile_air || get_tile(j + 1, i + 1) == tile_water) {
+          } else if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j + 1, i + 1) == tile_air || get_tile(j + 1, i + 1) == tile_water) {
             swap(j, i, j + 1, i + 1);
           }
         } else {
@@ -517,17 +596,17 @@ void tick_tiles(void) {
           set_tile(j, i, tile_air);
         }
       } else if (get_tile(j, i) == tile_sand) {
-        if (i < HEIGHT - 1 && tile_light[get_tile(j, i + 1)]) {
+        if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j, i + 1)]) {
           swap(j, i, j, i + 1);
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
           if (rand() % 2) {
             swap(j, i, j - 1, i + 1);
           } else {
             swap(j, i, j + 1, i + 1);
           }
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j - 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)]) {
           swap(j, i, j - 1, i + 1);
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j + 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j + 1, i + 1)]) {
           swap(j, i, j + 1, i + 1);
         } else {
           if (rand() % 1024 < get_plant(j, i) && get_water(j, i) >= 20 && get_tile(j, i - 1) == tile_air) {
@@ -839,17 +918,17 @@ void tick_tiles(void) {
           set_tile(j, i + 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i + 1)]) ? tile_ash : tile_fire);
         }
         
-        if (i > 0 && get_tile(j, i - 1) == tile_air) {
+        if ((i > 0 || WORLD_WRAP) && get_tile(j, i - 1) == tile_air) {
           swap(j, i, j, i - 1);
-        } else if (i > 0 && get_tile(j - 1, i - 1) == tile_air && get_tile(j + 1, i - 1) == tile_air) {
+        } else if ((i > 0 || WORLD_WRAP) && get_tile(j - 1, i - 1) == tile_air && get_tile(j + 1, i - 1) == tile_air) {
           if (rand() % 2) {
             swap(j, i, j - 1, i - 1);
           } else {
             swap(j, i, j + 1, i - 1);
           }
-        } else if (i > 0 && get_tile(j - 1, i - 1) == tile_air) {
+        } else if ((i > 0 || WORLD_WRAP) && get_tile(j - 1, i - 1) == tile_air) {
           swap(j, i, j - 1, i - 1);
-        } else if (i > 0 && get_tile(j + 1, i - 1) == tile_air) {
+        } else if ((i > 0 || WORLD_WRAP) && get_tile(j + 1, i - 1) == tile_air) {
           swap(j, i, j + 1, i - 1);
         } else {
           if (rand() % 2) {
@@ -863,17 +942,17 @@ void tick_tiles(void) {
           }
         }
       } else if (get_tile(j, i) == tile_fertilizer) {
-        if (i < HEIGHT - 1 && tile_light[get_tile(j, i + 1)]) {
+        if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j, i + 1)]) {
           swap(j, i, j, i + 1);
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
           if (rand() % 2) {
             swap(j, i, j - 1, i + 1);
           } else {
             swap(j, i, j + 1, i + 1);
           }
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j - 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)]) {
           swap(j, i, j - 1, i + 1);
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j + 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j + 1, i + 1)]) {
           swap(j, i, j + 1, i + 1);
         }
       } else if (get_tile(j, i) == tile_algae) {
@@ -937,17 +1016,17 @@ void tick_tiles(void) {
           set_tile(j, i, tile_air);
         }
       } else if (get_tile(j, i) == tile_ash) {
-        if (i < HEIGHT - 1 && tile_light[get_tile(j, i + 1)]) {
+        if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j, i + 1)]) {
           swap(j, i, j, i + 1);
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
           if (rand() % 2) {
             swap(j, i, j - 1, i + 1);
           } else {
             swap(j, i, j + 1, i + 1);
           }
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j - 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)]) {
           swap(j, i, j - 1, i + 1);
-        } else if (i < HEIGHT - 1 && tile_light[get_tile(j + 1, i + 1)]) {
+        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j + 1, i + 1)]) {
           swap(j, i, j + 1, i + 1);
         } else if (rand() % 2048 == 0 && get_tile(j, i - 1) == tile_air) {
           set_tile(j, i - 1, tile_fire);
@@ -1279,7 +1358,7 @@ void tick_tiles(void) {
           set_tile(j, i, tile_insect);
         }
       } else if (get_tile(j, i) == tile_fish) {
-        if (i < HEIGHT - 1 && get_tile(j, i + 1) == tile_air) {
+        if ((i < HEIGHT - 1 || WORLD_WRAP) && get_tile(j, i + 1) == tile_air) {
           swap(j, i, j, i + 1);
         } else if (get_tile(j - 1, i) == tile_water || get_tile(j + 1, i) == tile_water || get_tile(j, i - 1) == tile_water || get_tile(j, i + 1) == tile_water || get_water(j, i) >= 52) {
           int x = (rand() % 3) - 1;
@@ -1879,6 +1958,8 @@ int main(int argc, const char **argv) {
   while (!WindowShouldClose()) {
     BeginDrawing();
     
+    double time_0 = GetTime();
+    
     int tile_x = off_x / zoom;
     int tile_y = off_y / zoom;
     
@@ -1889,6 +1970,7 @@ int main(int argc, const char **argv) {
       DrawRectangle(-tile_x * zoom, -tile_y * zoom, zoom * WIDTH, zoom * HEIGHT, tile_colors[tile_air]);
     }
     
+    double time_1 = GetTime();
     int draw_count = 0;
     
     for (int i = 0; i < HEIGHT; i++) {
@@ -1925,6 +2007,12 @@ int main(int argc, const char **argv) {
           color.b *= 0.9f;
         }
         
+        if (WATER_FOAM && tile == tile_water && get_tile(j, i - 1) == tile_air && get_tile(j, i + 1) == tile_water) {
+          color.r = (color.r + 255 + 255) / 3;
+          color.g = (color.g + 255 + 255) / 3;
+          color.b = (color.b + 255 + 255) / 3;
+        }
+        
         if (prev.r != color.r || prev.g != color.g || prev.b != color.b) {
           if (length) {
             DrawRectangle((start - tile_x) * zoom, (i - tile_y) * zoom, length * zoom, zoom, prev);
@@ -1944,6 +2032,8 @@ int main(int argc, const char **argv) {
         draw_count++;
       }
     }
+    
+    double time_2 = GetTime();
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) || IsKeyPressed(KEY_D)) {
       start_x = GetMouseX();
@@ -2039,9 +2129,14 @@ int main(int argc, const char **argv) {
       if (brush_size < 1) brush_size = 1;
     }
     
+    double time_3 = GetTime();
+    double time_4 = time_3;
+    
     if (!paused) {
       tick_water();
       tick_plant();
+      
+      time_4 = GetTime();
       
       for (int i = 0; i < 2; i++) {
         tick_tiles();
@@ -2053,6 +2148,33 @@ int main(int argc, const char **argv) {
     } else {
       memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
     }
+    
+    double time_5 = GetTime();
+    
+#if (DEBUG_MODE == 1)
+    int length_1 = (int)((WIDTH * SCALE) * ((time_1 - time_0) / (time_5 - time_0)) * 0.5f);
+    int length_2 = (int)((WIDTH * SCALE) * ((time_2 - time_1) / (time_5 - time_0)) * 0.5f);
+    int length_3 = (int)((WIDTH * SCALE) * ((time_3 - time_2) / (time_5 - time_0)) * 0.5f);
+    int length_4 = (int)((WIDTH * SCALE) * ((time_4 - time_3) / (time_5 - time_0)) * 0.5f);
+    int length_5 = (int)((WIDTH * SCALE) * ((time_5 - time_4) / (time_5 - time_0)) * 0.5f);
+    
+    int debug_x = 0;
+    
+    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_1, 40, RED);
+    debug_x += length_1;
+    
+    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_2, 40, YELLOW);
+    debug_x += length_2;
+    
+    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_3, 40, GREEN);
+    debug_x += length_3;
+    
+    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_4, 40, BLUE);
+    debug_x += length_4;
+    
+    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_5, 40, PURPLE);
+    debug_x += length_5;
+#endif
     
     DrawFPS(8, 8);
     EndDrawing();

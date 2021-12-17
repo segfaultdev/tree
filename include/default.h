@@ -13,7 +13,7 @@
 // - 480x300,  scale 3
 // - 640x440,  scale 2
 // - 800x450,  scale 2
-// - 1280x800, scale 1 <- cayden pweease try this
+// - 1280x880, scale 1 <- cayden pweease try this
 
 // TODO:
 // - save and restore
@@ -30,11 +30,20 @@
 // if 1, will replace existing non-air blocks with the brush
 #define REPLACE_BLOCKS 1
 
-// if 1, will darken dirt, stone and sand when wet
+// if 1, will darken dirt, stone and sand when wet(affects performance slightly)
 #define WET_BLOCKS 1
+
+// if 1, will display a white foam over water(affects performance a bit more than WET_BLOCKS but still not much)
+#define WATER_FOAM 1
+
+// if 1, will show a colorful bar representing how much time each part of the game takes(affects performance slightly)
+#define DEBUG_MODE 0
 
 // if 1, a world will be generated using perlin-like noise on startup(pass "-s NUMBER" to set the seed, will use current time by default)
 #define WORLD_GEN 1
+
+// if 1, tile coordinates will wrap around(affects performance a lot, not recommended)
+#define WORLD_WRAP 0
 
 // alpha, only applies to visible tiles, not to air
 #define ALPHA 255
