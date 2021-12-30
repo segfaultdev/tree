@@ -20,9 +20,9 @@
 // - add steam(generated from water and fire), which randomly turns back into water
 // - add farmland, wheat, etc.
 
-// width and height in tiles
-#define WIDTH 256
-#define HEIGHT 160
+// width and height in tiles(has to be editable in runtime by -w or --world flag)
+static int WIDTH = 256;
+static int HEIGHT = 160;
 
 // pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
 #define SCALE 5
@@ -37,7 +37,7 @@
 #define WATER_FOAM 1
 
 // if 1, will show a colorful bar representing how much time each part of the game takes(affects performance slightly)
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 // if 1, a world will be generated using perlin-like noise on startup(pass "-s NUMBER" to set the seed, will use current time by default)
 #define WORLD_GEN 1
@@ -57,66 +57,7 @@
 #define BACKGROUND_IMAGE NULL
 // #define BACKGROUND_IMAGE "path/to/background.png"
 
-enum {
-  tile_air,
-  tile_dirt,
-  tile_water,
-  tile_grass,
-  tile_flower_pink,
-  tile_flower_blue,
-  tile_flower_yellow,
-  tile_stone,
-  tile_sand,
-  tile_iron,
-  tile_apple_tree,
-  tile_orange_tree,
-  tile_palm_tree,
-  tile_pine_tree,
-  tile_beech_tree,
-  tile_willow_tree,
-  tile_lemon_tree,
-  tile_birch_tree,
-  tile_ebony_tree,
-  tile_apple_leaves,
-  tile_orange_leaves,
-  tile_palm_leaves,
-  tile_pine_leaves,
-  tile_beech_leaves,
-  tile_willow_leaves,
-  tile_lemon_leaves,
-  tile_birch_leaves,
-  tile_ebony_leaves,
-  tile_apple,
-  tile_orange,
-  tile_coconut,
-  tile_cone,
-  tile_lemon,
-  tile_persimmon,
-  tile_berry_bush,
-  tile_bush_leaves,
-  tile_red_berry,
-  tile_blue_berry,
-  tile_vines,
-  tile_mushroom,
-  tile_red_mushroom,
-  tile_brown_mushroom,
-  tile_fire,
-  tile_fertilizer,
-  tile_algae,
-  tile_algae_top,
-  tile_ash,
-  tile_insect,
-  tile_insect_apple,
-  tile_insect_orange,
-  tile_insect_coconut,
-  tile_insect_cone,
-  tile_fish,
-  tile_cacti,
-  tile_cacti_flower,
-  
-  tile_count
-};
-
+/*
 // names showed in the selection menu
 const char *tile_names[] = {
   "Air",
@@ -528,5 +469,6 @@ const int tile_wooden[] = {
   1, // Cacti
   0, // Cacti Flower
 };
+*/
 
 #endif
