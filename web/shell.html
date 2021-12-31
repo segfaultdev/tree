@@ -16,12 +16,9 @@
       div.emscripten { text-align: center; }      
       div.emscripten_border { border: 1px solid black; }
       
-      html, body { 
+      * {
         width: 100%;
         height: 100%;
-      }
-
-      * {
         border: 0px none; 
         padding: 0px; 
         margin: 0px;
@@ -56,8 +53,8 @@
         }
     </script>
     <script type='text/javascript'>
-        document.getElementById("canvas").width = Math.floor((document.body.offsetWidth - 192) / 5) * 5 + 192;
-        document.getElementById("canvas").height = Math.floor(document.body.offsetHeight / 5) * 5;
+        // document.getElementById("canvas").width = Math.floor((document.body.offsetWidth - 192) / 5) * 5 + 192;
+        // document.getElementById("canvas").height = Math.floor(document.body.offsetHeight / 5) * 5;
 
         var statusElement = document.querySelector('#status');
         var progressElement = document.querySelector('#progress');
@@ -67,10 +64,8 @@
             postRun: [
               function() {
                 let canvas = document.getElementById("canvas");
-                
-                let tile_width = Math.floor((canvas.offsetWidth - 192) / 5);
-                let tile_height = Math.floor(canvas.offsetHeight / 5);
-                callMain(["-w", "" + tile_width, "" + tile_height]);
+                console.log([canvas.offsetWidth, canvas.offsetHeight]);
+                callMain(["-w", "" + canvas.offsetWidth, "" + canvas.offsetHeight, "-p"]);
               }
             ],
             noInitialRun: true,

@@ -20,7 +20,7 @@
 // - add steam(generated from water and fire), which randomly turns back into water
 // - add farmland, wheat, etc.
 
-// width and height in tiles(has to be editable in runtime by -w or --world flag)
+// width and height in tiles(has to be editable in runtime by -w or --world flag, where you specify the screen size)
 static int WIDTH = 256;
 static int HEIGHT = 160;
 
@@ -37,7 +37,7 @@ static int HEIGHT = 160;
 #define WATER_FOAM 1
 
 // if 1, will show a colorful bar representing how much time each part of the game takes(affects performance slightly)
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 // if 1, a world will be generated using perlin-like noise on startup(pass "-s NUMBER" to set the seed, will use current time by default)
 #define WORLD_GEN 1

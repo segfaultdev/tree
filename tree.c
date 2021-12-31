@@ -241,6 +241,13 @@ void tick_tiles(void) {
       int tile = get_tile(j, i);
       int need_dist = tile_types[tile].need_dist;
       
+      if (tile < 0 || tile >= tile_count) {
+        printf("FUCK\n");
+        exit(1);
+      }
+      
+      int gas_x = (rand() % 3) - 1;
+      
       int need_amnt = 0;
       int moved = 0;
       
@@ -332,33 +339,24 @@ void tick_tiles(void) {
           break;
           
         case tile_type_gas:
-          if (cond_up && get_tile(j, i - 1) == tile_air) {
-            swap(j, i, j, i - 1);
-            moved = 1;
-          } else if (cond_up && get_tile(j - 1, i - 1) == tile_air && get_tile(j + 1, i - 1) == tile_air) {
-            if (rand() % 2) {
-              swap(j, i, j - 1, i - 1);
-            } else {
-              swap(j, i, j + 1, i - 1);
-            }
-            
-            moved = 1;
-          } else if (cond_up && get_tile(j - 1, i - 1) == tile_air) {
-            swap(j, i, j - 1, i - 1);
-            moved = 1;
-          } else if (cond_up && get_tile(j + 1, i - 1) == tile_air) {
-            swap(j, i, j + 1, i - 1);
+          if (rand() % 64 == 0) {
+            del_tile(j, i);
             moved = 1;
           } else {
-            if (rand() % 2) {
-              if (get_tile(j - 1, i) == tile_air) {
-                swap(j, i, j - 1, i);
-                moved = 1;
-              }
+            if (cond_up && (get_tile(j + gas_x, i - 1) == tile_air || tile_types[get_tile(j + gas_x, i - 1)].type != tile_type_solid)) {
+              swap(j, i, j + gas_x, i - 1);
+              moved = 1;
             } else {
-              if (get_tile(j + 1, i) == tile_air) {
-                swap(j, i, j + 1, i);
-                moved = 1;
+              if (rand() % 2) {
+                if (get_tile(j - 1, i) == tile_air || tile_types[get_tile(j - 1, i)].type != tile_type_solid) {
+                  swap(j, i, j - 1, i);
+                  moved = 1;
+                }
+              } else {
+                if (get_tile(j + 1, i) == tile_air || tile_types[get_tile(j + 1, i)].type != tile_type_solid) {
+                  swap(j, i, j + 1, i);
+                  moved = 1;
+                }
               }
             }
           }
@@ -394,25 +392,50 @@ void tick_tiles(void) {
           if (valid && rand() % 1024 < (get_water(j, i) - tree_types[tree].upward_min)) {
             int x = (rand() % 4) ? 0 : ((rand() % 2) * 2 - 1);
             
-            if (get_tile(j + x, i - 1) == tile_air || get_tile(j + x, i - 1) == tile_water || get_tile(j + x, i - 1) == tile_grass || get_tile(j + x, i - 1) == tree_types[tree].leaf_tile) {
+            if (tile_types[get_tile(j + x, i - 1)].weak) {
               set_tile(j + x, i - 1, tree_types[tree].tree_tile);
             }
           } else if (!valid && get_water(j, i) <= tree_types[tree].branch_max && rand() % 1536 < (get_water(j, i) - tree_types[tree].branch_min)) {
             int x = (rand() % 2) * 2 - 1;
             
-            if ((get_tile(j + x, i) == tile_air || get_tile(j + x, i) == tile_water || get_tile(j + x, i) == tile_grass || get_tile(j + x, i) == tree_types[tree].leaf_tile) &&
-                (get_tile(j + x, i - 1) == tile_air || get_tile(j + x, i - 1) == tile_water || get_tile(j + x, i - 1) == tile_grass || get_tile(j + x, i - 1) == tree_types[tree].leaf_tile) &&
-                (get_tile(j + x, i + 1) == tile_air || get_tile(j + x, i + 1) == tile_water || get_tile(j + x, i + 1) == tile_grass || get_tile(j + x, i + 1) == tree_types[tree].leaf_tile)) {
+            
+            
+            if (tile_types[get_tile(j + x, i)].weak && tile_types[get_tile(j + x, i - 1)].weak && tile_types[get_tile(j + x, i + 1)].weak) {
               set_tile(j + x, i, tree_types[tree].tree_tile);
             }
           }
           
-          if (tree_types[tree].fruit_tile != -1) {
+          if (tree_types[tree].fruit_tile_1 != -1) {
+            int type_1 = 0;
+            int type_2 = 0;
+            
+            for (int dx = -7; dx <= 7; dx++) {
+              for (int dy = -7; dy <= 7; dy++) {
+                if (get_tile(j + dx, i + dy) == tree_types[tree].fruit_tile_1) {
+                  type_1++;
+                }
+                
+                if (get_tile(j + dx, i + dy) == tree_types[tree].fruit_tile_2) {
+                  type_2++;
+                }
+              }
+            }
+            
+            int fruit_tile;
+            
+            if (type_1 == type_2) {
+              fruit_tile = (rand() % 2) ? tree_types[tree].fruit_tile_1 : tree_types[tree].fruit_tile_2;
+            } else if (type_1 > type_2) {
+              fruit_tile = tree_types[tree].fruit_tile_1;
+            } else {
+              fruit_tile = tree_types[tree].fruit_tile_2;
+            }
+            
             valid = 1;
             
             for (int dx = -tree_types[tree].fruit_dist; dx <= tree_types[tree].fruit_dist; dx++) {
               for (int dy = -tree_types[tree].fruit_dist; dy <= tree_types[tree].fruit_dist; dy++) {
-                if (get_tile(j + dx, i + dy) == tree_types[tree].fruit_tile) {
+                if (get_tile(j + dx, i + dy) == fruit_tile) {
                   valid = 0;
                   break;
                 }
@@ -422,7 +445,7 @@ void tick_tiles(void) {
             }
             
             if (valid && get_water(j, i) > 0 && get_water(j, i) <= tree_types[tree].fruit_grow && get_tile(j, i + 1) == tile_air && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air) {
-              set_tile(j, i + 1, tree_types[tree].fruit_tile);
+              set_tile(j, i + 1, fruit_tile);
             }
           }
         } else if (tile == tree_types[tree].leaf_tile && rand() % 64 == 0 && get_water(j, i) > tree_types[tree].leaf_grow) {
@@ -456,7 +479,7 @@ void tick_tiles(void) {
               if (!valid) break;
             }
             
-            if (0 && valid) {
+            if (valid) {
               switch (rand() % 24) {
                 case 0: case 1: case 2: case 3:
                   set_tile(j, i - 1, tile_apple_tree);
@@ -493,10 +516,22 @@ void tick_tiles(void) {
           }
         }
       } else if (tile == tile_grass) {
-        if (rand() % 1024 < get_water(j, i)) {
+        int valid = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (get_tile(j + dx, i + dy) == tile_air) {
+              valid++;
+            }
+          }
+        }
+        
+        valid = (valid >= 2);
+        
+        if (!valid && rand() % 8 == 0) {
+          del_tile(j, i);
+        } else if (valid && rand() % 1024 < get_water(j, i)) {
           int x = (rand() % 3) - 1;
-          
-          int valid = 1;
           
           for (int dx = -2; dx <= 2; dx++) {
             for (int dy = -2; dy <= 2; dy++) {
@@ -514,7 +549,7 @@ void tick_tiles(void) {
             if (!valid) break;
           }
           
-          if (valid && (get_tile(j + x, i - 1) == tile_air || get_tile(j + x, i - 1) == tile_water)) {
+          if (valid && tile_types[get_tile(j + x, i - 1)].weak) {
             if (rand() % 4 == 0) {
               switch (rand() % 3) {
                 case 0:
@@ -530,6 +565,103 @@ void tick_tiles(void) {
             } else {
               set_tile(j + x, i - 1, tile_grass);
             }
+          }
+        }
+      } else if (tile == tile_fire) {
+        if (get_tile(j - 1, i) != tile && (rand() % 4 == 0 || tile_types[get_tile(j - 1, i)].type == tile_type_liquid)) {
+          set_tile(j - 1, i, (rand() % 15 < tile_types[get_tile(j - 1, i)].fire_amnt) ? tile_types[get_tile(j - 1, i)].fire_tile : tile_fire);
+          
+          if (tile_types[get_tile(j - 1, i)].type == tile_type_liquid) {
+            set_tile(j, i, tile_air);
+          }
+        }
+        
+        if (get_tile(j + 1, i) != tile && (rand() % 4 == 0 || tile_types[get_tile(j + 1, i)].type == tile_type_liquid)) {
+          set_tile(j + 1, i, (rand() % 15 < tile_types[get_tile(j + 1, i)].fire_amnt) ? tile_types[get_tile(j + 1, i)].fire_tile : tile_fire);
+          
+          if (tile_types[get_tile(j + 1, i)].type == tile_type_liquid) {
+            set_tile(j, i, tile_air);
+          }
+        }
+        
+        if (get_tile(j, i - 1) != tile && (rand() % 128 == 0 || tile_types[get_tile(j, i - 1)].type == tile_type_liquid)) {
+          set_tile(j, i - 1, (rand() % 15 < tile_types[get_tile(j, i - 1)].fire_amnt) ? tile_types[get_tile(j, i - 1)].fire_tile : tile_fire);
+          
+          if (tile_types[get_tile(j, i - 1)].type == tile_type_liquid) {
+            set_tile(j, i, tile_air);
+          }
+        }
+        
+        if (get_tile(j, i + 1) != tile && (rand() % 2 == 0 || tile_types[get_tile(j, i + 1)].type == tile_type_liquid)) {
+          set_tile(j, i + 1, (rand() % 15 < tile_types[get_tile(j, i + 1)].fire_amnt) ? tile_types[get_tile(j, i + 1)].fire_tile : tile_fire);
+          
+          if (tile_types[get_tile(j, i + 1)].type == tile_type_liquid) {
+            set_tile(j, i, tile_air);
+          }
+        }
+      } else if (tile == tile_ash) {
+        if (rand() % 1024 == 0 && get_tile(j, i - 1) == tile_air) {
+          set_tile(j, i - 1, tile_fire);
+        } else if (rand() % 3072 == 0) {
+          set_tile(j, i, tile_fire);
+        }
+      } else if (tile == tile_mushroom) {
+        if (rand() % 256 < get_water(j, i)) {
+          int valid = 1;
+          
+          for (int dx = -5; dx <= 5; dx++) {
+            for (int dy = -5; dy <= 5; dy++) {
+              if (get_tile(j + dx, i + dy) == tile_red_mushroom || get_tile(j + dx, i + dy) == tile_brown_mushroom) {
+                valid = 0;
+                break;
+              }
+              
+              if (dy < 0 && get_tile(j + dx, i + dy) == tile_mushroom) {
+                valid = 0;
+                break;
+              }
+            }
+            
+            if (!valid) break;
+          }
+          
+          if (valid && tile_types[get_tile(j, i - 1)].weak) {
+            if (get_water(j, i) < 48 && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j - 1, i + 2) == tile_air && get_tile(j + 1, i + 2) == tile_air) {
+              switch (rand() % 2) {
+                case 0:
+                  set_tile(j, i - 1, tile_red_mushroom);
+                  break;
+                case 1:
+                  set_tile(j, i - 1, tile_brown_mushroom);
+                  break;
+              }
+            } else {
+              set_tile(j, i - 1, tile_mushroom);
+            }
+          }
+        }
+      } else if (tile == tile_red_mushroom || tile == tile_brown_mushroom) {
+        if ((rand() % 256 == 0 && get_water(j, i) < 8) || (get_tile(j, i + 1) != tile_air && get_tile(j, i + 1) != tile_mushroom && get_tile(j, i + 1) != tile_red_mushroom && get_tile(j, i + 1) != tile_brown_mushroom)) {
+          set_tile(j, i, tile_air);
+        } else if (get_water(j, i) >= 40 && get_water(j, i) < 44) {
+          if (rand() % 8 == 0 && get_tile(j - 1, i) == tile_air && get_tile(j - 1, i + 1) == tile_air && get_tile(j - 2, i) == tile_air) {
+            set_tile(j - 1, i, tile);
+          }
+          
+          if (rand() % 8 == 0 && get_tile(j + 1, i) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j + 2, i) == tile_air) {
+            set_tile(j + 1, i, tile);
+          }
+          
+          if (rand() % 32 == 0 && get_tile(j, i - 1) == tile_air) {
+            set_tile(j, i - 1, tile);
+          }
+        }
+      } else if (get_tile(j, i) == tile_stone) {
+        if (rand() % 16384 == 0 && get_water(j, i) >= 54) {
+          set_tile(j, i, tile_sand);
+        } else if (rand() % 2048 < get_water(j, i)) {
+          if (get_tile(j, i + 1) == tile_air) {
+            set_tile(j, i + 1, tile_vines);
           }
         }
       }
@@ -580,78 +712,6 @@ void tick_tiles(void) {
             set_tile(j, i + 1, tile_vines);
           }
         }
-      } else if (get_tile(j, i) == tile_berry_bush) {
-        if ((rand() % 256 == 0 && get_water(j, i) == 0) || (get_tile(j, i - 1) != tile_air && get_tile(j, i - 1) != tile_water && get_tile(j, i - 1) != tile_berry_bush &&
-                                                            get_tile(j, i - 1) != tile_bush_leaves && get_tile(j, i - 1) != tile_red_berry && get_tile(j, i - 1) != tile_blue_berry &&
-                                                            get_tile(j, i - 1) != tile_grass)) {
-          set_tile(j, i, tile_air);
-        } else if ((get_tile(j - 1, i + 1) != tile_dirt && get_tile(j - 1, i + 1) != tile_berry_bush) &&
-            (get_tile(j + 1, i + 1) != tile_dirt && get_tile(j + 1, i + 1) != tile_berry_bush) && 
-            (get_tile(j, i + 1) != tile_dirt && get_tile(j, i + 1) != tile_berry_bush)) {
-          set_tile(j, i, tile_air);
-        } else if (rand() % 256 < get_water(j, i)) {
-          int valid = 1;
-          
-          for (int dx = -5; dx <= 5; dx++) {
-            for (int dy = -5; dy <= 5; dy++) {
-              if (get_tile(j + dx, i + dy) == tile_bush_leaves) {
-                valid = 0;
-                break;
-              }
-              
-              if (dy < 0 && get_tile(j + dx, i + dy) == tile_berry_bush) {
-                valid = 0;
-                break;
-              }
-            }
-            
-            if (!valid) break;
-          }
-          
-          if (valid && (get_tile(j, i - 1) == tile_air || get_tile(j, i - 1) == tile_grass || get_tile(j, i - 1) == tile_flower_pink || get_tile(j, i - 1) == tile_flower_blue || get_tile(j, i - 1) == tile_flower_yellow)) {
-            if (get_water(j, i) < 48 && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j - 1, i + 2) == tile_air && get_tile(j + 1, i + 2) == tile_air) {
-              set_tile(j, i - 1, tile_bush_leaves);
-            } else {
-              set_tile(j, i - 1, tile_berry_bush);
-            }
-          }
-        }
-      } else if (get_tile(j, i) == tile_bush_leaves) {
-        if (rand() % 128 == 0 && (get_water(j, i) < 16 || (get_tile(j, i + 1) != tile_air && get_tile(j, i + 1) != tile_red_berry && get_tile(j, i + 1) != tile_blue_berry &&
-            get_tile(j, i + 1) != tile_berry_bush && get_tile(j, i + 1) != tile_bush_leaves))) {
-          set_tile(j, i, tile_air);
-        } else if (get_water(j, i) >= 42 && get_water(j, i) < 48) {
-          int berry = tile_red_berry;
-          
-          if (rand() % 6 == 0 && get_tile(j - 1, i) == tile_air && get_tile(j - 1, i + 1) == tile_air && get_tile(j - 2, i) == tile_air) {
-            set_tile(j - 1, i, tile_bush_leaves);
-          }
-          
-          if (rand() % 6 == 0 && get_tile(j + 1, i) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j + 2, i) == tile_air) {
-            set_tile(j + 1, i, tile_bush_leaves);
-          }
-          
-          if (rand() % 24 == 0 && get_tile(j, i - 1) == tile_air) {
-            set_tile(j, i - 1, tile_bush_leaves);
-          }
-        }
-      } else if (get_tile(j, i) == tile_red_berry || get_tile(j, i) == tile_blue_berry) {
-        int valid = 0;
-          
-        for (int dx = -1; dx <= 1; dx++) {
-          for (int dy = -1; dy <= 1; dy++) {
-            if (get_tile(j + dx, i + dy) == tile_bush_leaves) {
-              valid = 1;
-              break;
-            }
-          }
-          
-          if (valid) break;
-        }
-        
-        if (!valid) {
-          set_tile(j, i, tile_air);
-        }
       } else if (get_tile(j, i) == tile_vines) {
         int water = (get_water(j, i) / 1.5f) - 12;
         
@@ -669,123 +729,6 @@ void tick_tiles(void) {
           if (get_tile(j, i + 1) == tile_air) {
             set_tile(j, i + 1, tile_vines);
           }
-        }
-      } else if (get_tile(j, i) == tile_mushroom) {
-        if ((rand() % 256 == 0 && get_water(j, i) == 0) || (get_tile(j, i - 1) != tile_air && get_tile(j, i - 1) != tile_water && get_tile(j, i - 1) != tile_mushroom &&
-                                                            get_tile(j, i - 1) != tile_red_mushroom && get_tile(j, i - 1) != tile_brown_mushroom && get_tile(j, i - 1) != tile_grass)) {
-          set_tile(j, i, tile_air);
-        } else if ((get_tile(j - 1, i + 1) != tile_dirt && get_tile(j - 1, i + 1) != tile_mushroom) &&
-            (get_tile(j + 1, i + 1) != tile_dirt && get_tile(j + 1, i + 1) != tile_mushroom) && 
-            (get_tile(j, i + 1) != tile_dirt && get_tile(j, i + 1) != tile_mushroom)) {
-          set_tile(j, i, tile_air);
-        } else if (rand() % 256 < get_water(j, i)) {
-          int valid = 1;
-          
-          for (int dx = -5; dx <= 5; dx++) {
-            for (int dy = -5; dy <= 5; dy++) {
-              if (get_tile(j + dx, i + dy) == tile_red_mushroom || get_tile(j + dx, i + dy) == tile_brown_mushroom) {
-                valid = 0;
-                break;
-              }
-              
-              if (dy < 0 && get_tile(j + dx, i + dy) == tile_mushroom) {
-                valid = 0;
-                break;
-              }
-            }
-            
-            if (!valid) break;
-          }
-          
-          if (valid && (get_tile(j, i - 1) == tile_air || get_tile(j, i - 1) == tile_grass || get_tile(j, i - 1) == tile_flower_pink || get_tile(j, i - 1) == tile_flower_blue || get_tile(j, i - 1) == tile_flower_yellow)) {
-            if (get_water(j, i) < 44 && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j - 1, i + 2) == tile_air && get_tile(j + 1, i + 2) == tile_air) {
-              switch (rand() % 2) {
-                case 0:
-                  set_tile(j, i - 1, tile_red_mushroom);
-                  break;
-                case 1:
-                  set_tile(j, i - 1, tile_brown_mushroom);
-                  break;
-              }
-            } else {
-              set_tile(j, i - 1, tile_mushroom);
-            }
-          }
-        }
-      } else if (get_tile(j, i) == tile_red_mushroom || get_tile(j, i) == tile_brown_mushroom) {
-        if ((rand() % 256 == 0 && get_water(j, i) < 8) || (get_tile(j, i + 1) != tile_air && get_tile(j, i + 1) != tile_mushroom && get_tile(j, i + 1) != tile_red_mushroom && get_tile(j, i + 1) != tile_brown_mushroom)) {
-          set_tile(j, i, tile_air);
-        } else if (get_water(j, i) >= 40 && get_water(j, i) < 44) {
-          if (rand() % 8 == 0 && get_tile(j - 1, i) == tile_air && get_tile(j - 1, i + 1) == tile_air && get_tile(j - 2, i) == tile_air) {
-            set_tile(j - 1, i, get_tile(j, i));
-          }
-          
-          if (rand() % 8 == 0 && get_tile(j + 1, i) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j + 2, i) == tile_air) {
-            set_tile(j + 1, i, get_tile(j, i));
-          }
-          
-          if (rand() % 32 == 0 && get_tile(j, i - 1) == tile_air) {
-            set_tile(j, i - 1, get_tile(j, i));
-          }
-        }
-      } else if (get_tile(j, i) == tile_fire) {
-        if (rand() % 64 == 0 || get_tile(j - 1, i) == tile_water || get_tile(j + 1, i) == tile_water || get_tile(j, i - 1) == tile_water || get_tile(j, i + 1) == tile_water) {
-          set_tile(j, i, tile_air);
-          continue;
-        }
-        
-        if (rand() % 4 == 0 && tile_flamable[get_tile(j - 1, i)]) {
-          set_tile(j - 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j - 1, i)]) ? tile_ash : tile_fire);
-        }
-        
-        if (rand() % 4 == 0 && tile_flamable[get_tile(j + 1, i)]) {
-          set_tile(j + 1, i, (rand() % 3 == 0 && tile_wooden[get_tile(j + 1, i)]) ? tile_ash : tile_fire);
-        }
-        
-        if (rand() % 128 == 0 && tile_flamable[get_tile(j, i - 1)]) {
-          set_tile(j, i - 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i - 1)]) ? tile_ash : tile_fire);
-        }
-        
-        if (rand() % 2 == 0 && tile_flamable[get_tile(j, i + 1)]) {
-          set_tile(j, i + 1, (rand() % 3 == 0 && tile_wooden[get_tile(j, i + 1)]) ? tile_ash : tile_fire);
-        }
-        
-        if ((i > 0 || WORLD_WRAP) && get_tile(j, i - 1) == tile_air) {
-          swap(j, i, j, i - 1);
-        } else if ((i > 0 || WORLD_WRAP) && get_tile(j - 1, i - 1) == tile_air && get_tile(j + 1, i - 1) == tile_air) {
-          if (rand() % 2) {
-            swap(j, i, j - 1, i - 1);
-          } else {
-            swap(j, i, j + 1, i - 1);
-          }
-        } else if ((i > 0 || WORLD_WRAP) && get_tile(j - 1, i - 1) == tile_air) {
-          swap(j, i, j - 1, i - 1);
-        } else if ((i > 0 || WORLD_WRAP) && get_tile(j + 1, i - 1) == tile_air) {
-          swap(j, i, j + 1, i - 1);
-        } else {
-          if (rand() % 2) {
-            if (get_tile(j - 1, i) == tile_air) {
-              swap(j, i, j - 1, i);
-            }
-          } else {
-            if (get_tile(j + 1, i) == tile_air) {
-              swap(j, i, j + 1, i);
-            }
-          }
-        }
-      } else if (get_tile(j, i) == tile_fertilizer) {
-        if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j, i + 1)]) {
-          swap(j, i, j, i + 1);
-        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
-          if (rand() % 2) {
-            swap(j, i, j - 1, i + 1);
-          } else {
-            swap(j, i, j + 1, i + 1);
-          }
-        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)]) {
-          swap(j, i, j - 1, i + 1);
-        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j + 1, i + 1)]) {
-          swap(j, i, j + 1, i + 1);
         }
       } else if (get_tile(j, i) == tile_algae) {
         if (get_water(j, i) < 48 && get_tile(j, i - 1) != tile_water && get_tile(j - 1, i) != tile_water && get_tile(j + 1, i) != tile_water) {
@@ -846,24 +789,6 @@ void tick_tiles(void) {
         
         if (!valid) {
           set_tile(j, i, tile_air);
-        }
-      } else if (get_tile(j, i) == tile_ash) {
-        if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j, i + 1)]) {
-          swap(j, i, j, i + 1);
-        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)] && tile_light[get_tile(j + 1, i + 1)]) {
-          if (rand() % 2) {
-            swap(j, i, j - 1, i + 1);
-          } else {
-            swap(j, i, j + 1, i + 1);
-          }
-        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j - 1, i + 1)]) {
-          swap(j, i, j - 1, i + 1);
-        } else if ((i < HEIGHT - 1 || WORLD_WRAP) && tile_light[get_tile(j + 1, i + 1)]) {
-          swap(j, i, j + 1, i + 1);
-        } else if (rand() % 2048 == 0 && get_tile(j, i - 1) == tile_air) {
-          set_tile(j, i - 1, tile_fire);
-        } else if (rand() % 8192 == 0) {
-          set_tile(j, i, tile_fire);
         }
       } else if (get_tile(j, i) == tile_insect) {
         int valid = 0;
@@ -1231,16 +1156,62 @@ int main(int argc, const char **argv) {
   srand(time(0));
   noise_seed = rand();
   
+  int screen_width = WIDTH * SCALE;
+  int screen_height = HEIGHT * SCALE;
+  
+  int force_screen = 0;
+  int phone_ui = 1;
+  
   for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--seed")) {
       noise_seed = strtol(argv[++i], NULL, 0);
     } else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--world")) {
-      WIDTH = strtol(argv[++i], NULL, 0);
-      HEIGHT = strtol(argv[++i], NULL, 0);
+      screen_width = strtol(argv[++i], NULL, 0);
+      screen_height = strtol(argv[++i], NULL, 0);
+      
+      force_screen = 1;
+    } else if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "--phone")) {
+      phone_ui = 1;
+    } else if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "--computer")) {
+      phone_ui = 0;
     }
   }
   
-  InitWindow(WIDTH * SCALE + 192, HEIGHT * SCALE, "tree");
+  int rect_width = 144;
+  int rect_count = (screen_width - 20) / rect_width;
+  
+  if (phone_ui) {
+    if (rect_count < 3) rect_count = 3;
+    rect_width = (screen_width - 20) / rect_count;
+  }
+  
+  int view_count = 0;
+  
+  for (int i = 0; i < tile_count; i++) {
+    if (!tile_types[i].show) continue;
+    view_count++;
+  }
+  
+  int total_width = 20 + rect_width;
+  int total_height = 20 + 34 * ((view_count + (rect_count - 1)) / rect_count);
+  
+  if (phone_ui) {
+    if (force_screen) {
+      WIDTH = screen_width / SCALE;
+      HEIGHT = (screen_height - total_height) / SCALE;
+    } else {
+      screen_height += total_height;
+    }
+  } else {
+    if (force_screen) {
+      WIDTH = (screen_width - total_width) / SCALE;
+      HEIGHT = screen_height / SCALE;
+    } else {
+      screen_width += total_width;
+    }
+  }
+  
+  InitWindow(screen_width, screen_height, "tree");
   SetTargetFPS(30);
   
   old_tiles = calloc(WIDTH * HEIGHT * sizeof(int), 1);
@@ -1377,14 +1348,29 @@ int main(int argc, const char **argv) {
       zoom--;
     }
     
-    DrawRectangle(WIDTH * SCALE, 0, 192, HEIGHT * SCALE, BLACK);
-    int sel_y = 0;
+    int sel_pos = 0;
+    
+    if (phone_ui) {
+      DrawRectangle(0, HEIGHT * SCALE, WIDTH * SCALE, total_height, BLACK);
+    } else {
+      DrawRectangle(WIDTH * SCALE, 0, total_width, HEIGHT * SCALE, BLACK);
+    }
     
     for (int i = 0; i < tile_count; i++) {
       if (!tile_types[i].show) continue;
       
+      int rect_x, rect_y;
+      
+      if (phone_ui) {
+        rect_x = rect_width * (sel_pos % rect_count) + 10;
+        rect_y = (sel_pos / rect_count) * 34 + 10 + (HEIGHT * SCALE);
+      } else {
+        rect_x = WIDTH * SCALE + 10;
+        rect_y = sel_pos * 34 + 10;
+      }
+      
       if (selection == i) {
-        DrawRectangle(WIDTH * SCALE + 10, sel_y * 34 + 10, 172, 36, WHITE);
+        DrawRectangle(rect_x, rect_y, rect_width, 36, WHITE);
       }
       
       Color color = get_color(i);
@@ -1392,16 +1378,16 @@ int main(int argc, const char **argv) {
       
       color.a = 255;
       
-      DrawRectangle(WIDTH * SCALE + 12, sel_y * 34 + 12, 168, 32, color);
-      DrawText(tile_types[i].name_en, WIDTH * SCALE + 16, sel_y * 34 + 16, 20, light > 127 ? BLACK : WHITE);
+      DrawRectangle(rect_x + 2, rect_y + 2, rect_width - 4, 32, color);
+      DrawText(tile_types[i].name_en, rect_x + 6, rect_y + 6, 20, light > 127 ? BLACK : WHITE);
       
-      if (GetMouseX() >= WIDTH * SCALE + 12 && GetMouseY() >= sel_y * 34 + 12 && GetMouseX() < WIDTH * SCALE + 116 && GetMouseY() < sel_y * 34 + 34) {
+      if (GetMouseX() >= rect_x + 2 && GetMouseY() >= rect_y + 2 && GetMouseX() < rect_x + rect_width - 2 && GetMouseY() < rect_y + 34) {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
           selection = i;
         }
       }
       
-      sel_y++;
+      sel_pos++;
     }
     
     char buffer[256];
@@ -1452,7 +1438,9 @@ int main(int argc, const char **argv) {
       
       time_4 = GetTime();
       
-      for (int i = 0; i < 1; i++) {
+      int c = (GetFPS() < 25) ? 1 : 2;
+      
+      for (int i = 0; i < c; i++) {
         tick_tiles();
         
         memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
