@@ -1,0 +1,2 @@
+#!/usr/bin/sh
+./tree -w 800 360
