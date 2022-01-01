@@ -3,8 +3,6 @@
 
 // TODO: make willow tree leaves grow down like vines
 // TODO: change world generation to adapt to world size
-// TODO: make brush change buttons in top right corner functional
-// TODO: fix random air blocks on water
 // TODO: properly do multiple color tiles
 // TODO: add clear screen button(for abbix)
 
@@ -51,6 +49,11 @@ enum {
   tile_bush_leaves,
   tile_red_berry,
   tile_blue_berry,
+  tile_cacti,
+  tile_cacti_flower,
+  tile_algae,
+  tile_algae_top,
+  tile_vines,
   tile_mushroom,
   tile_red_mushroom,
   tile_brown_mushroom,
@@ -58,11 +61,6 @@ enum {
   tile_ash,
   tile_steam,
   tile_fertilizer,
-  tile_vines,
-  tile_algae,
-  tile_algae_top,
-  tile_cacti,
-  tile_cacti_flower,
   tile_fish,
   
   tile_count
@@ -82,7 +80,6 @@ enum {
   tile_type_gas,    // fire, steam, will destroy itself after some random time
   
   tile_type_ai_water, // entity with water ai(fish)
-  tile_type_ai_fruit, // entity with fruit air ai(insects)
   tile_type_ai_grass, // entity with grass/flower air ai(bees)
 };
 
@@ -182,18 +179,18 @@ static const tile_t tile_types[] = {
   {"Bush Leaves"                , (Color){39 , 159, 39 }, (Color){39 , 159, 39 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_berry_bush    , tile_berry_bush , 1, 1, 0, 0 , -1, 1},
   {"Red Berry"                  , (Color){127, 15 , 15 }, (Color){127, 15 , 15 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_berry_bush    , tile_berry_bush , 1, 1, 0, 0 , -1, 1},
   {"Blue Berry"                 , (Color){15 , 15 , 159}, (Color){15 , 15 , 159}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_berry_bush    , tile_berry_bush , 1, 1, 0, 0 , -1, 1},
+  {"Cacti"                      , (Color){63 , 127, 23 }, (Color){63 , 127, 23 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_ash  , 3 , 1 , tile_air  , tile_sand          , tile_cacti      , 1, 1, 1, -1, -1, 0},
+  {"Cacti Flower"               , (Color){223, 15 , 223}, (Color){223, 15 , 223}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_cacti         , tile_cacti      , 1, 1, 1, -1, -1, 1},
+  {"Algae"                      , (Color){7  , 95 , 47 }, (Color){7  , 95 , 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 1, tile_steam, 15, 1 , tile_water, tile_algae         , tile_dirt       , 1, 1, 1, -1, -1, 0},
+  {"Algae Top"                  , (Color){23 , 95 , 63 }, (Color){23 , 95 , 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 1, tile_steam, 15, 1 , tile_water, tile_algae         , tile_algae      , 1, 1, 1, -1, -1, 0},
+  {"Vines"                      , (Color){23 , 95 , 23 }, (Color){23 , 95 , 23 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_vines         , tile_stone      , 1, 1, 2, -1, -1, 1},
   {"Mushroom"                   , (Color){255, 223, 223}, (Color){255, 223, 223}, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 1 , tile_air  , tile_dirt          , tile_mushroom   , 1, 1, 1, -1, -1, 0},
   {"Red Mushroom"               , (Color){255, 95 , 95 }, (Color){255, 95 , 95 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_red_mushroom  , tile_mushroom   , 1, 1, 1, -1, -1, 0},
   {"Brown Mushroom"             , (Color){223, 159, 127}, (Color){223, 159, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_brown_mushroom, tile_mushroom   , 1, 1, 1, -1, -1, 0},
   {"Fire"                       , (Color){255, 159, 31 }, (Color){255, 159, 31 }, tile_color_none, tile_type_gas     , 1, 1, 1, 0, tile_air  , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Ash"                        , (Color){23 , 23 , 23 }, (Color){23 , 23 , 23 }, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_ash  , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Steam"                      , (Color){43 , 43 , 43 }, (Color){43 , 43 , 43 }, tile_color_none, tile_type_gas     , 1, 1, 1, 0, tile_steam, 15, 0 , tile_water, tile_air           , tile_air        , 0, 0, 0, -1, -1, 1},
-  {"Fertilizer"                 , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_dirt , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Vines"                      , (Color){23 , 95 , 23 }, (Color){23 , 95 , 23 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_vines         , tile_stone      , 1, 1, 2, -1, -1, 1},
-  {"Algae"                      , (Color){7  , 95 , 47 }, (Color){7  , 95 , 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 1, tile_steam, 15, 1 , tile_water, tile_algae         , tile_dirt       , 1, 1, 1, -1, -1, 0},
-  {"Algae Top"                  , (Color){23 , 95 , 63 }, (Color){23 , 95 , 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 1, tile_steam, 15, 1 , tile_water, tile_algae         , tile_algae      , 1, 1, 1, -1, -1, 0},
-  {"Cacti"                      , (Color){63 , 127, 23 }, (Color){63 , 127, 23 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_ash  , 3 , 1 , tile_air  , tile_sand          , tile_cacti      , 1, 1, 1, -1, -1, 0},
-  {"Cacti Flower"               , (Color){223, 15 , 223}, (Color){223, 15 , 223}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_cacti         , tile_cacti      , 1, 1, 1, -1, -1, 1},
+  {"Fertilizer"                 , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_dirt , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
   {"Fish"                       , (Color){143, 143, 191}, (Color){143, 143, 191}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
 };
 

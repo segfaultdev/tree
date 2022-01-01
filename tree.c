@@ -729,7 +729,9 @@ void tick_tiles(void) {
             }
           }
         }
-      } else if (get_tile(j, i) == tile_fish) {
+      }
+      
+      if (tile_types[get_tile(j, i)].type == tile_type_ai_water) {
         int x = (rand() % 3) - 1;
         int y = 0;
         
@@ -851,7 +853,7 @@ int main(int argc, const char **argv) {
   }
   
   int total_width = 20 + rect_width;
-  int total_height = 20 + 34 * ((view_count + (rect_count - 1)) / rect_count);
+  int total_height = 20 + 30 * ((view_count + (rect_count - 1)) / rect_count);
   
   if (phone_ui) {
     if (force_screen) {
@@ -1021,14 +1023,14 @@ int main(int argc, const char **argv) {
       
       if (phone_ui) {
         rect_x = rect_width * (sel_pos % rect_count) + 10;
-        rect_y = (sel_pos / rect_count) * 34 + 10 + (HEIGHT * SCALE);
+        rect_y = (sel_pos / rect_count) * 30 + 10 + (HEIGHT * SCALE);
       } else {
         rect_x = WIDTH * SCALE + 10;
-        rect_y = sel_pos * 34 + 10;
+        rect_y = sel_pos * 30 + 10;
       }
       
       if (selection == i) {
-        DrawRectangle(rect_x, rect_y, rect_width, 36, WHITE);
+        DrawRectangle(rect_x, rect_y, rect_width, 32, WHITE);
       }
       
       Color color = get_color(i);
@@ -1036,7 +1038,7 @@ int main(int argc, const char **argv) {
       
       color.a = 255;
       
-      DrawRectangle(rect_x + 2, rect_y + 2, rect_width - 4, 32, color);
+      DrawRectangle(rect_x + 2, rect_y + 2, rect_width - 4, 28, color);
       DrawText(tile_types[i].name_en, rect_x + 6, rect_y + 6, 20, light > 127 ? BLACK : WHITE);
       
       if (GetMouseX() >= rect_x + 2 && GetMouseY() >= rect_y + 2 && GetMouseX() < rect_x + rect_width - 2 && GetMouseY() < rect_y + 34) {
@@ -1079,10 +1081,20 @@ int main(int argc, const char **argv) {
     DrawRectangle(WIDTH * SCALE - 42, 6, 36, 36, WHITE);
     DrawRectangle(WIDTH * SCALE - 40, 8, 32, 32, BLACK);
     
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 40 && GetMouseY() >= 8 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 40) {
+      brush_size += 2;
+      if (brush_size > 40) brush_size = 40;
+    }
+    
     DrawText("+", WIDTH * SCALE - 34, 6, 40, WHITE);
     
     DrawRectangle(WIDTH * SCALE - 42, 46, 36, 36, WHITE);
     DrawRectangle(WIDTH * SCALE - 40, 48, 32, 32, BLACK);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 40 && GetMouseY() >= 48 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 80) {
+      brush_size -= 2;
+      if (brush_size < 1) brush_size = 1;
+    }
     
     DrawText("-", WIDTH * SCALE - 32, 46, 40, WHITE);
     
