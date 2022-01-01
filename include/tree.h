@@ -10,8 +10,10 @@
 
 // tree 0.10:
 // - add cherry trees(along with cherries)
-// - add bees, nests and honey(along with the new tile_type_ai_grass ai)
-// - add snow
+// - add bees, hives and honey(along with the new tile_type_ai_bee ai, which is attracted to flowers until it picks them, comes back to the hive and generates a honey block under it 1/12th of the time)
+// - add farmland(like dirt but only for crops), wheat and carrots
+// - add snow(doesn't generate naturally except from 24/12 to 06/01 inclusive, acts like dirt, becomes water after a long time)
+// - allow for saving and loading a single world
 
 // tree 0.11:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
@@ -98,7 +100,6 @@ enum {
   tile_type_gas,    // fire, steam, will destroy itself after some random time
   
   tile_type_ai_water, // entity with water ai(fish)
-  tile_type_ai_grass, // entity with grass/flower air ai(bees)
 };
 
 struct tile_t {

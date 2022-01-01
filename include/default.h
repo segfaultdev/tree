@@ -15,11 +15,6 @@
 // - 800x450,  scale 2
 // - 1280x880, scale 1 <- cayden pweease try this
 
-// TODO:
-// - save and restore
-// - add steam(generated from water and fire), which randomly turns back into water
-// - add farmland, wheat, etc.
-
 // width and height in tiles(has to be editable in runtime by -w or --world flag, where you specify the screen size)
 static int WIDTH = 256;
 static int HEIGHT = 160;
