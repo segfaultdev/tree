@@ -242,7 +242,7 @@ void set_circle(int x, int y, int tile) {
 }
 
 Color get_color(int tile) {
-  Color color = tile_types[tile].color_1; // TODO
+  Color color = tile_types[tile].color_1;
   
   if (tile == tile_air) {
     color.a = BACKGROUND_ALPHA;
@@ -936,21 +936,28 @@ int main(int argc, const char **argv) {
         
         Color color = get_color(tile);
         
-        if (tile == tile_birch_tree && (((j ^ ((j * 0xED5AD4BB) << 2)) ^ ((i * 0x31848BAB) ^ (j >> 4))) >> 1) % 4 == 0) {
-          color = (Color){15, 15, 15, ALPHA};
-        }
-        
-        if (WET_BLOCKS && get_water(j, i) >= 20 && (tile == tile_sand || tile == tile_dirt || tile == tile_stone)) {
-          color.r *= 0.9f;
-          color.g *= 0.9f;
-          color.b *= 0.9f;
-        }
-        
-        if (WATER_FOAM && tile == tile_water && get_tile(j, i - 1) == tile_air && get_tile(j, i + 1) == tile_water) {
-          color.r = (color.r + 255 + 255) / 3;
-          color.g = (color.g + 255 + 255) / 3;
-          color.b = (color.b + 255 + 255) / 3;
-        }
+        #ifdef TILE_EFFECTS
+          if (tile_types[tile].color_mode == tile_color_dots && (((j ^ ((j * 0xED5AD4BB) << 2)) ^ ((i * 0x31848BAB) ^ (j >> 4))) >> 1) % 4 == 0) {
+            int alpha = color.a;
+            
+            color = tile_types[tile].color_2;
+            color.a = alpha;
+          }
+          
+          if (get_water(j, i) >= 20 && tile_types[tile].color_mode == tile_color_wet) {
+            int alpha = color.a;
+            
+            color = tile_types[tile].color_2;
+            color.a = alpha;
+          }
+          
+          if (tile_types[tile].color_mode == tile_color_ceil && get_tile(j, i - 1) == tile_air && get_tile(j, i + 1) == tile) {
+            int alpha = color.a;
+            
+            color = tile_types[tile].color_2;
+            color.a = alpha;
+          }
+        #endif
         
         if (prev.r != color.r || prev.g != color.g || prev.b != color.b) {
           if (length) {

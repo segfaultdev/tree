@@ -30,11 +30,8 @@ static int HEIGHT = 160;
 // if 1, will replace existing non-air blocks with the brush
 #define REPLACE_BLOCKS 1
 
-// if 1, will darken dirt, stone and sand when wet(affects performance slightly)
-#define WET_BLOCKS 1
-
-// if 1, will display a white foam over water(affects performance a bit more than WET_BLOCKS but still not much)
-#define WATER_FOAM 1
+// if 1, will darken soils when wet, add foam to water, add dots to birch, etc...
+#define TILE_EFFECTS 1
 
 // if 1, will show a colorful bar representing how much time each part of the game takes(affects performance slightly)
 #define DEBUG_MODE 0

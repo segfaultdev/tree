@@ -1,10 +1,28 @@
 #ifndef __TREE_H__
 #define __TREE_H__
 
-// TODO: make willow tree leaves grow down like vines
-// TODO: change world generation to adapt to world size
-// TODO: properly do multiple color tiles
-// TODO: add clear screen button(for abbix)
+// seg's wonderful todo list:
+
+// tree 0.09(work in progress):
+// - make willow tree leaves grow down like vines
+// - change world generation to adapt to world size
+// - add clear screen button(for abbix)
+
+// tree 0.10:
+// - add cherry trees(along with cherries)
+// - add bees, nests and honey(along with the new tile_type_ai_grass ai)
+// - add snow
+
+// tree 0.11:
+// - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
+// - write some documentation for making mods
+
+// (maybe release more versions if necessary/if i think of more ideas, although probably not)
+
+// tree 1.00:
+// - make a simple and relaxing soundtrack that can be muted with a button
+// - design a nice logo
+// - release web app version as an .apk for google play
 
 typedef struct tile_t tile_t;
 typedef struct tree_t tree_t;
@@ -209,7 +227,7 @@ static const tree_t tree_types[] = {
 
 static const grow_t grow_types[] = {
   {10, {tile_apple_tree, tile_orange_tree, tile_pine_tree, tile_beech_tree, tile_willow_tree, tile_lemon_tree, tile_birch_tree, tile_ebony_tree, tile_berry_bush, tile_mushroom}},
-  {1 , {tile_palm_tree, tile_cacti}                                                                                                                                             }, // TODO: add cacti then increase count to 2
+  {2 , {tile_palm_tree, tile_cacti}                                                                                                                                             },
 };
 
 #endif
