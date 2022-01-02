@@ -3,9 +3,7 @@
 
 // seg's wonderful todo list:
 
-// tree 0.09(work in progress):
-// - make willow tree leaves grow down like vines
-// - add clear screen button(for abbix)
+// tree 0.09: done!
 
 // tree 0.10:
 // - add cherry trees(along with cherries)
@@ -183,7 +181,7 @@ static const tile_t tile_types[] = {
   {"Palm Leaves"                , (Color){127, 255, 63 }, (Color){127, 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_palm_tree     , tile_palm_tree  , 1, 1, 0, 2 , -1, 1},
   {"Pine Leaves"                , (Color){55 , 143, 31 }, (Color){55 , 143, 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_pine_tree     , tile_pine_tree  , 1, 1, 0, 3 , -1, 1},
   {"Beech Leaves"               , (Color){49 , 159, 59 }, (Color){49 , 159, 59 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_beech_tree    , tile_beech_tree , 1, 1, 0, 4 , -1, 1},
-  {"Willow Leaves"              , (Color){71 , 127, 11 }, (Color){71 , 127, 11 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_willow_tree   , tile_willow_tree, 1, 1, 0, 5 , -1, 1},
+  {"Willow Leaves"              , (Color){71 , 127, 11 }, (Color){71 , 127, 11 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_willow_tree   , tile_willow_tree, 8, 1, 0, 5 , -1, 1},
   {"Lemon Leaves"               , (Color){47 , 191, 47 }, (Color){47 , 191, 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_lemon_tree    , tile_lemon_tree , 1, 1, 0, 6 , -1, 1},
   {"Birch Leaves"               , (Color){131, 199, 31 }, (Color){131, 199, 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_birch_tree    , tile_birch_tree , 1, 1, 0, 7 , -1, 1},
   {"Ebony Leaves"               , (Color){23 , 95 , 7  }, (Color){23 , 95 , 7  }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_ebony_tree    , tile_ebony_tree , 1, 1, 0, 8 , -1, 1},
@@ -218,7 +216,7 @@ static const tree_t tree_types[] = {
   {tile_palm_tree  , 3 , tile_palm_leaves  , 19, tile_coconut  , tile_coconut   , 6, 15, 12, 1 , 16},
   {tile_pine_tree  , 6 , tile_pine_leaves  , 43, tile_cone     , tile_cone      , 6, 15, 6 , 4 , 43},
   {tile_beech_tree , 3 , tile_beech_leaves , 43, -1            , -1             , 0, 0 , 6 , 4 , 43},
-  {tile_willow_tree, 3 , tile_willow_leaves, 39, -1            , -1             , 0, 0 , 6 , 4 , 39},
+  {tile_willow_tree, 3 , tile_willow_leaves, 39, -1            , -1             , 0, 0 , 7 , 8 , 39},
   {tile_lemon_tree , 3 , tile_lemon_leaves , 43, tile_lemon    , tile_lemon     , 4, 23, 14, 2 , 39},
   {tile_birch_tree , 3 , tile_birch_leaves , 35, -1            , -1             , 6, 15, 6 , 4 , 23},
   {tile_ebony_tree , 3 , tile_ebony_leaves , 39, tile_persimmon, tile_persimmon , 6, 15, 6 , 4 , 39},

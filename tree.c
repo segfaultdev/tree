@@ -700,6 +700,33 @@ void tick_tiles(void) {
             set_tile(j, i - 1, (rand() % 16 == 0 && get_water(j, i) < 40) ? tile_cacti_flower : tile_cacti);
           }
         }
+      } else if (get_tile(j, i) == tile_willow_leaves) {
+        int water = get_water(j, i) - 8;
+        
+        if (get_tile(j - 1, i) == tile_vines) {
+          water -= 16;
+        }
+        
+        if (get_tile(j + 1, i) == tile_vines) {
+          water -= 16;
+        }
+        
+        int valid = 0;
+        
+        for (int dy = -8; dy <= 1; dy++) {
+          for (int dx = -1; dx <= 1; dx++) {
+            if (get_tile(j + dx, i + dy + 1) == tile_willow_tree) {
+              valid = 1;
+              break;
+            }
+          }
+          
+          if (valid) break;
+        }
+        
+        if (valid && rand() % 512 < water && get_tile(j, i + 1) == tile_air) {
+          set_tile(j, i + 1, tile_willow_leaves);
+        }
       }
       
       int grow_type = tile_types[tile].grow_type;
@@ -1060,7 +1087,7 @@ int main(int argc, const char **argv) {
     char buffer[256];
     
     if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < WIDTH * SCALE && GetMouseY() < HEIGHT * SCALE) {
-      if (GetMouseX() < WIDTH * SCALE - 44 || GetMouseY() >= 92) {
+      if ((GetMouseX() < WIDTH * SCALE - 44 && (GetMouseY() < 80)) || GetMouseY() >= 122 || GetMouseX() < WIDTH * SCALE - 130) {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
           set_circle(x, y, selection);
         } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
@@ -1083,7 +1110,7 @@ int main(int argc, const char **argv) {
     sprintf(buffer, "Seed: %d", noise_seed);
     DrawText(buffer, 8, 56, 20, WHITE);
     
-    DrawRectangle(WIDTH * SCALE - 134, 0, 134, 92, (Color){0, 0, 0, 95});
+    DrawRectangle(WIDTH * SCALE - 134, 0, 134, 122, (Color){0, 0, 0, 95});
     
     DrawRectangle(WIDTH * SCALE - 42, 6, 36, 36, WHITE);
     DrawRectangle(WIDTH * SCALE - 40, 8, 32, 32, BLACK);
@@ -1104,6 +1131,17 @@ int main(int argc, const char **argv) {
     }
     
     DrawText("-", WIDTH * SCALE - 32, 46, 40, WHITE);
+    
+    DrawRectangle(WIDTH * SCALE - 72, 86, 66, 30, WHITE);
+    DrawRectangle(WIDTH * SCALE - 70, 88, 62, 26, BLACK);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 70 && GetMouseY() >= 88 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 114) {
+      memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
+      memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
+      memset(tree_plant, 0, WIDTH * HEIGHT * sizeof(int));
+    }
+    
+    DrawText("Clear", WIDTH * SCALE - 66, 92, 20, WHITE);
     
     for (int i = -40; i <= 40; i++) {
       for (int j = -40; j <= 40; j++) {
