@@ -185,7 +185,7 @@ void del_tile(int x, int y) {
 
 void world_gen(void) {
   for (int i = 0; i < WIDTH; i++) {
-    int height = (int)(noise_1(i / 59.7f) * 50 + noise_1(i / 61.3f) * 40 + noise_1(i / 55.1f) * 40);
+    int height = (int)((noise_1(i / 59.7f) * 0.3f + noise_1(i / 61.3f) * 0.2f + noise_1(i / 55.1f) * 0.2f) * HEIGHT);
     
     for (int j = 0; j < HEIGHT; j++) {
       if (j == HEIGHT - 1 && WORLD_WRAP) {
@@ -203,7 +203,7 @@ void world_gen(void) {
         } else {
           set_tile(i, j, tile_dirt);
         }
-      } else if (HEIGHT - j < 65) {
+      } else if (HEIGHT - j < 0.4f * HEIGHT) {
         set_tile(i, j, tile_water);
       }
     }

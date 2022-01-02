@@ -5,7 +5,6 @@
 
 // tree 0.09(work in progress):
 // - make willow tree leaves grow down like vines
-// - change world generation to adapt to world size
 // - add clear screen button(for abbix)
 
 // tree 0.10:
