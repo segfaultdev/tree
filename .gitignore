@@ -1,4 +1,5 @@
-tree
-tree.html
-tree.wasm
-tree.js
+./tree
+./tree.html
+./tree.wasm
+./tree.js
+./tree.exe
