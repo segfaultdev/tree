@@ -6,22 +6,15 @@
 // tree 0.09: done!
 
 // tree 0.10:
-// - add cherry trees(along with cherries)
 // - add bees, hives and honey(along with the new tile_type_ai_bee ai, which is attracted to flowers until it picks them, comes back to the hive and generates a honey block under it 1/12th of the time)
 // - add farmland(like dirt but only for crops), wheat and carrots
 // - add snow(doesn't generate naturally except from 24/12 to 06/01 inclusive, acts like dirt, becomes water after a long time)
+// - make fire evaporate water even with blocks in between, by checking a wider radius for liquids
 // - allow for saving and loading a single world
 
 // tree 0.11:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
 // - write some documentation for making mods
-
-// (maybe release more versions if necessary/if i think of more ideas, although probably not)
-
-// tree 1.00:
-// - make a simple and relaxing soundtrack that can be muted with a button
-// - design a nice logo
-// - release web app version as an .apk for google play
 
 typedef struct tile_t tile_t;
 typedef struct tree_t tree_t;
@@ -47,6 +40,7 @@ enum {
   tile_lemon_tree,
   tile_birch_tree,
   tile_ebony_tree,
+  tile_cherry_tree,
   tile_apple_leaves,
   tile_orange_leaves,
   tile_palm_leaves,
@@ -56,12 +50,14 @@ enum {
   tile_lemon_leaves,
   tile_birch_leaves,
   tile_ebony_leaves,
+  tile_cherry_leaves,
   tile_apple,
   tile_orange,
   tile_coconut,
   tile_cone,
   tile_lemon,
   tile_persimmon,
+  tile_cherry,
   tile_berry_bush,
   tile_bush_leaves,
   tile_red_berry,
@@ -176,6 +172,7 @@ static const tile_t tile_types[] = {
   {"Lemon Tree"                 , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_lemon_tree , 6, 1, 1, 6 , -1, 0},
   {"Birch Tree"                 , (Color){255, 223, 159}, (Color){15 , 15 , 15 }, tile_color_dots, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_birch_tree , 4, 1, 1, 7 , -1, 0},
   {"Ebony Tree"                 , (Color){79 , 31 , 7  }, (Color){79 , 31 , 7  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_ebony_tree , 4, 1, 1, 8 , -1, 0},
+  {"Cherry Tree"                , (Color){94 , 57 , 6  }, (Color){94 , 57 , 6  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_cherry_tree, 6, 1, 1, 10, -1, 0},
   {"Apple Leaves"               , (Color){31 , 127, 31 }, (Color){31 , 127, 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_apple_tree    , tile_apple_tree , 1, 1, 0, 0 , -1, 1},
   {"Orange Leaves"              , (Color){47 , 191, 47 }, (Color){47 , 191, 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_orange_tree   , tile_orange_tree, 1, 1, 0, 1 , -1, 1},
   {"Palm Leaves"                , (Color){127, 255, 63 }, (Color){127, 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_palm_tree     , tile_palm_tree  , 1, 1, 0, 2 , -1, 1},
@@ -185,12 +182,14 @@ static const tile_t tile_types[] = {
   {"Lemon Leaves"               , (Color){47 , 191, 47 }, (Color){47 , 191, 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_lemon_tree    , tile_lemon_tree , 1, 1, 0, 6 , -1, 1},
   {"Birch Leaves"               , (Color){131, 199, 31 }, (Color){131, 199, 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_birch_tree    , tile_birch_tree , 1, 1, 0, 7 , -1, 1},
   {"Ebony Leaves"               , (Color){23 , 95 , 7  }, (Color){23 , 95 , 7  }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_ebony_tree    , tile_ebony_tree , 1, 1, 0, 8 , -1, 1},
+  {"Cherry Leaves"              , (Color){242, 171, 180}, (Color){252, 212, 217}, tile_color_dots, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_cherry_tree   , tile_cherry_tree, 1, 1, 0, 10, -1, 1},
   {"Apple"                      , (Color){255, 31 , 31 }, (Color){255, 31 , 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_apple_tree    , tile_apple_tree , 1, 1, 0, 0 , -1, 1},
   {"Orange"                     , (Color){255, 127, 31 }, (Color){255, 127, 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_orange_tree   , tile_orange_tree, 1, 1, 0, 1 , -1, 1},
   {"Coconut"                    , (Color){191, 95 , 31 }, (Color){191, 95 , 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_palm_tree     , tile_palm_tree  , 1, 1, 0, 2 , -1, 1},
   {"Cone"                       , (Color){159, 91 , 23 }, (Color){159, 91 , 23 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_pine_tree     , tile_pine_tree  , 1, 1, 0, 3 , -1, 1},
   {"Lemon"                      , (Color){255, 239, 47 }, (Color){255, 239, 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_lemon_tree    , tile_lemon_tree , 1, 1, 0, 6 , -1, 1},
   {"Persimmon"                  , (Color){240, 69 , 13 }, (Color){240, 69 , 13 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_ebony_tree    , tile_ebony_tree , 1, 1, 0, 8 , -1, 1},
+  {"Cherry"                     , (Color){203, 2  , 25 }, (Color){203, 2  , 25 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_cherry_tree   , tile_cherry_tree, 1, 1, 0, 10, -1, 1},
   {"Berry Bush"                 , (Color){19,  79 , 19 }, (Color){19,  79 , 19 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_dirt          , tile_berry_bush , 3, 1, 1, 9 , -1, 0},
   {"Bush Leaves"                , (Color){39 , 159, 39 }, (Color){39 , 159, 39 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_berry_bush    , tile_berry_bush , 1, 1, 0, 0 , -1, 1},
   {"Red Berry"                  , (Color){127, 15 , 15 }, (Color){127, 15 , 15 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_berry_bush    , tile_berry_bush , 1, 1, 0, 0 , -1, 1},
@@ -221,6 +220,7 @@ static const tree_t tree_types[] = {
   {tile_birch_tree , 3 , tile_birch_leaves , 35, -1            , -1             , 6, 15, 6 , 4 , 23},
   {tile_ebony_tree , 3 , tile_ebony_leaves , 39, tile_persimmon, tile_persimmon , 6, 15, 6 , 4 , 39},
   {tile_berry_bush , 5 , tile_bush_leaves  , 55, tile_red_berry, tile_blue_berry, 3, 55, 32, 28, 55},
+  {tile_cherry_tree, 4 , tile_cherry_leaves, 43, tile_cherry   , tile_cherry    , 5, 15, 6 , 1 , 39},
 };
 
 static const grow_t grow_types[] = {
