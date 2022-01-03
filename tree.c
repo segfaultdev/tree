@@ -176,7 +176,7 @@ void del_tile(int x, int y) {
     if (valid) break;
   }
   
-  if (valid || tile_types[tree_tiles[x + y * WIDTH]].type == tile_type_liquid || tile_types[tree_tiles[x + y * WIDTH]].type == tile_type_gas) {
+  if (valid || tile_types[tree_tiles[x + y * WIDTH]].type < tile_type_ai_water) {
     tree_tiles[x + y * WIDTH] = tile_types[tree_tiles[x + y * WIDTH]].remove;
   } else {
     tree_tiles[x + y * WIDTH] = tile_air;
@@ -478,6 +478,23 @@ void tick_tiles(void) {
         } else if (rand() % 3072 < (get_water(j, i) + get_plant(j, i)) && get_tile(j, i - 1) == tile_water && get_tile(j, i - 2) == tile_water && get_tile(j, i - 3) == tile_water &&
                    get_tile(j, i - 4) == tile_water && get_tile(j, i - 5) == tile_water && get_tile(j, i - 6) == tile_water && get_tile(j, i - 7) == tile_water) {
           set_tile(j, i - 1, tile_algae);
+        } else {
+          int valid = 0;
+          
+          for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+              if (get_tile(j + dx, i + dy) == tile_soil) {
+                valid = 1;
+                break;
+              }
+            }
+            
+            if (valid) break;
+          }
+          
+          if (valid && rand() % 12288 == 0 && get_water(j, i) >= 48) {
+            set_tile(j, i, tile_soil);
+          }
         }
       } else if (tile == tile_grass) {
         int valid = 0;
