@@ -537,18 +537,21 @@ void tick_tiles(void) {
           continue;
         }
         
-        for (int dy = -5; dy <= 5; dy++) {
-          for (int dx = -5; dx <= 5; dx++) {
+        for (int dy = -7; dy <= 7; dy++) {
+          for (int dx = -7; dx <= 7; dx++) {
             int ax = (dx < 0) ? -dx : dx;
-            int ay = (dy < 0) ? (-dy * 6) : dy;
+            int ay = (dy < 0) ? -dy : dy;
             
             if ((!dx && !dy) || get_tile_new(j + dx, i + dy) == tile) {
               continue;
-            } else if (tile_types[get_tile(j + dx, i + dy)].type != tile_type_liquid && (ax > 1 || ay > 1)) {
-              continue;
             }
             
-            int chance = 1 + (2 << ax) + (3 << ay);
+            if (tile_types[get_tile(j + dx, i + dy)].type != tile_type_liquid) {
+              if (ax > 1 || ay > 1) continue;
+              ay = (dy < 0) ? (-dy * 6) : dy;
+            }
+            
+            int chance = 1 + (3 << ax) + (5 << ay);
             
             if (rand() % chance == 0) {
               set_tile(j + dx, i + dy, (rand() % 15 < tile_types[get_tile(j + dx, i + dy)].fire_amnt) ? tile_types[get_tile(j + dx, i + dy)].fire_tile : tile_fire);
