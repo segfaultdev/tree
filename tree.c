@@ -739,6 +739,38 @@ void tick_tiles(void) {
         if (valid && rand() % 512 < water && get_tile(j, i + 1) == tile_air) {
           set_tile(j, i + 1, tile_willow_leaves);
         }
+      } else if (tile == tile_wheat) {
+        if (get_tile(j, i - 1) != tile_air && get_tile(j, i - 1) != tile_wheat && get_tile(j, i - 1) != tile_wheat_top) {
+          set_tile(j, i, tile_air);
+        } else if (rand() % 1024 < (get_water(j, i) - 20)) {
+          int x = (rand() % 2) ? ((rand() % 3) - 1) : 0;
+          
+          int valid = 1;
+          
+          for (int dx = -2; dx <= 2; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
+              if (get_tile(j + x + dx, i + dy) == tile_wheat_top) {
+                valid = 0;
+                break;
+              }
+              
+              if (dy < 0 && get_tile(j + x + dx, i + dy) == tile_wheat) {
+                valid = 0;
+                break;
+              }
+            }
+            
+            if (!valid) break;
+          }
+          
+          if (valid) {
+            if (rand() % 3 == 0) {
+              set_tile(j + x, i - 1, tile_wheat_top);
+            } else {
+              set_tile(j + x, i - 1, tile_wheat);
+            }
+          }
+        }
       }
       
       int grow_type = tile_types[tile].grow_type;
