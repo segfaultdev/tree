@@ -492,7 +492,7 @@ void tick_tiles(void) {
             if (valid) break;
           }
           
-          if (valid && rand() % 12288 == 0 && get_water(j, i) >= 48) {
+          if (valid && rand() % 12288 == 0 && get_water(j, i) >= 36) {
             set_tile(j, i, tile_soil);
           }
         }
@@ -771,6 +771,36 @@ void tick_tiles(void) {
             }
           }
         }
+      } else if (tile == tile_carrot) {
+        if (get_tile(j, i - 1) != tile_air && get_tile(j, i - 1) != tile_carrot && get_tile(j, i - 1) != tile_carrot_leaves) {
+          set_tile(j, i, tile_air);
+        } else if (rand() % 1024 < (get_water(j, i) - 20)) {
+          int valid = 1;
+          
+          for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+              if (get_tile(j + dx, i + dy) == tile_carrot_leaves) {
+                valid = 0;
+                break;
+              }
+              
+              if (dy < 0 && get_tile(j + dx, i + dy) == tile_carrot) {
+                valid = 0;
+                break;
+              }
+            }
+            
+            if (!valid) break;
+          }
+          
+          if (valid) {
+            if (rand() % 3 != 0) {
+              set_tile(j, i - 1, tile_carrot_leaves);
+            } else {
+              set_tile(j, i - 1, tile_carrot);
+            }
+          }
+        }
       }
       
       int grow_type = tile_types[tile].grow_type;
@@ -919,7 +949,7 @@ int main(int argc, const char **argv) {
   int view_count = 0;
   
   for (int i = 0; i < tile_count; i++) {
-    if (!tile_types[i].show) continue;
+    if (!tile_types[i].show || (tile_types[i].show == 2 && !GOD_MODE)) continue;
     view_count++;
   }
   
@@ -1095,7 +1125,7 @@ int main(int argc, const char **argv) {
     }
     
     for (int i = 0; i < tile_count; i++) {
-      if (!tile_types[i].show) continue;
+      if (!tile_types[i].show || (tile_types[i].show == 2 && !GOD_MODE)) continue;
       
       int rect_x, rect_y;
       

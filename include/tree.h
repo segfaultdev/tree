@@ -7,12 +7,10 @@
 
 // tree 0.10:
 // - add bees, hives and honey(along with the new tile_type_ai_bee ai, which is attracted to flowers until it picks them, comes back to the hive and generates a honey block under it 1/12th of the time)
-// - add wheat and carrots to work with soil
 // - add snow(doesn't generate naturally except from 24/12 to 06/01 inclusive, acts like dirt, becomes water after a long time)
 // - allow for saving and loading a single world
 // - remove fertilizer item(cos its useless and unrealistic)
 // - use "tile" instead of "getTile()" in immense if-else blob
-// - hide soil in menu
 
 // tree 0.11:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
@@ -79,7 +77,10 @@ enum {
   tile_soil,
   tile_wheat,
   tile_wheat_top,
+  tile_carrot,
+  tile_carrot_leaves,
   tile_fish,
+  tile_honey,
   
   tile_count
 };
@@ -108,7 +109,7 @@ struct tile_t {
   
   int type; // tile type, check tile_type_* in enum above
   
-  int show; // show in the selection menu
+  int show; // show in the selection menu(if 2 will only show in god mode)
   int flow; // only wet tiles of the same type
   int sink; // float above powders, making those sink
   int soil; // spread fertile levels
@@ -209,12 +210,15 @@ static const tile_t tile_types[] = {
   {"Brown Mushroom"             , (Color){223, 159, 127}, (Color){223, 159, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_brown_mushroom, tile_mushroom   , 1, 1, 1, -1, -1, 0},
   {"Fire"                       , (Color){255, 159, 31 }, (Color){255, 159, 31 }, tile_color_none, tile_type_gas     , 1, 1, 1, 0, tile_air  , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Ash"                        , (Color){23 , 23 , 23 }, (Color){23 , 23 , 23 }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Steam"                      , (Color){43 , 43 , 43 }, (Color){43 , 43 , 43 }, tile_color_none, tile_type_gas     , 0, 1, 1, 0, tile_steam, 15, 0 , tile_water, tile_air           , tile_air        , 0, 0, 0, -1, -1, 1},
+  {"Steam"                      , (Color){43 , 43 , 43 }, (Color){43 , 43 , 43 }, tile_color_none, tile_type_gas     , 2, 1, 1, 0, tile_steam, 15, 0 , tile_water, tile_air           , tile_air        , 0, 0, 0, -1, -1, 1},
   {"Fertilizer"                 , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 0, 0, 0, 1, tile_dirt , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
-  {"Soil"                       , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_dirt , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
-  {"Wheat"                      , (Color){135, 206, 28 }, (Color){135, 206, 28 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_wheat         , tile_soil       , 1, 1, 1, -1, -1, 0},
-  {"Wheat Top"                  , (Color){243, 249, 112}, (Color){243, 249, 112}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_wheat         , tile_wheat      , 1, 1, 1, -1, -1, 0},
+  {"Soil"                       , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 2, 0, 0, 1, tile_dirt , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
+  {"Wheat"                      , (Color){135, 206, 28 }, (Color){135, 206, 28 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_wheat         , tile_soil       , 1, 1, 1, -1, -1, 0},
+  {"Wheat Top"                  , (Color){243, 249, 112}, (Color){243, 249, 112}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_wheat         , tile_wheat      , 1, 1, 1, -1, -1, 0},
+  {"Carrot"                     , (Color){247, 132, 24 }, (Color){247, 132, 24 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_carrot        , tile_soil       , 1, 1, 1, -1, -1, 0},
+  {"Carrot Leaves"              , (Color){58 , 247, 24 }, (Color){58 , 247, 24 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_carrot        , tile_carrot     , 1, 1, 1, -1, -1, 0},
   {"Fish"                       , (Color){143, 143, 191}, (Color){143, 143, 191}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
+  {"Honey"                      , (Color){255, 195, 11 }, (Color){255, 255, 139}, tile_color_ceil, tile_type_liquid  , 2, 0, 1, 0, tile_air  , 15, 1 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
 };
 
 static const tree_t tree_types[] = {
