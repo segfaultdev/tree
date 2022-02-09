@@ -10,13 +10,13 @@
 #define GetMouseX() GetTouchPosition(0).x
 #define GetMouseY() GetTouchPosition(0).y
 
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+
 int *old_tiles = NULL;
 int *old_water = NULL;
-int *old_plant = NULL;
 
 int *tree_tiles = NULL;
 int *tree_water = NULL;
-int *tree_plant = NULL;
 
 int selection = tile_dirt;
 int brush_size = 5;
@@ -34,6 +34,8 @@ int zoom = SCALE;
 int tick = 0;
 
 int paused = 0;
+
+int tick_speed = 2;
 
 void set_tile(int x, int y, int tile) {
   if (WORLD_WRAP) {
@@ -113,45 +115,6 @@ int get_water_new(int x, int y) {
   return tree_water[x + y * WIDTH];
 }
 
-void set_plant(int x, int y, int plant) {
-  if (WORLD_WRAP) {
-    while (x < 0) x += WIDTH;
-    while (y < 0) y += HEIGHT;
-    
-    x = x % WIDTH;
-    y = y % HEIGHT;
-  }
-  
-  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
-  tree_plant[x + y * WIDTH] = plant;
-}
-
-int get_plant(int x, int y) {
-  if (WORLD_WRAP) {
-    while (x < 0) x += WIDTH;
-    while (y < 0) y += HEIGHT;
-    
-    x = x % WIDTH;
-    y = y % HEIGHT;
-  }
-  
-  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
-  return old_plant[x + y * WIDTH];
-}
-
-int get_plant_new(int x, int y) {
-  if (WORLD_WRAP) {
-    while (x < 0) x += WIDTH;
-    while (y < 0) y += HEIGHT;
-    
-    x = x % WIDTH;
-    y = y % HEIGHT;
-  }
-  
-  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
-  return tree_plant[x + y * WIDTH];
-}
-
 void del_tile(int x, int y) {
   if (WORLD_WRAP) {
     while (x < 0) x += WIDTH;
@@ -218,15 +181,12 @@ void swap(int x1, int y1, int x2, int y2) {
   
   int tile = get_tile_new(x1, y1);
   int water = get_water_new(x1, y1);
-  int plant = get_plant_new(x1, y1);
   
   set_tile(x1, y1, get_tile_new(x2, y2));
   set_water(x1, y1, get_water_new(x2, y2));
-  set_plant(x1, y1, get_plant_new(x2, y2));
   
   set_tile(x2, y2, tile);
   set_water(x2, y2, water);
-  set_plant(x2, y2, plant);
 }
 
 void set_circle(int x, int y, int tile) {
@@ -473,9 +433,9 @@ void tick_tiles(void) {
       }
       
       if (tile == tile_dirt) {
-        if (rand() % 2048 < (get_water(j, i) + get_plant(j, i)) && get_water(j, i) > 0 && get_tile(j, i - 1) == tile_air) {
+        if (rand() % 2048 < get_water(j, i) && get_water(j, i) > 0 && get_tile(j, i - 1) == tile_air) {
           set_tile(j, i - 1, tile_grass);
-        } else if (rand() % 3072 < (get_water(j, i) + get_plant(j, i)) && get_tile(j, i - 1) == tile_water && get_tile(j, i - 2) == tile_water && get_tile(j, i - 3) == tile_water &&
+        } else if (rand() % 3072 < get_water(j, i) && get_tile(j, i - 1) == tile_water && get_tile(j, i - 2) == tile_water && get_tile(j, i - 3) == tile_water &&
                    get_tile(j, i - 4) == tile_water && get_tile(j, i - 5) == tile_water && get_tile(j, i - 6) == tile_water && get_tile(j, i - 7) == tile_water) {
           set_tile(j, i - 1, tile_algae);
         } else {
@@ -687,7 +647,7 @@ void tick_tiles(void) {
           }
         }
       } else if (get_tile(j, i) == tile_cacti) {
-        if (rand() % 1024 < get_water(j, i) + get_plant(j, i) && get_water(j, i) >= 20) {
+        if (rand() % 1024 < get_water(j, i) && get_water(j, i) >= 20) {
           if (get_tile(j - 1, i) == tile_cacti && get_tile(j + 1, i) == tile_cacti) continue;
           if (get_tile(j - 1, i) != tile_cacti && get_tile(j - 2, i) == tile_cacti) continue;
           if (get_tile(j + 1, i) != tile_cacti && get_tile(j + 2, i) == tile_cacti) continue;
@@ -801,8 +761,66 @@ void tick_tiles(void) {
             }
           }
         }
+      } else if (tile == tile_snow) {
+        int valid = 0;
+        
+        for (int dx = -3; dx <= 3; dx++) {
+          for (int dy = -3; dy <= 3; dy++) {
+            if (get_tile(j + dx, i + dy) == tile_ice) {
+              valid = 1;
+              break;
+            }
+          }
+          
+          if (valid) break;
+        }
+        
+        if (!valid) {
+          valid = 1;
+          
+          for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+              if (get_tile(j + dx, i + dy) != tile_snow) {
+                valid = 0;
+                break;
+              }
+            }
+            
+            if (!valid) break;
+          }
+          
+          if (rand() % 2048 == 0 && !valid) set_tile(j, i, tile_water);
+        }
+      } else if (tile == tile_ice) {
+        int valid = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy) continue;
+            
+            if (rand() % ((ABS(dx) > ABS(dy)) ? 800 : 6144) == 0 && get_tile(j + dx, i + dy) == tile_water) {
+              set_tile(j + dx, i + dy, (rand() % 5) ? tile_ice : tile_snow);
+            } else if (get_tile(j + dx, i + dy) == tile_steam) {
+              set_tile(j + dx, i + dy, tile_water);
+            }
+          }
+          
+          if (valid) break;
+        }
+      } else if (tile_types[tile].tree_type >= 0) {
+        int tree_type = tile_types[tile].tree_type;
+        
+        if (tile != tree_types[tree_type].tree_tile &&
+            tile != tree_types[tree_type].leaf_tile &&
+            tile != tree_types[tree_type].fruit_tile_1 &&
+            tile != tree_types[tree_type].fruit_tile_2) {
+          if (get_tile(j, i + 1) == tile_types[tree_types[tree_type].tree_tile].need_tile_1 && rand() % 32 == 0) {
+            set_tile(j, i, tree_types[tree_type].tree_tile);
+          }
+        }
       }
       
+      /*
       int grow_type = tile_types[tile].grow_type;
       
       if (grow_type != -1) {
@@ -831,7 +849,8 @@ void tick_tiles(void) {
           }
         }
       }
-      
+      */
+                  
       if (tile_types[get_tile(j, i)].type == tile_type_ai_water) {
         int x = (rand() % 3) - 1;
         int y = 0;
@@ -878,36 +897,6 @@ void tick_water(void) {
         } else if (water < water_max) {
           set_water(j, i, water + 1);
         }
-      }
-    }
-  }
-}
-
-void tick_plant(void) {
-  for (int i = 0; i < HEIGHT; i++) {
-    for (int j = 0; j < WIDTH; j++) {
-      if (get_tile_new(j, i) == tile_fertilizer) {
-        set_plant(j, i, 39);
-      } else if (tile_types[get_tile_new(j, i)].soil) {
-        int plant = get_plant(j, i);
-        
-        if (plant < 0)  set_plant(j, i, 0),  plant = 0;
-        if (plant > 39) set_plant(j, i, 39), plant = 39;
-        
-        if (plant > 0 && get_plant(j - 1, i) <= plant && get_plant(j + 1, i) <= plant && get_plant(j, i - 1) <= plant && get_plant(j, i + 1) <= plant &&
-            get_plant(j - 1, i - 1) <= plant && get_plant(j + 1, i - 1) <= plant && get_plant(j - 1, i + 1) <= plant && get_plant(j + 1, i + 1) <= plant) {
-          set_plant(j, i, plant - 1);
-        }
-        
-        if (plant < 39 && (get_plant(j - 1, i) > plant + 1 || get_plant(j + 1, i) > plant + 1 || get_plant(j, i - 1) > plant + 1 || get_plant(j, i + 1) > plant + 1)) {
-          set_plant(j, i, plant + 1);
-        }
-        
-        if (plant < 39 && (get_plant(j - 1, i - 1) > plant + 2 || get_plant(j + 1, i - 1) > plant + 2 || get_plant(j - 1, i + 1) > plant + 2 || get_plant(j + 1, i + 1) > plant + 2)) {
-          set_plant(j, i, plant + 1);
-        }
-      } else {
-        set_plant(j, i, 0);
       }
     }
   }
@@ -977,11 +966,9 @@ int main(int argc, const char **argv) {
   
   old_tiles = calloc(WIDTH * HEIGHT * sizeof(int), 1);
   old_water = calloc(WIDTH * HEIGHT * sizeof(int), 1);
-  old_plant = calloc(WIDTH * HEIGHT * sizeof(int), 1);
   
   tree_tiles = calloc(WIDTH * HEIGHT * sizeof(int), 1);
   tree_water = calloc(WIDTH * HEIGHT * sizeof(int), 1);
-  tree_plant = calloc(WIDTH * HEIGHT * sizeof(int), 1);
   
   Texture2D background;
   
@@ -1162,16 +1149,16 @@ int main(int argc, const char **argv) {
     
     if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < WIDTH * SCALE && GetMouseY() < HEIGHT * SCALE) {
       if ((GetMouseX() < WIDTH * SCALE - 44 && (GetMouseY() < 80)) || GetMouseY() >= 122 || GetMouseX() < WIDTH * SCALE - 130) {
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-          set_circle(x, y, selection);
-        } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
-          set_circle(x, y, tile_air);
+        if (!(GetMouseX() >= WIDTH * SCALE - 314 && GetMouseX() < WIDTH * SCALE - 166 && GetMouseY() < 48)) {
+          if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            set_circle(x, y, selection);
+          } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+            set_circle(x, y, tile_air);
+          }
         }
       }
       
       if (get_tile_new(x, y) != tile_air) {
-        // sprintf(buffer, "Tile: %s(%d/55 water, %d/39 fertile)", tile_types[get_tile_new(x, y)].name_en, get_water_new(x, y), get_plant_new(x, y));
-        
         sprintf(buffer, "Tile: %s", tile_types[get_tile_new(x, y)].name_en);
         DrawText(buffer, 8, 32, 20, WHITE);
       } else {
@@ -1212,7 +1199,9 @@ int main(int argc, const char **argv) {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 70 && GetMouseY() >= 88 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 114) {
       memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
       memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
-      memset(tree_plant, 0, WIDTH * HEIGHT * sizeof(int));
+      
+      memset(old_tiles, 0, WIDTH * HEIGHT * sizeof(int));
+      memset(old_water, 0, WIDTH * HEIGHT * sizeof(int));
     }
     
     DrawText("Clear", WIDTH * SCALE - 66, 92, 20, WHITE);
@@ -1223,6 +1212,39 @@ int main(int argc, const char **argv) {
         DrawRectangle((WIDTH * SCALE - 88) + j, 44 + i, 1, 1, get_color(selection));
       }
     }
+    
+    DrawRectangle(WIDTH * SCALE - 314, 0, 148, 48, (Color){0, 0, 0, 95});
+    
+    DrawRectangle(WIDTH * SCALE - 308, 6, 46, 36, WHITE);
+    DrawRectangle(WIDTH * SCALE - 306, 8, 42, 32, BLACK);
+    
+    DrawText("<<", WIDTH * SCALE - 300, 6, 40, WHITE);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 308 && GetMouseX() < WIDTH * SCALE - 272 && GetMouseY() >= 6 && GetMouseY() < 52) {
+      tick_speed--;
+      
+      if (tick_speed < 1) {
+        tick_speed = 1;
+      }
+    }
+    
+    DrawRectangle(WIDTH * SCALE - 218, 6, 46, 36, WHITE);
+    DrawRectangle(WIDTH * SCALE - 216, 8, 42, 32, BLACK);
+    
+    DrawText(">>", WIDTH * SCALE - 210, 6, 40, WHITE);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 218 && GetMouseX() < WIDTH * SCALE - 182 && GetMouseY() >= 6 && GetMouseY() < 52) {
+      tick_speed++;
+      
+      if (tick_speed > 6) {
+        tick_speed = 6;
+      }
+    }
+    
+    char speed_buffer[4];
+    sprintf(speed_buffer, "x%d", tick_speed);
+    
+    DrawText(speed_buffer, WIDTH * SCALE - 252, 14, 20, WHITE);
     
     int wheel_move = GetMouseWheelMove();
     
@@ -1243,18 +1265,14 @@ int main(int argc, const char **argv) {
     
     if (!paused) {
       tick_water();
-      tick_plant();
       
       time_4 = GetTime();
       
-      int c = (GetFPS() < 25) ? 1 : 2;
-      
-      for (int i = 0; i < c; i++) {
+      for (int i = 0; i < tick_speed; i++) {
         tick_tiles();
         
         memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
         memcpy(old_water, tree_water, WIDTH * HEIGHT * sizeof(int));
-        memcpy(old_plant, tree_plant, WIDTH * HEIGHT * sizeof(int));
       }
     } else {
       memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
