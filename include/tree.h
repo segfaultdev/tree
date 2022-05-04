@@ -5,16 +5,14 @@
 
 // tree 0.09: done!
 
-// tree 0.10:
-// - add bees, hives and honey(along with the new tile_type_ai_bee ai, which is attracted to flowers until it picks them, comes back to the hive and generates a honey block under it 1/12th of the time)
-// - add wheat and carrots to work with soil
-// - add snow(doesn't generate naturally except from 24/12 to 06/01 inclusive, acts like dirt, becomes water after a long time)
-// - allow for saving and loading a single world
-// - remove fertilizer item(cos its useless and unrealistic)
-// - use "tile" instead of "getTile()" in immense if-else blob
-// - hide soil in menu
+// tree 0.10: done!
 
 // tree 0.11:
+// - add bees, hives and honey(along with the new tile_type_ai_bee ai, which is attracted to flowers until it picks them, comes back to the hive and generates a honey block under it 1/12th of the time)
+// - allow for saving and loading a single world(pc)
+// - use "tile" instead of "getTile()" in immense if-else blob
+
+// tree 0.12:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
 // - write some documentation for making mods
 
@@ -43,6 +41,16 @@ enum {
   tile_birch_tree,
   tile_ebony_tree,
   tile_cherry_tree,
+  tile_apple_seed,
+  tile_orange_seed,
+  tile_palm_seed,
+  tile_pine_seed,
+  tile_beech_seed,
+  tile_willow_seed,
+  tile_lemon_seed,
+  tile_birch_seed,
+  tile_ebony_seed,
+  tile_cherry_seed,
   tile_apple_leaves,
   tile_orange_leaves,
   tile_palm_leaves,
@@ -75,11 +83,16 @@ enum {
   tile_fire,
   tile_ash,
   tile_steam,
-  tile_fertilizer,
   tile_soil,
   tile_wheat,
   tile_wheat_top,
+  tile_carrot,
+  tile_carrot_leaves,
   tile_fish,
+  tile_honey,
+  tile_snow,
+  tile_ice,
+  tile_burn,
   
   tile_count
 };
@@ -108,7 +121,7 @@ struct tile_t {
   
   int type; // tile type, check tile_type_* in enum above
   
-  int show; // show in the selection menu
+  int show; // show in the selection menu(if 2 will only show in god mode)
   int flow; // only wet tiles of the same type
   int sink; // float above powders, making those sink
   int soil; // spread fertile levels
@@ -121,7 +134,7 @@ struct tile_t {
  // tile_type_solid:  minimum water level needed to not disappear
   int remove; // tile it will be replaced with when destroying it(should be air for most blocks, water for algae and steam, etc.)
   
-  int need_tile_1; // tile it needs to have close to not disappear
+  int need_tile_1; // tile it needs to have close to not disappear <- store dirt type here for trees
   int need_tile_2; // tile it needs to have close to not disappear(either this one or need_tile_1)
   int need_dist; // distance that tile has to be within to survive
   int need_amnt; // amount of tiles needed to survive(or 0 if it doesn't need any tiles near)
@@ -168,16 +181,26 @@ static const tile_t tile_types[] = {
   {"Stone"         , (Color){127, 127, 127}, (Color){114, 114, 114}, tile_color_wet , tile_type_solid   , 1, 0, 0, 0, tile_stone, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Sand"          , (Color){255, 255, 127}, (Color){229, 229, 114}, tile_color_wet , tile_type_powder  , 1, 0, 0, 1, tile_sand , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 1 , 0},
   {"Iron"          , (Color){191, 191, 191}, (Color){191, 191, 191}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_iron , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Apple Tree"    , (Color){63 , 31 , 0  }, (Color){63 , 31 , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_apple_tree , 6, 1, 1, 0 , -1, 0},
-  {"Orange Tree"   , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_orange_tree, 6, 1, 1, 1 , -1, 0},
-  {"Palm Tree"     , (Color){127, 95 , 31 }, (Color){127, 95 , 31 }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_sand          , tile_palm_tree  , 8, 1, 1, 2 , -1, 0},
-  {"Pine Tree"     , (Color){103, 63 , 0  }, (Color){103, 63 , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_pine_tree  , 4, 1, 1, 3 , -1, 0},
-  {"Beech Tree"    , (Color){95 , 79 , 7  }, (Color){95 , 79 , 7  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_beech_tree , 4, 1, 1, 4 , -1, 0},
-  {"Willow Tree"   , (Color){127, 75 , 47 }, (Color){127, 75 , 47 }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_willow_tree, 4, 1, 1, 5 , -1, 0},
-  {"Lemon Tree"    , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_lemon_tree , 6, 1, 1, 6 , -1, 0},
-  {"Birch Tree"    , (Color){255, 223, 159}, (Color){15 , 15 , 15 }, tile_color_dots, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_birch_tree , 4, 1, 1, 7 , -1, 0},
-  {"Ebony Tree"    , (Color){79 , 31 , 7  }, (Color){79 , 31 , 7  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_ebony_tree , 4, 1, 1, 8 , -1, 0},
-  {"Cherry Tree"   , (Color){94 , 57 , 6  }, (Color){94 , 57 , 6  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_cherry_tree, 6, 1, 1, 10, -1, 0},
+  {"Apple Tree"    , (Color){63 , 31 , 0  }, (Color){63 , 31 , 0  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_apple_tree , 6, 1, 1, 0 , -1, 0},
+  {"Orange Tree"   , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_orange_tree, 6, 1, 1, 1 , -1, 0},
+  {"Palm Tree"     , (Color){127, 95 , 31 }, (Color){127, 95 , 31 }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_sand          , tile_palm_tree  , 8, 1, 1, 2 , -1, 0},
+  {"Pine Tree"     , (Color){103, 63 , 0  }, (Color){103, 63 , 0  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_pine_tree  , 4, 1, 1, 3 , -1, 0},
+  {"Beech Tree"    , (Color){95 , 79 , 7  }, (Color){95 , 79 , 7  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_beech_tree , 4, 1, 1, 4 , -1, 0},
+  {"Willow Tree"   , (Color){127, 75 , 47 }, (Color){127, 75 , 47 }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_willow_tree, 4, 1, 1, 5 , -1, 0},
+  {"Lemon Tree"    , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_lemon_tree , 6, 1, 1, 6 , -1, 0},
+  {"Birch Tree"    , (Color){255, 223, 159}, (Color){15 , 15 , 15 }, tile_color_dots, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_birch_tree , 4, 1, 1, 7 , -1, 0},
+  {"Ebony Tree"    , (Color){79 , 31 , 7  }, (Color){79 , 31 , 7  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_ebony_tree , 4, 1, 1, 8 , -1, 0},
+  {"Cherry Tree"   , (Color){94 , 57 , 6  }, (Color){94 , 57 , 6  }, tile_color_none, tile_type_solid   , 0, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_dirt          , tile_cherry_tree, 6, 1, 1, 10, -1, 0},
+  {"Apple Seed"    , (Color){63 , 31 , 0  }, (Color){63 , 31 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 0 , -1, 1},
+  {"Orange Seed"   , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 1 , -1, 1},
+  {"Palm Seed"     , (Color){127, 95 , 31 }, (Color){127, 95 , 31 }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 2 , -1, 1},
+  {"Pine Seed"     , (Color){103, 63 , 0  }, (Color){103, 63 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 3 , -1, 1},
+  {"Beech Seed"    , (Color){95 , 79 , 7  }, (Color){95 , 79 , 7  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 4 , -1, 1},
+  {"Willow Seed"   , (Color){127, 75 , 47 }, (Color){127, 75 , 47 }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 5 , -1, 1},
+  {"Lemon Seed"    , (Color){95 , 47 , 0  }, (Color){95 , 47 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 6 , -1, 1},
+  {"Birch Seed"    , (Color){255, 223, 159}, (Color){15 , 15 , 15 }, tile_color_dots, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 7 , -1, 1},
+  {"Ebony Seed"    , (Color){79 , 31 , 7  }, (Color){79 , 31 , 7  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 8 , -1, 1},
+  {"Cherry Seed"   , (Color){94 , 57 , 6  }, (Color){94 , 57 , 6  }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, 10, -1, 1},
   {"Apple Leaves"  , (Color){31 , 127, 31 }, (Color){31 , 127, 31 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_apple_tree    , tile_apple_tree , 1, 1, 0, 0 , -1, 1},
   {"Orange Leaves" , (Color){47 , 191, 47 }, (Color){47 , 191, 47 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_orange_tree   , tile_orange_tree, 1, 1, 0, 1 , -1, 1},
   {"Palm Leaves"   , (Color){127, 255, 63 }, (Color){127, 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_palm_tree     , tile_palm_tree  , 1, 1, 0, 2 , -1, 1},
@@ -209,12 +232,17 @@ static const tile_t tile_types[] = {
   {"Brown Mushroom", (Color){223, 159, 127}, (Color){223, 159, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_brown_mushroom, tile_mushroom   , 1, 1, 1, -1, -1, 0},
   {"Fire"          , (Color){255, 159, 31 }, (Color){255, 159, 31 }, tile_color_none, tile_type_gas     , 1, 1, 1, 0, tile_air  , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Ash"           , (Color){23 , 23 , 23 }, (Color){23 , 23 , 23 }, tile_color_none, tile_type_powder  , 1, 0, 0, 0, tile_ash  , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Steam"         , (Color){43 , 43 , 43 }, (Color){43 , 43 , 43 }, tile_color_none, tile_type_gas     , 0, 1, 1, 0, tile_steam, 15, 0 , tile_water, tile_air           , tile_air        , 0, 0, 0, -1, -1, 1},
-  {"Fertilizer"    , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 0, 0, 0, 1, tile_dirt , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
-  {"Soil"          , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_dirt , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
-  {"Wheat"         , (Color){135, 206, 28 }, (Color){135, 206, 28 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_wheat         , tile_soil       , 1, 1, 1, -1, -1, 0},
-  {"Wheat Top"     , (Color){243, 249, 112}, (Color){243, 249, 112}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_wheat         , tile_wheat      , 1, 1, 1, -1, -1, 0},
+  {"Steam"         , (Color){43 , 43 , 43 }, (Color){43 , 43 , 43 }, tile_color_none, tile_type_gas     , 2, 1, 1, 0, tile_steam, 15, 0 , tile_water, tile_air           , tile_air        , 0, 0, 0, -1, -1, 1},
+  {"Soil"          , (Color){47 , 23 , 0  }, (Color){47 , 23 , 0  }, tile_color_none, tile_type_powder  , 2, 0, 0, 1, tile_dirt , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},   
+  {"Wheat"         , (Color){135, 206, 28 }, (Color){135, 206, 28 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_wheat         , tile_soil       , 1, 1, 1, -1, -1, 0},
+  {"Wheat Top"     , (Color){243, 249, 112}, (Color){243, 249, 112}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_wheat         , tile_wheat      , 1, 1, 1, -1, -1, 0},
+  {"Carrot"        , (Color){247, 132, 24 }, (Color){247, 132, 24 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_carrot        , tile_soil       , 1, 1, 1, -1, -1, 0},
+  {"Carrot Leaves" , (Color){58 , 247, 24 }, (Color){58 , 247, 24 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_carrot        , tile_carrot     , 1, 1, 1, -1, -1, 0},
   {"Fish"          , (Color){143, 143, 191}, (Color){143, 143, 191}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
+  {"Honey"         , (Color){255, 195, 11 }, (Color){255, 255, 139}, tile_color_ceil, tile_type_liquid  , 2, 0, 1, 0, tile_air  , 15, 1 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Snow"          , (Color){239, 239, 255}, (Color){239, 239, 255}, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_water, 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 1 , 0},
+  {"Ice"           , (Color){159, 159, 255}, (Color){191, 191, 255}, tile_color_dots, tile_type_solid   , 1, 0, 0, 0, tile_water, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Burn"          , (Color){223, 63 , 31 }, (Color){223, 63 , 31 }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_fire , 0 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
 };
 
 static const tree_t tree_types[] = {
