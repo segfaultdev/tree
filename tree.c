@@ -807,6 +807,25 @@ void tick_tiles(void) {
           
           if (valid) break;
         }
+      } else if (tile == tile_hive) {
+        int valid = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy) continue;
+            
+            if (tile_types[get_tile(j + dx, i + dy)].tree_type >= 0) {
+              valid = 1;
+              break;
+            }
+          }
+          
+          if (valid) break;
+        }
+        
+        if (!valid) {
+          
+        }
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
         
