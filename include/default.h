@@ -28,11 +28,11 @@ static int HEIGHT = 160;
 // if 1, will darken soils when wet, add foam to water, add dots to birch, etc...
 #define TILE_EFFECTS 1
 
+// if 1, deepness will darken blocks(affects performance hugely!)
+#define DEEP_DARKEN 1
+
 // if 1, will show a colorful bar representing how much time each part of the game takes(affects performance slightly)
 #define DEBUG_MODE 0
-
-// if 1, will show some hidden block types in menu
-#define GOD_MODE 1
 
 // if 1, a world will be generated using perlin-like noise on startup(pass "-s NUMBER" to set the seed, will use current time by default)
 #define WORLD_GEN 1
