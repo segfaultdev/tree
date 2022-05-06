@@ -11,12 +11,16 @@
 #define GetMouseY() GetTouchPosition(0).y
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 int *old_tiles = NULL;
 int *old_water = NULL;
 
 int *tree_tiles = NULL;
 int *tree_water = NULL;
+
+int *empty_map = NULL;
+int *polen_map = NULL;
 
 int selection = tile_dirt;
 int brush_size = 5;
@@ -32,8 +36,6 @@ int old_y = 0;
 
 int zoom = SCALE;
 int tick = 0;
-
-int paused = 0;
 
 int tick_speed = 2;
 
@@ -113,6 +115,32 @@ int get_water_new(int x, int y) {
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
   return tree_water[x + y * WIDTH];
+}
+
+int get_empty(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
+  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 1048576;
+  return empty_map[x + y * WIDTH];
+}
+
+int get_polen(int x, int y) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
+  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 1048576;
+  return polen_map[x + y * WIDTH];
 }
 
 void del_tile(int x, int y) {
@@ -824,7 +852,82 @@ void tick_tiles(void) {
         }
         
         if (!valid) {
+          set_tile(j, i, tile_air);
+        }
+      } else if (tile == tile_empty_bee) {
+        int x = (rand() % 3) - 1;
+        int y = (rand() % 3) - 1;
+        
+        int dist = 1048576;
+        
+        if (rand() % 3) {
+          for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+              int new_dist = get_empty(j + dx, i + dy);
+              
+              if (new_dist < dist) {
+                x = dx;
+                y = dy;
+                
+                dist = new_dist;
+              }
+            }
+          }
+        }
+        
+        if (x == 0 && y == 0) {
+          x = (rand() % 3) - 1;
+          y = (rand() % 3) - 1;
+        }
+        
+        if (get_tile(j + x, i + y) == tile_air) {
+          swap(j, i, j + x, i + y);
+        } else if (get_tile(j + x, i + y) == tile_flower_pink ||
+                   get_tile(j + x, i + y) == tile_flower_blue || 
+                   get_tile(j + x, i + y) == tile_flower_yellow) {
+          set_tile(j + x, i + y, tile_polen_bee);
+          set_tile(j, i, tile_air);
+        }
+      } else if (tile == tile_polen_bee) {
+        int x = (rand() % 3) - 1;
+        int y = (rand() % 3) - 1;
+        
+        int dist = 1048576;
+        
+        if (rand() % 3) {
+          for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+              int new_dist = get_polen(j + dx, i + dy);
+              
+              if (new_dist < dist) {
+                x = dx;
+                y = dy;
+                
+                dist = new_dist;
+              }
+            }
+          }
+        }
+        
+        if (x == 0 && y == 0) {
+          x = (rand() % 3) - 1;
+          y = (rand() % 3) - 1;
+        }
+        
+        if (get_tile(j + x, i + y) == tile_air) {
+          swap(j, i, j + x, i + y);
+        } else if (get_tile(j + x, i + y) == tile_hive) {
+          set_tile(j, i, tile_empty_bee);
           
+          if (get_tile_new(j, i + 1) == tile_air) {
+            set_tile(j, i + 1, tile_honey);
+          } else if (get_tile_new(j, i - 1) == tile_air) {
+            set_tile(j, i - 1, tile_honey);
+          } else if (get_tile_new(j - 1, i) == tile_air) {
+            set_tile(j - 1, i, tile_honey);
+          } else if (get_tile_new(j + 1, i) == tile_air) {
+            set_tile(j + 1, i, tile_honey);
+          }
         }
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
@@ -839,37 +942,6 @@ void tick_tiles(void) {
         }
       }
       
-      /*
-      int grow_type = tile_types[tile].grow_type;
-      
-      if (grow_type != -1) {
-        if (!moved) {
-          if (rand() % 1024 < get_plant(j, i) && get_water(j, i) >= 12 && tile_types[get_tile(j, i - 1)].weak && tile_types[get_tile(j, i - 1)].type != tile_type_liquid) {
-            int valid = 1;
-            
-            for (int dy = -8; dy <= 8; dy++) {
-              for (int dx = -10; dx <= 10; dx++) {
-                for (int k = 0; k < grow_types[grow_type].count; k++) {
-                  if (get_tile(j + dx, i + dy) == grow_types[grow_type].tiles[k]) {
-                    valid = 0;
-                    break;
-                  }
-                }
-                
-                if (!valid) break;
-              }
-              
-              if (!valid) break;
-            }
-            
-            if (valid) {
-              set_tile(j, i - 1, grow_types[grow_type].tiles[rand() % grow_types[grow_type].count]);
-            }
-          }
-        }
-      }
-      */
-                  
       if (tile_types[get_tile(j, i)].type == tile_type_ai_water) {
         int x = (rand() % 3) - 1;
         int y = 0;
@@ -918,6 +990,59 @@ void tick_water(void) {
         }
       }
     }
+  }
+}
+
+void tick_dists(void) {
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
+      polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
+    }
+  }
+  
+  for (int count = 0; count < WIDTH * 2; count++) {
+    int changed = 0;
+    
+    for (int i = 0; i < HEIGHT; i++) {
+      for (int j = 0; j < WIDTH; j++) {
+        if (get_tile(j, i) != tile_air) continue;
+        
+        int dist = empty_map[j + i * WIDTH];
+        
+        dist = MIN(dist, get_empty(j - 1, i) + 1);
+        dist = MIN(dist, get_empty(j + 1, i) + 1);
+        dist = MIN(dist, get_empty(j, i - 1) + 1);
+        dist = MIN(dist, get_empty(j, i + 1) + 1);
+        
+        if (dist != empty_map[j + i * WIDTH]) changed = 1;
+        empty_map[j + i * WIDTH] = dist;
+      }
+    }
+    
+    if (!changed) break;
+  }
+  
+  for (int count = 0; count < WIDTH * 2; count++) {
+    int changed = 0;
+    
+    for (int i = 0; i < HEIGHT; i++) {
+      for (int j = 0; j < WIDTH; j++) {
+        if (get_tile(j, i) != tile_air) continue;
+        
+        int dist = polen_map[j + i * WIDTH];
+        
+        dist = MIN(dist, get_polen(j - 1, i) + 1);
+        dist = MIN(dist, get_polen(j + 1, i) + 1);
+        dist = MIN(dist, get_polen(j, i - 1) + 1);
+        dist = MIN(dist, get_polen(j, i + 1) + 1);
+        
+        if (dist != polen_map[j + i * WIDTH]) changed = 1;
+        polen_map[j + i * WIDTH] = dist;
+      }
+    }
+    
+    if (!changed) break;
   }
 }
 
@@ -989,6 +1114,9 @@ int main(int argc, const char **argv) {
   tree_tiles = calloc(WIDTH * HEIGHT * sizeof(int), 1);
   tree_water = calloc(WIDTH * HEIGHT * sizeof(int), 1);
   
+  empty_map = malloc(WIDTH * HEIGHT * sizeof(int));
+  polen_map = malloc(WIDTH * HEIGHT * sizeof(int));
+  
   Texture2D background;
   
   if (BACKGROUND_IMAGE) {
@@ -996,6 +1124,13 @@ int main(int argc, const char **argv) {
   }
   
   if (WORLD_GEN) world_gen();
+  
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
+      polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
+    }
+  }
   
   while (!WindowShouldClose()) {
     BeginDrawing();
@@ -1034,8 +1169,10 @@ int main(int argc, const char **argv) {
       for (int j = 0; j < WIDTH; j++) {
         int tile = get_tile(j, i);
         
-        if (tile == tile_air) {
-          deep[j] = i;
+        if ((tile_types[tile].type == tile_type_solid || tile_types[tile].type == tile_type_powder) && !tile_types[tile].weak) {
+          deep[j] += 2;
+        } else if (tile_types[tile].type == tile_type_liquid) {
+          deep[j]++;
         }
         
         if ((!BACKGROUND_IMAGE && tile == tile_air) || !BACKGROUND_ALPHA) {
@@ -1077,8 +1214,8 @@ int main(int argc, const char **argv) {
         #endif
         
         #ifdef DEEP_DARKEN
-          if (tile_types[tile].type == tile_type_liquid) {
-            float mult = 1.0f + 0.075f * (i - deep[j]);
+          if (1 || tile_types[tile].type == tile_type_liquid) {
+            float mult = 1.0f + 0.00625f * deep[j];
             
             color.r /= mult;
             color.g /= mult;
@@ -1117,10 +1254,6 @@ int main(int argc, const char **argv) {
     } else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) || IsKeyDown(KEY_D)) {
       off_x = old_x - (GetMouseX() - start_x);
       off_y = old_y - (GetMouseY() - start_y);
-    }
-    
-    if (IsKeyPressed(KEY_F)) {
-      paused = 1 - paused;
     }
     
     int x = GetMouseX() / zoom;
@@ -1262,8 +1395,8 @@ int main(int argc, const char **argv) {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 308 && GetMouseX() < WIDTH * SCALE - 272 && GetMouseY() >= 6 && GetMouseY() < 52) {
       tick_speed--;
       
-      if (tick_speed < 1) {
-        tick_speed = 1;
+      if (tick_speed < 0) {
+        tick_speed = 0;
       }
     }
     
@@ -1302,8 +1435,9 @@ int main(int argc, const char **argv) {
     double time_3 = GetTime();
     double time_4 = time_3;
     
-    if (!paused) {
+    if (tick_speed) {
       tick_water();
+      if (rand() % 4 == 0) tick_dists();
       
       time_4 = GetTime();
       
