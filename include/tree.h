@@ -237,13 +237,13 @@ static const tile_t tile_types[] = {
   {"Carrot"        , (Color){247, 132, 24 }, (Color){247, 132, 24 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_carrot        , tile_soil       , 1, 1, 1, -1, -1, 0},
   {"Carrot Leaves" , (Color){58 , 247, 24 }, (Color){58 , 247, 24 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_air  , tile_carrot        , tile_carrot     , 1, 1, 1, -1, -1, 0},
   {"Fish"          , (Color){143, 143, 191}, (Color){143, 143, 191}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
-  {"Honey"         , (Color){255, 95 , 11 }, (Color){255, 223, 111}, tile_color_ceil, tile_type_liquid  , 1, 0, 1, 0, tile_air  , 15, 1 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Honey"         , (Color){255, 95 , 11 }, (Color){255, 223, 111}, tile_color_ceil, tile_type_liquid  , 2, 0, 1, 0, tile_air  , 15, 1 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Snow"          , (Color){239, 239, 255}, (Color){239, 239, 255}, tile_color_none, tile_type_powder  , 1, 0, 0, 1, tile_water, 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 1 , 0},
   {"Ice"           , (Color){159, 159, 255}, (Color){191, 191, 255}, tile_color_dots, tile_type_solid   , 1, 0, 0, 0, tile_water, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Burn"          , (Color){223, 63 , 31 }, (Color){223, 63 , 31 }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_fire , 0 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Bee Hive"      , (Color){255, 191, 31 }, (Color){255, 191, 31 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Bee"           , (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_iron , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Bee With Polen", (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Bee With Polen", (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
 };
 
 static const tree_t tree_types[] = {
