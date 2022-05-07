@@ -9,7 +9,6 @@
 
 // tree 0.11 - the ALIVE update:
 // - add clay and ants
-// - add roses
 // - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
@@ -96,6 +95,7 @@ enum {
   tile_hive,
   tile_empty_bee,
   tile_polen_bee,
+  tile_ant,
   
   tile_count
 };
@@ -114,6 +114,8 @@ enum {
   tile_type_gas,    // fire, steam, will destroy itself after some random time
   
   tile_type_ai_water, // entity with water ai(fish)
+  tile_type_ai_fly, // bees(does not apply the ai)
+  tile_type_ai_land, // ants
 };
 
 struct tile_t {
@@ -242,8 +244,9 @@ static const tile_t tile_types[] = {
   {"Ice"           , (Color){159, 159, 255}, (Color){191, 191, 255}, tile_color_dots, tile_type_solid   , 1, 0, 0, 0, tile_water, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Burn"          , (Color){223, 63 , 31 }, (Color){223, 63 , 31 }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_fire , 0 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Bee Hive"      , (Color){255, 191, 31 }, (Color){255, 191, 31 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Bee"           , (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_iron , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Bee With Polen", (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Bee"           , (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_ai_fly  , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Bee With Polen", (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_ai_fly  , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Ant"           , (Color){7  , 0  , 0  }, (Color){7  , 0  , 0  }, tile_color_none, tile_type_ai_land , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
 };
 
 static const tree_t tree_types[] = {

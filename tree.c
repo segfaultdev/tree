@@ -929,6 +929,37 @@ void tick_tiles(void) {
             set_tile(j + 1, i, tile_honey);
           }
         }
+      } else if (tile == tile_ant) {
+        int x = 0;
+        int y = 0;
+        
+        int valid = 0;
+        
+        for (int tries = 0; tries < 20 && !valid; tries++) {
+          x = (rand() % 3) - 1;
+          y = (rand() % 3) - 1;
+          
+          if (get_tile(j + x, i + y) != tile_air) continue;
+          
+          for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+              if (!dx && !dy) continue;
+              
+              int sup_tile = get_tile(j + x + dx, i + y + dy);
+              
+              if (sup_tile != tile_air && (tile_types[sup_tile].type == tile_type_solid || tile_types[sup_tile].type == tile_type_powder)) {
+                valid = 1;
+                break;
+              }
+            }
+            
+            if (valid) break;
+          }
+        }
+        
+        if (valid) {
+          swap(j, i, j + x, i + y);
+        }
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
         
