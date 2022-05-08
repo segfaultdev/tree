@@ -935,19 +935,38 @@ void tick_tiles(void) {
         
         int valid = 0;
         
-        for (int tries = 0; tries < 20 && !valid; tries++) {
+        int try_count = 20;
+        int sub_tile = get_tile(j, i + 1);
+        
+        if (try_count && tile_types[sub_tile].type == tile_type_gas || sub_tile == tile_air) {
+          swap(j, i, j, i + 1);
+          try_count = 0;
+        }
+        
+        sub_tile = get_tile(j, i - 1);
+        
+        if (try_count && tile_types[sub_tile].type == tile_type_powder || tile_types[sub_tile].type == tile_type_liquid) {
+          swap(j, i, j, i - 1);
+          try_count = 0;
+        }
+        
+        for (int tries = 0; tries < try_count && !valid; tries++) {
           x = (rand() % 3) - 1;
           y = (rand() % 3) - 1;
           
-          if (get_tile(j + x, i + y) != tile_air) continue;
+          if (!(rand() % 8  == 0 && tries >= 10 && y >= 0 && get_tile(j + x, i + y) == tile_dirt) &&
+              !(rand() % 64 == 0 && tries >= 10 && y == 0 && get_tile(j + x, i + y) == tile_clay) &&
+              get_tile(j + x, i + y) != tile_air) {
+            continue;
+          }
           
           for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
               if (!dx && !dy) continue;
               
-              int sup_tile = get_tile(j + x + dx, i + y + dy);
+              sub_tile = get_tile(j + x + dx, i + y + dy);
               
-              if (sup_tile != tile_air && (tile_types[sup_tile].type == tile_type_solid || tile_types[sup_tile].type == tile_type_powder)) {
+              if (sub_tile != tile_air && (tile_types[sub_tile].type == tile_type_solid || tile_types[sub_tile].type == tile_type_powder)) {
                 valid = 1;
                 break;
               }
@@ -955,9 +974,27 @@ void tick_tiles(void) {
             
             if (valid) break;
           }
+          
+          if (valid) break;
         }
         
         if (valid) {
+          if (get_tile(j + x, i + y) == tile_dirt || get_tile(j + x, i + y) == tile_clay) {
+            for (int dx = -1; dx <= 1; dx++) {
+              for (int dy = -1; dy <= 1; dy++) {
+                sub_tile = get_tile(j + x + dx, i + y + dy);
+                
+                if (sub_tile == tile_dirt || sub_tile == tile_clay) {
+                  if ((!dx && !dy) || (!(dx + x) && !(dy + y))) {
+                    set_tile(j + x + dx, i + y + dy, tile_air);
+                  } else if (dy < 0) {
+                    set_tile(j + x + dx, i + y + dy, tile_clay);
+                  }
+                }
+              }
+            }
+          }
+          
           swap(j, i, j + x, i + y);
         }
       } else if (tile_types[tile].tree_type >= 0) {

@@ -96,6 +96,7 @@ enum {
   tile_empty_bee,
   tile_polen_bee,
   tile_ant,
+  tile_clay,
   
   tile_count
 };
@@ -246,7 +247,8 @@ static const tile_t tile_types[] = {
   {"Bee Hive"      , (Color){255, 191, 31 }, (Color){255, 191, 31 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Bee"           , (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_ai_fly  , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Bee With Polen", (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_ai_fly  , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
-  {"Ant"           , (Color){7  , 0  , 0  }, (Color){7  , 0  , 0  }, tile_color_none, tile_type_ai_land , 1, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Ant"           , (Color){7  , 0  , 0  }, (Color){7  , 0  , 0  }, tile_color_none, tile_type_ai_land , 1, 1, 1, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
+  {"Clay"          , (Color){191, 127, 63 }, (Color){181, 121, 59 }, tile_color_wet , tile_type_solid   , 1, 0, 0, 1, tile_air  , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 0 , 0},
 };
 
 static const tree_t tree_types[] = {
