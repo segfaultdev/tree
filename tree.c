@@ -938,14 +938,14 @@ void tick_tiles(void) {
         int try_count = 20;
         int sub_tile = get_tile(j, i + 1);
         
-        if (try_count && tile_types[sub_tile].type == tile_type_gas || sub_tile == tile_air) {
+        if (try_count && (tile_types[sub_tile].type == tile_type_gas || sub_tile == tile_air)) {
           swap(j, i, j, i + 1);
           try_count = 0;
         }
         
         sub_tile = get_tile(j, i - 1);
         
-        if (try_count && tile_types[sub_tile].type == tile_type_powder || tile_types[sub_tile].type == tile_type_liquid) {
+        if (try_count && (tile_types[sub_tile].type == tile_type_powder || tile_types[sub_tile].type == tile_type_liquid)) {
           swap(j, i, j, i - 1);
           try_count = 0;
         }
