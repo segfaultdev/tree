@@ -1500,7 +1500,7 @@ int main(int argc, const char **argv) {
     
     if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < view_width && GetMouseY() < view_height) {
       if ((GetMouseX() < view_width - 44 && (GetMouseY() < 80)) || GetMouseY() >= 122 || GetMouseX() < view_width - 130) {
-        if (!(GetMouseX() >= view_width - 314 && GetMouseX() < view_width - 166 && GetMouseY() < 84)) {
+        if (!(GetMouseX() >= view_width - 314 && GetMouseX() < view_width - 166 && GetMouseY() < 116)) {
           if (!drag_mode) {
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
               set_circle(x, y, selection);
@@ -1566,7 +1566,7 @@ int main(int argc, const char **argv) {
       }
     }
     
-    DrawRectangle(view_width - 314, 0, 148, 84, (Color){0, 0, 0, 95});
+    DrawRectangle(view_width - 314, 0, 148, 116, (Color){0, 0, 0, 95});
     
     DrawRectangle(view_width - 308, 6, 46, 36, WHITE);
     DrawRectangle(view_width - 306, 8, 42, 32, BLACK);
@@ -1599,16 +1599,16 @@ int main(int argc, const char **argv) {
     
     DrawText(speed_buffer, view_width - 252, 14, 20, WHITE);
     
-    DrawRectangle(view_width - 308, 48, 136, 30, WHITE);
-    DrawRectangle(view_width - 306, 50, 132, 26, BLACK);
+    DrawRectangle(view_width - 308, 46, 136, 30, WHITE);
+    DrawRectangle(view_width - 306, 48, 132, 26, BLACK);
     
     if (drag_mode) {
-      DrawText("Drag: Yes", view_width - 300, 54, 20, WHITE);
+      DrawText("Drag: Yes", view_width - 300, 52, 20, WHITE);
     } else {
-      DrawText("Drag: No", view_width - 300, 54, 20, WHITE);
+      DrawText("Drag: No", view_width - 300, 52, 20, WHITE);
     }
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 182 && GetMouseY() >= 48 && GetMouseY() < 78) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 182 && GetMouseY() >= 46 && GetMouseY() < 76) {
       drag_mode = !drag_mode;
       
       if (drag_mode) {
@@ -1618,6 +1618,33 @@ int main(int argc, const char **argv) {
         old_x = off_x;
         old_y = off_y;
       }
+    }
+    
+    DrawRectangle(view_width - 308, 80, 40, 30, WHITE);
+    DrawRectangle(view_width - 306, 82, 36, 26, BLACK);
+    
+    DrawText("Z+", view_width - 300, 86, 20, WHITE);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 268 && GetMouseY() >= 80 && GetMouseY() < 110) {
+      if (zoom < 16) zoom++;
+    }
+    
+    DrawRectangle(view_width - 264, 80, 40, 30, WHITE);
+    DrawRectangle(view_width - 262, 82, 36, 26, BLACK);
+    
+    DrawText("Z-", view_width - 256, 86, 20, WHITE);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 264 && GetMouseX() < view_width - 224 && GetMouseY() >= 80 && GetMouseY() < 110) {
+      if (zoom > 1) zoom--;
+    }
+    
+    DrawRectangle(view_width - 220, 80, 48, 30, WHITE);
+    DrawRectangle(view_width - 218, 82, 44, 26, BLACK);
+    
+    DrawText("ZO", view_width - 209, 86, 20, WHITE);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 220 && GetMouseX() < view_width - 182 && GetMouseY() >= 80 && GetMouseY() < 110) {
+      zoom = SCALE;
     }
     
     int wheel_move = GetMouseWheelMove();
