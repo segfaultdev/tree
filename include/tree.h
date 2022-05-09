@@ -8,6 +8,7 @@
 // tree 0.10: done!
 
 // tree 0.11 - the ALIVE update:
+// - make distance calculation faster
 // - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
@@ -96,6 +97,9 @@ enum {
   tile_polen_bee,
   tile_ant,
   tile_clay,
+  tile_orange_fish,
+  tile_white_fish,
+  tile_pink_fish,
   
   tile_count
 };
@@ -248,6 +252,9 @@ static const tile_t tile_types[] = {
   {"Bee With Polen", (Color){255, 255, 15 }, (Color){255, 255, 15 }, tile_color_none, tile_type_ai_fly  , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Ant"           , (Color){7  , 0  , 0  }, (Color){7  , 0  , 0  }, tile_color_none, tile_type_ai_land , 1, 1, 1, 0, tile_air  , 3 , 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0},
   {"Clay"          , (Color){191, 127, 63 }, (Color){181, 121, 59 }, tile_color_wet , tile_type_solid   , 1, 0, 0, 0, tile_clay , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 0 , 0},
+  {"Orange Fish"   , (Color){255, 143, 63 }, (Color){255, 143, 63 }, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
+  {"White Fish"    , (Color){203, 203, 203}, (Color){203, 203, 203}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
+  {"Pink Fish"     , (Color){255, 127, 127}, (Color){255, 127, 127}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0},
 };
 
 static const tree_t tree_types[] = {

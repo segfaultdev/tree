@@ -117,6 +117,32 @@ int get_water_new(int x, int y) {
   return tree_water[x + y * WIDTH];
 }
 
+void set_empty(int x, int y, int value) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
+  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
+  empty_map[x + y * WIDTH] = value;
+}
+
+void set_polen(int x, int y, int value) {
+  if (WORLD_WRAP) {
+    while (x < 0) x += WIDTH;
+    while (y < 0) y += HEIGHT;
+    
+    x = x % WIDTH;
+    y = y % HEIGHT;
+  }
+  
+  if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
+  polen_map[x + y * WIDTH] = value;
+}
+
 int get_empty(int x, int y) {
   if (WORLD_WRAP) {
     while (x < 0) x += WIDTH;
@@ -1064,53 +1090,68 @@ void tick_water(void) {
 void tick_dists(void) {
   for (int i = 0; i < HEIGHT; i++) {
     for (int j = 0; j < WIDTH; j++) {
-      empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
-      polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
+      if (get_tile_new(j, i) == tile_flower_pink || get_tile_new(j, i) == tile_flower_blue || get_tile_new(j, i) == tile_flower_yellow) {
+        set_empty(j, i, 0);
+      } else if (get_tile_new(j, i) != tile_air) {
+        set_empty(j, i, 1048576);
+      } else {
+        int dist = get_empty(j, i);
+        int min_dist = 1048576;
+        
+        if (dist < 0)       set_empty(j, i, 0),       dist = 0;
+        if (dist > 1048576) set_empty(j, i, 1048576), dist = 1048576;
+        
+        for (int dy = -1; dy <= 1; dy++) {
+          for (int dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            if (dx && dy) continue;
+            
+            if (get_empty(j + dx, i + dy) + 1 < min_dist) {
+              min_dist = get_empty(j + dx, i + dy) + 1;
+            }
+          }
+        }
+        
+        if (dist < min_dist) {
+          set_empty(j, i, dist + 1);
+        } else if (dist > min_dist) {
+          set_empty(j, i, min_dist);
+        }
+      }
     }
   }
   
-  for (int count = 0; count < WIDTH * 2; count++) {
-    int changed = 0;
-    
-    for (int i = 0; i < HEIGHT; i++) {
-      for (int j = 0; j < WIDTH; j++) {
-        if (get_tile(j, i) != tile_air) continue;
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      if (get_tile_new(j, i) == tile_hive) {
+        set_polen(j, i, 0);
+      } else if (get_tile_new(j, i) != tile_air) {
+        set_polen(j, i, 1048576);
+      } else {
+        int dist = get_polen(j, i);
+        int min_dist = 1048576;
         
-        int dist = empty_map[j + i * WIDTH];
+        if (dist < 0)       set_polen(j, i, 0),       dist = 0;
+        if (dist > 1048576) set_polen(j, i, 1048576), dist = 1048576;
         
-        dist = MIN(dist, get_empty(j - 1, i) + 1);
-        dist = MIN(dist, get_empty(j + 1, i) + 1);
-        dist = MIN(dist, get_empty(j, i - 1) + 1);
-        dist = MIN(dist, get_empty(j, i + 1) + 1);
+        for (int dy = -1; dy <= 1; dy++) {
+          for (int dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            if (dx && dy) continue;
+            
+            if (get_polen(j + dx, i + dy) + 1 < min_dist) {
+              min_dist = get_polen(j + dx, i + dy) + 1;
+            }
+          }
+        }
         
-        if (dist != empty_map[j + i * WIDTH]) changed = 1;
-        empty_map[j + i * WIDTH] = dist;
+        if (dist < min_dist) {
+          set_polen(j, i, dist + 1);
+        } else if (dist > min_dist) {
+          set_polen(j, i, min_dist);
+        }
       }
     }
-    
-    if (!changed) break;
-  }
-  
-  for (int count = 0; count < WIDTH * 2; count++) {
-    int changed = 0;
-    
-    for (int i = 0; i < HEIGHT; i++) {
-      for (int j = 0; j < WIDTH; j++) {
-        if (get_tile(j, i) != tile_air) continue;
-        
-        int dist = polen_map[j + i * WIDTH];
-        
-        dist = MIN(dist, get_polen(j - 1, i) + 1);
-        dist = MIN(dist, get_polen(j + 1, i) + 1);
-        dist = MIN(dist, get_polen(j, i - 1) + 1);
-        dist = MIN(dist, get_polen(j, i + 1) + 1);
-        
-        if (dist != polen_map[j + i * WIDTH]) changed = 1;
-        polen_map[j + i * WIDTH] = dist;
-      }
-    }
-    
-    if (!changed) break;
   }
 }
 
@@ -1505,7 +1546,7 @@ int main(int argc, const char **argv) {
     
     if (tick_speed) {
       tick_water();
-      if (rand() % 4 == 0) tick_dists();
+      tick_dists();
       
       time_4 = GetTime();
       
