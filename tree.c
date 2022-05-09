@@ -39,6 +39,15 @@ int tick = 0;
 
 int tick_speed = 2;
 
+int screen_width = 0;
+int screen_height = 0;
+
+int total_width = 0;
+int total_height = 0;
+
+int view_width = 0;
+int view_height = 0;
+
 void set_tile(int x, int y, int tile) {
   if (WORLD_WRAP) {
     while (x < 0) x += WIDTH;
@@ -49,7 +58,7 @@ void set_tile(int x, int y, int tile) {
   }
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
-  tree_tiles[x + y * WIDTH] = tile;
+  tree_tiles[y + x * HEIGHT] = tile;
 }
 
 int get_tile(int x, int y) {
@@ -62,7 +71,7 @@ int get_tile(int x, int y) {
   }
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return tile_air;
-  return old_tiles[x + y * WIDTH];
+  return old_tiles[y + x * HEIGHT];
 }
 
 int get_tile_new(int x, int y) {
@@ -75,7 +84,7 @@ int get_tile_new(int x, int y) {
   }
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return tile_air;
-  return tree_tiles[x + y * WIDTH];
+  return tree_tiles[y + x * HEIGHT];
 }
 
 void set_water(int x, int y, int water) {
@@ -88,7 +97,7 @@ void set_water(int x, int y, int water) {
   }
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
-  tree_water[x + y * WIDTH] = water;
+  tree_water[y + x * HEIGHT] = water;
 }
 
 int get_water(int x, int y) {
@@ -101,7 +110,7 @@ int get_water(int x, int y) {
   }
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
-  return old_water[x + y * WIDTH];
+  return old_water[y + x * HEIGHT];
 }
 
 int get_water_new(int x, int y) {
@@ -114,7 +123,7 @@ int get_water_new(int x, int y) {
   }
   
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return 0;
-  return tree_water[x + y * WIDTH];
+  return tree_water[y + x * HEIGHT];
 }
 
 void set_empty(int x, int y, int value) {
@@ -193,10 +202,10 @@ void del_tile(int x, int y) {
     if (valid) break;
   }
   
-  if (valid || tile_types[tree_tiles[x + y * WIDTH]].type < tile_type_ai_water) {
-    tree_tiles[x + y * WIDTH] = tile_types[tree_tiles[x + y * WIDTH]].remove;
+  if (valid || tile_types[get_tile_new(x, y)].type < tile_type_ai_water) {
+    set_tile(x, y, tile_types[get_tile_new(x, y)].remove);
   } else {
-    tree_tiles[x + y * WIDTH] = tile_air;
+    set_tile(x, y, tile_air);
   }
 }
 
@@ -268,8 +277,22 @@ Color get_color(int tile) {
 }
 
 void tick_tiles(void) {
-  for (int i = 0; i < HEIGHT; i++) {
-    for (int j = 0; j < WIDTH; j++) {
+  for (int j = 0; j < WIDTH; j++) {
+    if (j < off_x / zoom) {
+      continue;
+    } else if (j >= (off_x + view_width) / zoom) {
+      break;
+    }
+    
+    for (int i = 0; i < HEIGHT; i++) {
+      /*
+      if (i < off_y / zoom) {
+        continue;
+      } else if (i >= (off_y + view_height) / zoom) {
+        break;
+      }
+      */
+      
       int tile = get_tile(j, i);
       int need_dist = tile_types[tile].need_dist;
       
@@ -1053,8 +1076,22 @@ void tick_tiles(void) {
 }
 
 void tick_water(void) {
-  for (int i = 0; i < HEIGHT; i++) {
-    for (int j = 0; j < WIDTH; j++) {
+  for (int j = 0; j < WIDTH; j++) {
+    if (j < off_x / zoom - 56) {
+      continue;
+    } else if (j >= (off_x + view_width) / zoom + 56) {
+      break;
+    }
+    
+    for (int i = 0; i < HEIGHT; i++) {
+      /*
+      if (i < off_y / zoom) {
+        continue;
+      } else if (i >= (off_y + view_height) / zoom) {
+        break;
+      }
+      */
+      
       if (get_tile_new(j, i) == tile_water) {
         set_water(j, i, 55);
       } else if (get_tile_new(j, i) == tile_air) {
@@ -1088,8 +1125,22 @@ void tick_water(void) {
 }
 
 void tick_dists(void) {
-  for (int i = 0; i < HEIGHT; i++) {
-    for (int j = 0; j < WIDTH; j++) {
+  for (int j = 0; j < WIDTH; j++) {
+    if (j < off_x / zoom - 112) {
+      continue;
+    } else if (j >= (off_x + view_width) / zoom + 112) {
+      break;
+    }
+    
+    for (int i = 0; i < HEIGHT; i++) {
+      /*
+      if (i < off_y / zoom) {
+        continue;
+      } else if (i >= (off_y + view_height) / zoom) {
+        break;
+      }
+      */
+      
       if (get_tile_new(j, i) == tile_flower_pink || get_tile_new(j, i) == tile_flower_blue || get_tile_new(j, i) == tile_flower_yellow) {
         set_empty(j, i, 0);
       } else if (get_tile_new(j, i) != tile_air) {
@@ -1113,7 +1164,7 @@ void tick_dists(void) {
         }
         
         if (dist < min_dist) {
-          set_empty(j, i, dist + 1);
+          set_empty(j, i, /* dist + 1 */ min_dist);
         } else if (dist > min_dist) {
           set_empty(j, i, min_dist);
         }
@@ -1121,8 +1172,22 @@ void tick_dists(void) {
     }
   }
   
-  for (int i = 0; i < HEIGHT; i++) {
-    for (int j = 0; j < WIDTH; j++) {
+  for (int j = 0; j < WIDTH; j++) {
+    if (j < off_x / zoom) {
+      continue;
+    } else if (j >= (off_x + view_width) / zoom) {
+      break;
+    }
+    
+    for (int i = 0; i < HEIGHT; i++) {
+      /*
+      if (i < off_y / zoom) {
+        continue;
+      } else if (i >= (off_y + view_height) / zoom) {
+        break;
+      }
+      */
+      
       if (get_tile_new(j, i) == tile_hive) {
         set_polen(j, i, 0);
       } else if (get_tile_new(j, i) != tile_air) {
@@ -1146,7 +1211,7 @@ void tick_dists(void) {
         }
         
         if (dist < min_dist) {
-          set_polen(j, i, dist + 1);
+          set_polen(j, i, /* dist + 1 */ min_dist);
         } else if (dist > min_dist) {
           set_polen(j, i, min_dist);
         }
@@ -1159,10 +1224,10 @@ int main(int argc, const char **argv) {
   srand(time(0));
   noise_seed = rand();
   
-  int screen_width = WIDTH * SCALE;
-  int screen_height = HEIGHT * SCALE;
+  screen_width = 1536; // WIDTH * SCALE;
+  screen_height = 940; // HEIGHT * SCALE;
   
-  int force_screen = 0;
+  int force_screen = 1;
   int phone_ui = 1;
   
   for (int i = 1; i < argc; i++) {
@@ -1195,20 +1260,21 @@ int main(int argc, const char **argv) {
     view_count++;
   }
   
-  int total_width = 20 + rect_width;
-  int total_height = 20 + 30 * ((view_count + (rect_count - 1)) / rect_count);
+  total_width = 20 + rect_width;
+  total_height = 20 + 30 * ((view_count + (rect_count - 1)) / rect_count);
+  
+  view_width = screen_width;
+  view_height = screen_height;
   
   if (phone_ui) {
     if (force_screen) {
-      WIDTH = screen_width / SCALE;
-      HEIGHT = (screen_height - total_height) / SCALE;
+      view_height -= total_height;
     } else {
       screen_height += total_height;
     }
   } else {
     if (force_screen) {
-      WIDTH = (screen_width - total_width) / SCALE;
-      HEIGHT = screen_height / SCALE;
+      view_width -= total_width;
     } else {
       screen_width += total_width;
     }
@@ -1240,6 +1306,8 @@ int main(int argc, const char **argv) {
       polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
     }
   }
+  
+  int drag_mode = 0;
   
   while (!WindowShouldClose()) {
     BeginDrawing();
@@ -1276,6 +1344,10 @@ int main(int argc, const char **argv) {
       int start = 0;
       
       for (int j = 0; j < WIDTH; j++) {
+        if (j < off_x / zoom || i < off_y / zoom || j >= (off_x + view_width) / zoom || i >= (off_y + view_height) / zoom) {
+          continue;
+        }
+        
         int tile = get_tile(j, i);
         
         if ((tile_types[tile].type == tile_type_solid || tile_types[tile].type == tile_type_powder) && !tile_types[tile].weak) {
@@ -1299,7 +1371,7 @@ int main(int argc, const char **argv) {
         
         Color color = get_color(tile);
         
-        #ifdef TILE_EFFECTS
+        #if (TILE_EFFECTS)
           if (tile_types[tile].color_mode == tile_color_dots && (((j ^ ((j * 0xED5AD4BB) << 2)) ^ ((i * 0x31848BAB) ^ (j >> 4))) >> 1) % 4 == 0) {
             int alpha = color.a;
             
@@ -1322,14 +1394,12 @@ int main(int argc, const char **argv) {
           }
         #endif
         
-        #ifdef DEEP_DARKEN
-          if (1 || tile_types[tile].type == tile_type_liquid) {
-            float mult = 1.0f + 0.00625f * deep[j];
-            
-            color.r /= mult;
-            color.g /= mult;
-            color.b /= mult;
-          }
+        #if (DEEP_DARKEN)
+          float mult = 1.0f + 0.00625f * deep[j];
+          
+          color.r /= mult;
+          color.g /= mult;
+          color.b /= mult;
         #endif
         
         if (prev.r != color.r || prev.g != color.g || prev.b != color.b) {
@@ -1354,13 +1424,13 @@ int main(int argc, const char **argv) {
     
     double time_2 = GetTime();
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) || IsKeyPressed(KEY_D)) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) || (drag_mode && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) {
       start_x = GetMouseX();
       start_y = GetMouseY();
       
       old_x = off_x;
       old_y = off_y;
-    } else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) || IsKeyDown(KEY_D)) {
+    } else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) || (drag_mode && IsMouseButtonDown(MOUSE_BUTTON_LEFT))) {
       off_x = old_x - (GetMouseX() - start_x);
       off_y = old_y - (GetMouseY() - start_y);
     }
@@ -1387,9 +1457,9 @@ int main(int argc, const char **argv) {
     int sel_pos = 0;
     
     if (phone_ui) {
-      DrawRectangle(0, HEIGHT * SCALE, WIDTH * SCALE, total_height, BLACK);
+      DrawRectangle(0, view_height, view_width, total_height, BLACK);
     } else {
-      DrawRectangle(WIDTH * SCALE, 0, total_width, HEIGHT * SCALE, BLACK);
+      DrawRectangle(view_width, 0, total_width, view_height, BLACK);
     }
     
     for (int i = 0; i < tile_count; i++) {
@@ -1399,7 +1469,7 @@ int main(int argc, const char **argv) {
       
       if (phone_ui) {
         rect_x = rect_width * (sel_pos % rect_count) + 10;
-        rect_y = (sel_pos / rect_count) * 30 + 10 + (HEIGHT * SCALE);
+        rect_y = (sel_pos / rect_count) * 30 + 10 + view_height;
       } else {
         rect_x = WIDTH * SCALE + 10;
         rect_y = sel_pos * 30 + 10;
@@ -1428,13 +1498,15 @@ int main(int argc, const char **argv) {
     
     char buffer[256];
     
-    if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < WIDTH * SCALE && GetMouseY() < HEIGHT * SCALE) {
-      if ((GetMouseX() < WIDTH * SCALE - 44 && (GetMouseY() < 80)) || GetMouseY() >= 122 || GetMouseX() < WIDTH * SCALE - 130) {
-        if (!(GetMouseX() >= WIDTH * SCALE - 314 && GetMouseX() < WIDTH * SCALE - 166 && GetMouseY() < 48)) {
-          if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-            set_circle(x, y, selection);
-          } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
-            set_circle(x, y, tile_air);
+    if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < view_width && GetMouseY() < view_height) {
+      if ((GetMouseX() < view_width - 44 && (GetMouseY() < 80)) || GetMouseY() >= 122 || GetMouseX() < view_width - 130) {
+        if (!(GetMouseX() >= view_width - 314 && GetMouseX() < view_width - 166 && GetMouseY() < 84)) {
+          if (!drag_mode) {
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+              set_circle(x, y, selection);
+            } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+              set_circle(x, y, tile_air);
+            }
           }
         }
       }
@@ -1452,32 +1524,32 @@ int main(int argc, const char **argv) {
     sprintf(buffer, "Seed: %d", noise_seed);
     DrawText(buffer, 8, 56, 20, WHITE);
     
-    DrawRectangle(WIDTH * SCALE - 134, 0, 134, 122, (Color){0, 0, 0, 95});
+    DrawRectangle(view_width - 134, 0, 134, 122, (Color){0, 0, 0, 95});
     
-    DrawRectangle(WIDTH * SCALE - 42, 6, 36, 36, WHITE);
-    DrawRectangle(WIDTH * SCALE - 40, 8, 32, 32, BLACK);
+    DrawRectangle(view_width - 42, 6, 36, 36, WHITE);
+    DrawRectangle(view_width - 40, 8, 32, 32, BLACK);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 40 && GetMouseY() >= 8 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 40) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 40 && GetMouseY() >= 8 && GetMouseX() < view_width - 8 && GetMouseY() < 40) {
       brush_size += 2;
       if (brush_size > 40) brush_size = 40;
     }
     
-    DrawText("+", WIDTH * SCALE - 34, 6, 40, WHITE);
+    DrawText("+", view_width - 34, 6, 40, WHITE);
     
-    DrawRectangle(WIDTH * SCALE - 42, 46, 36, 36, WHITE);
-    DrawRectangle(WIDTH * SCALE - 40, 48, 32, 32, BLACK);
+    DrawRectangle(view_width - 42, 46, 36, 36, WHITE);
+    DrawRectangle(view_width - 40, 48, 32, 32, BLACK);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 40 && GetMouseY() >= 48 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 80) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 40 && GetMouseY() >= 48 && GetMouseX() < view_width - 8 && GetMouseY() < 80) {
       brush_size -= 2;
       if (brush_size < 1) brush_size = 1;
     }
     
-    DrawText("-", WIDTH * SCALE - 32, 46, 40, WHITE);
+    DrawText("-", view_width - 32, 46, 40, WHITE);
     
-    DrawRectangle(WIDTH * SCALE - 72, 86, 66, 30, WHITE);
-    DrawRectangle(WIDTH * SCALE - 70, 88, 62, 26, BLACK);
+    DrawRectangle(view_width - 72, 86, 66, 30, WHITE);
+    DrawRectangle(view_width - 70, 88, 62, 26, BLACK);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 70 && GetMouseY() >= 88 && GetMouseX() < WIDTH * SCALE - 8 && GetMouseY() < 114) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 70 && GetMouseY() >= 88 && GetMouseX() < view_width - 8 && GetMouseY() < 114) {
       memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
       memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
       
@@ -1485,23 +1557,23 @@ int main(int argc, const char **argv) {
       memset(old_water, 0, WIDTH * HEIGHT * sizeof(int));
     }
     
-    DrawText("Clear", WIDTH * SCALE - 66, 92, 20, WHITE);
+    DrawText("Clear", view_width - 66, 92, 20, WHITE);
     
     for (int i = -40; i <= 40; i++) {
       for (int j = -40; j <= 40; j++) {
         if (i * i + j * j >= brush_size * brush_size) continue;
-        DrawRectangle((WIDTH * SCALE - 88) + j, 44 + i, 1, 1, get_color(selection));
+        DrawRectangle((view_width - 88) + j, 44 + i, 1, 1, get_color(selection));
       }
     }
     
-    DrawRectangle(WIDTH * SCALE - 314, 0, 148, 48, (Color){0, 0, 0, 95});
+    DrawRectangle(view_width - 314, 0, 148, 84, (Color){0, 0, 0, 95});
     
-    DrawRectangle(WIDTH * SCALE - 308, 6, 46, 36, WHITE);
-    DrawRectangle(WIDTH * SCALE - 306, 8, 42, 32, BLACK);
+    DrawRectangle(view_width - 308, 6, 46, 36, WHITE);
+    DrawRectangle(view_width - 306, 8, 42, 32, BLACK);
     
-    DrawText("<<", WIDTH * SCALE - 300, 6, 40, WHITE);
+    DrawText("<<", view_width - 300, 6, 40, WHITE);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 308 && GetMouseX() < WIDTH * SCALE - 272 && GetMouseY() >= 6 && GetMouseY() < 52) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 272 && GetMouseY() >= 6 && GetMouseY() < 52) {
       tick_speed--;
       
       if (tick_speed < 0) {
@@ -1509,12 +1581,12 @@ int main(int argc, const char **argv) {
       }
     }
     
-    DrawRectangle(WIDTH * SCALE - 218, 6, 46, 36, WHITE);
-    DrawRectangle(WIDTH * SCALE - 216, 8, 42, 32, BLACK);
+    DrawRectangle(view_width - 218, 6, 46, 36, WHITE);
+    DrawRectangle(view_width - 216, 8, 42, 32, BLACK);
     
-    DrawText(">>", WIDTH * SCALE - 210, 6, 40, WHITE);
+    DrawText(">>", view_width - 210, 6, 40, WHITE);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= WIDTH * SCALE - 218 && GetMouseX() < WIDTH * SCALE - 182 && GetMouseY() >= 6 && GetMouseY() < 52) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 218 && GetMouseX() < view_width - 182 && GetMouseY() >= 6 && GetMouseY() < 42) {
       tick_speed++;
       
       if (tick_speed > 6) {
@@ -1525,7 +1597,28 @@ int main(int argc, const char **argv) {
     char speed_buffer[4];
     sprintf(speed_buffer, "x%d", tick_speed);
     
-    DrawText(speed_buffer, WIDTH * SCALE - 252, 14, 20, WHITE);
+    DrawText(speed_buffer, view_width - 252, 14, 20, WHITE);
+    
+    DrawRectangle(view_width - 308, 48, 136, 30, WHITE);
+    DrawRectangle(view_width - 306, 50, 132, 26, BLACK);
+    
+    if (drag_mode) {
+      DrawText("Drag: Yes", view_width - 300, 54, 20, WHITE);
+    } else {
+      DrawText("Drag: No", view_width - 300, 54, 20, WHITE);
+    }
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 182 && GetMouseY() >= 48 && GetMouseY() < 78) {
+      drag_mode = !drag_mode;
+      
+      if (drag_mode) {
+        start_x = GetMouseX();
+        start_y = GetMouseY();
+        
+        old_x = off_x;
+        old_y = off_y;
+      }
+    }
     
     int wheel_move = GetMouseWheelMove();
     
@@ -1544,7 +1637,15 @@ int main(int argc, const char **argv) {
     double time_3 = GetTime();
     double time_4 = time_3;
     
-    if (tick_speed) {
+    int copy_start = off_x / zoom;
+    if (copy_start < 0) copy_start = 0;
+    
+    int copy_end = (off_x + view_width) / zoom;
+    if (copy_end > WIDTH) copy_end = WIDTH;
+    
+    int copy_length = copy_end - copy_start;
+    
+    if (copy_start < WIDTH && copy_end > 0 && copy_length > 0 && tick_speed) {
       tick_water();
       tick_dists();
       
@@ -1553,16 +1654,16 @@ int main(int argc, const char **argv) {
       for (int i = 0; i < tick_speed; i++) {
         tick_tiles();
         
-        memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
-        memcpy(old_water, tree_water, WIDTH * HEIGHT * sizeof(int));
+        memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * sizeof(int));
+        memcpy(old_water + copy_start * HEIGHT, tree_water + copy_start * HEIGHT, copy_length * HEIGHT * sizeof(int));
       }
-    } else {
-      memcpy(old_tiles, tree_tiles, WIDTH * HEIGHT * sizeof(int));
+    } else if (copy_start < WIDTH && copy_end > 0 && copy_length > 0) {
+      memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * sizeof(int));
     }
     
     double time_5 = GetTime();
     
-#if (DEBUG_MODE == 1)
+#if (DEBUG_MODE)
     int length_1 = (int)((WIDTH * SCALE) * ((time_1 - time_0) / (time_5 - time_0)) * 0.5f);
     int length_2 = (int)((WIDTH * SCALE) * ((time_2 - time_1) / (time_5 - time_0)) * 0.5f);
     int length_3 = (int)((WIDTH * SCALE) * ((time_3 - time_2) / (time_5 - time_0)) * 0.5f);

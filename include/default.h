@@ -16,11 +16,11 @@
 // - 1280x880, scale 1 <- cayden pweease try this
 
 // width and height in tiles(has to be editable in runtime by -w or --world flag, where you specify the screen size)
-static int WIDTH = 256;
-static int HEIGHT = 160;
+static int WIDTH = 3200;
+static int HEIGHT = 240;
 
 // pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
-#define SCALE 5
+#define SCALE 8
 
 // if 1, will replace existing non-air blocks with the brush
 #define REPLACE_BLOCKS 1
@@ -29,7 +29,7 @@ static int HEIGHT = 160;
 #define TILE_EFFECTS 1
 
 // if 1, deepness will darken blocks(affects performance hugely!)
-#define DEEP_DARKEN 1
+#define DEEP_DARKEN 0
 
 // if 1, will show a colorful bar representing how much time each part of the game takes(affects performance slightly)
 #define DEBUG_MODE 0
