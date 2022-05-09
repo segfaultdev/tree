@@ -8,7 +8,6 @@
 // tree 0.10: done!
 
 // tree 0.11 - the ALIVE update:
-// - make distance calculation faster
 // - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
