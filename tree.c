@@ -211,7 +211,7 @@ void del_tile(int x, int y) {
 
 void world_gen(void) {
   for (int i = 0; i < WIDTH; i++) {
-    int height = (int)((noise_1(i / 59.7f) * 0.3f + noise_1(i / 61.3f) * 0.2f + noise_1(i / 55.1f) * 0.2f) * HEIGHT);
+    int height = (int)((noise_1(i / 59.7f) * 0.35f + noise_1(i / 61.3f) * 0.25f + noise_1(i / 55.1f) * 0.25f) * HEIGHT);
     
     for (int j = 0; j < HEIGHT; j++) {
       if (j == HEIGHT - 1 && WORLD_WRAP) {
@@ -221,13 +221,22 @@ void world_gen(void) {
       
       if (HEIGHT - j < height) {
         int depth = HEIGHT - j;
+        int solid = 0;
         
         if (noise_2(i / 47.0f, j / 43.0f) >= lerp(0.4f, 0.8f, depth / 50.0f)) {
           set_tile(i, j, tile_stone);
+          solid = 1;
         } else if (noise_2(i / 55.0f, j / 51.0f) >= lerp(0.6f, 0.9f, (height - depth) / 50.0f)) {
           set_tile(i, j, tile_sand);
+        } else if (noise_2(i / 46.9f, j / 43.1f) >= lerp(0.35f, 0.7f, depth / 50.0f)) {
+          set_tile(i, j, tile_clay);
+          solid = 1;
         } else {
           set_tile(i, j, tile_dirt);
+        }
+        
+        if (solid && noise_2(i / 17.3f, j / 16.2f) >= 0.85f) {
+          set_tile(i, j, (HEIGHT - j < 0.4f * HEIGHT) ? tile_water : tile_air);
         }
       } else if (HEIGHT - j < 0.4f * HEIGHT) {
         set_tile(i, j, tile_water);

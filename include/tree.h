@@ -9,6 +9,8 @@
 
 // tree 0.11 - the ALIVE update:
 // - make grass not grow that long
+// - make fire spread a lil bit more downwards
+// - 
 // - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
