@@ -448,11 +448,11 @@ void tick_tiles(void) {
           break;
           
         case tile_type_liquid:
-          if (cond_down && get_tile(j, i + 1) == tile_air) {
+          if (cond_down && tile_types[get_tile(j, i + 1)].very_weak) {
             swap(j, i, j, i + 1);
             moved = 1;
           } else if (rand() % 15 < tile_types[tile].spread) {
-            if (cond_down && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air) {
+            if (cond_down && tile_types[get_tile(j - 1, i + 1)].very_weak && tile_types[get_tile(j + 1, i + 1)].very_weak) {
               if (rand() % 2) {
                 swap(j, i, j - 1, i + 1);
               } else {
@@ -460,20 +460,20 @@ void tick_tiles(void) {
               }
               
               moved = 1;
-            } else if (cond_down && get_tile(j - 1, i + 1) == tile_air) {
+            } else if (cond_down && tile_types[get_tile(j - 1, i + 1)].very_weak) {
               swap(j, i, j - 1, i + 1);
               moved = 1;
-            } else if (cond_down && get_tile(j + 1, i + 1) == tile_air) {
+            } else if (cond_down && tile_types[get_tile(j + 1, i + 1)].very_weak) {
               swap(j, i, j + 1, i + 1);
               moved = 1;
             } else {
               if (rand() % 2) {
-                if (get_tile(j - 1, i) == tile_air) {
+                if (tile_types[get_tile(j - 1, i)].very_weak) {
                   swap(j, i, j - 1, i);
                   moved = 1;
                 }
               } else {
-                if (get_tile(j + 1, i) == tile_air) {
+                if (tile_types[get_tile(j + 1, i)].very_weak) {
                   swap(j, i, j + 1, i);
                   moved = 1;
                 }
