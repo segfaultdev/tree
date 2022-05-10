@@ -5,8 +5,7 @@ works on linux and webassembly(and thus also on windows, mac os and phones!)
 you could get it working on mac os and windows natively by changing some stuff and rebuilding raylib(`lib/libraylib.a`)
 
 ## screenshots:
-![portrait](assets/portrait.png)
-![retro](assets/retro.png)
+![screen](assets/tree.png)
 
 ## controls:
 - key e: make screenshot called `screen.png`
