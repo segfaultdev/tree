@@ -1847,12 +1847,11 @@ int main(int argc, const char **argv) {
 #endif
     
     DrawFPS(8, 8);
+    EndDrawing();
     
     #ifndef PLATFORM_WEB
       if (IsKeyPressed(KEY_E)) TakeScreenshot("screen.png");
     #endif
-    
-    EndDrawing();
     
     tick++;
   }
