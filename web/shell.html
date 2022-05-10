@@ -12,11 +12,23 @@
     <meta name="viewport" content="width=device-width">
     
     <style>
-      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      .emscripten {
+        padding-right: 0; margin-left: auto; margin-right: auto; display: block;
+        z-index: 1;
+      }
+      
+      .file-input {
+        padding-right: 0; margin-left: auto; margin-right: auto;
+        z-index: 2;
+        
+        display: none;
+      }
+      
       div.emscripten { text-align: center; }      
       div.emscripten_border { border: 1px solid black; }
       
       * {
+        display: block;
         width: 100%;
         height: 100%;
         border: 0px none; 
@@ -32,33 +44,33 @@
   </head>
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    <input class="file-input" id="file-input" onchange="open_file(event)" type="file" accept=".bin"></input>
     
     <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
     <script type='text/javascript'>
-        function saveFileFromMEMFSToDisk(memoryFSname, localFSname)     // This can be called by C/C++ code
-        {
-            var isSafari = false; // Not supported, navigator.userAgent access is being restricted
-            //var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-            var data = FS.readFile(memoryFSname);
-            var blob;
-
-            if (isSafari) blob = new Blob([data.buffer], { type: "application/octet-stream" });
-            else blob = new Blob([data.buffer], { type: "application/octet-binary" });
-
-            // NOTE: SaveAsDialog is a browser setting. For example, in Google Chrome,
-            // in Settings/Advanced/Downloads section you have a setting:
-            // 'Ask where to save each file before downloading' - which you can set true/false.
-            // If you enable this setting it would always ask you and bring the SaveAsDialog
-            saveAs(blob, localFSname);
-        }
+      function open_file(e) {
+        if (e.target.files.length !== 1) return;
+        
+        const file_reader = new FileReader();
+        file_reader.onload = (event) => {
+          const uint8Arr = new Uint8Array(event.target.result);
+          const num_bytes = uint8Arr.length * uint8Arr.BYTES_PER_ELEMENT;
+          const data_ptr = Module._malloc(num_bytes);
+          const data_on_heap = new Uint8Array(Module.HEAPU8.buffer, data_ptr, num_bytes);
+          data_on_heap.set(uint8Arr);
+          const res = Module.ccall('web_file_loaded', 'number', ['number', 'number'], [data_on_heap.byteOffset, uint8Arr.length]);
+        };
+        file_reader.readAsArrayBuffer(e.target.files[0]);
+      };
+      
+      document.getElementById("file-input").addEventListener("click", function(e) {
+        open_file(e);
+      });
     </script>
     <script type='text/javascript'>
         // document.getElementById("canvas").width = Math.floor((document.body.offsetWidth - 192) / 5) * 5 + 192;
         // document.getElementById("canvas").height = Math.floor(document.body.offsetHeight / 5) * 5;
-
-        var statusElement = document.querySelector('#status');
-        var progressElement = document.querySelector('#progress');
-        var spinnerElement = document.querySelector('#spinner');
+        
         var Module = {
             preRun: [],
             postRun: [
@@ -150,37 +162,6 @@
             */
             Module.setStatus = function(text) { if (text) Module.printErr('[post-exception status] ' + text); };
         };
-    </script>
-    
-    <!-- REF: https://developers.google.com/web/updates/2018/11/web-audio-autoplay -->
-    <script type='text/javascript'>
-        var audioBtn = document.querySelector('#btn-audio');
-        
-        // An array of all contexts to resume on the page
-        const audioContexList = [];
-        (function() {
-            // A proxy object to intercept AudioContexts and 
-            // add them to the array for tracking and resuming later
-            self.AudioContext = new Proxy(self.AudioContext, {
-                construct(target, args) {
-                    const result = new target(...args);
-                    audioContexList.push(result);
-                    if (result.state == "suspended") audioBtn.value = " RESUME";
-                    return result;
-                }
-            });
-        })();
-
-        function toggleAudio() {
-            var resumed = false;
-            audioContexList.forEach(ctx => {
-                if (ctx.state == "suspended") { ctx.resume(); resumed = true; }
-                else if (ctx.state == "running") ctx.suspend();
-            });
-            
-            if (resumed) audioBtn.value = " SUSPEND";
-            else audioBtn.value = " RESUME";
-        }
     </script>
     {{{ SCRIPT }}}
   </body>

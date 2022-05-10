@@ -9,13 +9,16 @@
 
 // tree 0.11 - the ALIVE update:
 // - make grass not grow that long
+// - make vines more separated
+// - let water break vines
 // - make fire spread a lil bit more downwards
-// - 
+// - add plants and more caves to worldgen
+// - add moss(for stone)
+// - add save and load buttons that either ask for a file via the terminal(linux) or open a file dialog prompt(web)
 // - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
-// - allow for saving and loading a single world
 // - write some documentation for making mods
 
 typedef struct tile_t tile_t;

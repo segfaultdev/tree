@@ -48,6 +48,8 @@ int total_height = 0;
 int view_width = 0;
 int view_height = 0;
 
+int active = 1;
+
 void set_tile(int x, int y, int tile) {
   if (WORLD_WRAP) {
     while (x < 0) x += WIDTH;
@@ -209,6 +211,81 @@ void del_tile(int x, int y) {
   }
 }
 
+#ifdef PLATFORM_WEB
+#include <emscripten.h>
+
+static void web_load_file(void) {
+  EM_ASM(
+    let file_selector = document.getElementById("file-input");
+    file_selector.style.display = "block";
+  );
+  
+  active = 0;
+}
+
+static void web_save_file(void) {
+  EM_ASM({
+    let date = new Date();
+    let filename = "tree-";
+    
+    if (date.getDate() < 10) filename += "0";
+    filename += date.getDate();
+    
+    if (date.getMonth() < 10) filename += "0";
+    filename += date.getMonth();
+    
+    filename += date.getFullYear();
+    filename += "-";
+    
+    if (date.getHours() < 10) filename += "0";
+    filename += date.getHours();
+    
+    if (date.getMinutes() < 10) filename += "0";
+    filename += date.getMinutes();
+    
+    if (date.getSeconds() < 10) filename += "0";
+    filename += date.getSeconds();
+    
+    filename += ".bin";
+    console.log(filename);
+    
+    let buffer = new Uint8Array(Module.HEAPU8.buffer, $0, $1);
+    saveAs(new Blob([buffer], {type: "application/octect-stream"}), filename);
+  }, tree_tiles, WIDTH * HEIGHT * sizeof(int));
+}
+
+EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
+  active = 1;
+  
+  EM_ASM(
+    let file_selector = document.getElementById("file-input");
+    file_selector.style.display = "none";
+  );
+  
+  if (size > WIDTH * HEIGHT * sizeof(int)) {
+    size = WIDTH * HEIGHT * sizeof(int);
+  }
+  
+  memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
+  
+  memcpy(tree_tiles, buffer, size);
+  memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
+  
+  memset(old_tiles, 0, WIDTH * HEIGHT * sizeof(int));
+  memset(old_water, 0, WIDTH * HEIGHT * sizeof(int));
+  
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
+      polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
+    }
+  }
+  
+  free(buffer);
+  return 1;
+}
+#endif
+
 void world_gen(void) {
   for (int i = 0; i < WIDTH; i++) {
     int height = (int)((noise_1(i / 59.7f) * 0.35f + noise_1(i / 61.3f) * 0.25f + noise_1(i / 55.1f) * 0.25f) * HEIGHT);
@@ -303,12 +380,15 @@ void tick_tiles(void) {
       */
       
       int tile = get_tile(j, i);
-      int need_dist = tile_types[tile].need_dist;
       
       if (tile < 0 || tile >= tile_count) {
-        printf("FUCK\n");
-        exit(1);
+        // printf("FUCK\n");
+        // exit(1);
+        
+        continue;
       }
+      
+      int need_dist = tile_types[tile].need_dist;
       
       int gas_x = (rand() % 3) - 1;
       
@@ -1337,6 +1417,11 @@ int main(int argc, const char **argv) {
       DrawRectangle(-tile_x * zoom, -tile_y * zoom, zoom * WIDTH, zoom * HEIGHT, color);
     }
     
+    if (!active) {
+      EndDrawing();
+      continue;
+    }
+    
     double time_1 = GetTime();
     int draw_count = 0;
     
@@ -1538,7 +1623,7 @@ int main(int argc, const char **argv) {
     DrawRectangle(view_width - 42, 6, 36, 36, WHITE);
     DrawRectangle(view_width - 40, 8, 32, 32, BLACK);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 40 && GetMouseY() >= 8 && GetMouseX() < view_width - 8 && GetMouseY() < 40) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 40 && GetMouseY() >= 8 && GetMouseX() < view_width - 6 && GetMouseY() < 40) {
       brush_size += 2;
       if (brush_size > 40) brush_size = 40;
     }
@@ -1548,25 +1633,49 @@ int main(int argc, const char **argv) {
     DrawRectangle(view_width - 42, 46, 36, 36, WHITE);
     DrawRectangle(view_width - 40, 48, 32, 32, BLACK);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 40 && GetMouseY() >= 48 && GetMouseX() < view_width - 8 && GetMouseY() < 80) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 40 && GetMouseY() >= 48 && GetMouseX() < view_width - 6 && GetMouseY() < 80) {
       brush_size -= 2;
       if (brush_size < 1) brush_size = 1;
     }
     
     DrawText("-", view_width - 32, 46, 40, WHITE);
     
-    DrawRectangle(view_width - 72, 86, 66, 30, WHITE);
-    DrawRectangle(view_width - 70, 88, 62, 26, BLACK);
+    DrawRectangle(view_width - 64, 86, 58, 30, WHITE);
+    DrawRectangle(view_width - 62, 88, 54, 26, BLACK);
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 70 && GetMouseY() >= 88 && GetMouseX() < view_width - 8 && GetMouseY() < 114) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 64 && GetMouseY() >= 88 && GetMouseX() < view_width - 6 && GetMouseY() < 114) {
+      /*
       memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
       memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
       
       memset(old_tiles, 0, WIDTH * HEIGHT * sizeof(int));
       memset(old_water, 0, WIDTH * HEIGHT * sizeof(int));
+      
+      for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+          empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
+          polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
+        }
+      }
+      */
+      
+      #ifdef PLATFORM_WEB
+        web_load_file();
+      #endif
     }
     
-    DrawText("Clear", view_width - 66, 92, 20, WHITE);
+    DrawText("Load", view_width - 58, 92, 20, WHITE);
+    
+    DrawRectangle(view_width - 128, 86, 60, 30, WHITE);
+    DrawRectangle(view_width - 126, 88, 56, 26, BLACK);
+    
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 128 && GetMouseY() >= 88 && GetMouseX() < view_width - 68 && GetMouseY() < 114) {
+      #ifdef PLATFORM_WEB
+        web_save_file();
+      #endif
+    }
+    
+    DrawText("Save", view_width - 122, 92, 20, WHITE);
     
     for (int i = -40; i <= 40; i++) {
       for (int j = -40; j <= 40; j++) {
