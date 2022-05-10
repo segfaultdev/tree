@@ -9,13 +9,13 @@ you could get it working on mac os and windows natively by changing some stuff a
 ![retro](assets/retro.png)
 
 ## controls:
+- key e: make screenshot called `screen.png`
 - key a: zoom out
 - key s: zoom in
-- key f: pause/unpause
 - mouse wheel: change brush size
 - left click: place selected tile
 - right click: delete(place air)
-- middle click(or key d) and mouse move: move view
+- middle click and mouse move: move view
 
 ## build:
 ```sh
