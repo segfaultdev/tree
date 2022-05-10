@@ -8,8 +8,6 @@
 // tree 0.10: done!
 
 // tree 0.11 - the ALIVE update:
-// - make grass not grow that long
-// - make vines more separated
 // - make fire spread a lil bit more downwards
 // - add plants and more caves to worldgen
 // - add moss(for stone)

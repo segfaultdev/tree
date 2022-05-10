@@ -637,7 +637,7 @@ void tick_tiles(void) {
         
         if (!valid && rand() % 8 == 0) {
           del_tile(j, i);
-        } else if (valid && rand() % 1024 < get_water(j, i)) {
+        } else if (valid && rand() % 48 < get_water(j, i) - 16) {
           int x = (rand() % 3) - 1;
           
           for (int dx = -2; dx <= 2; dx++) {
@@ -691,7 +691,12 @@ void tick_tiles(void) {
             
             if (tile_types[get_tile(j + dx, i + dy)].type != tile_type_liquid) {
               if (ax > 1 || ay > 1) continue;
-              ay = (dy < 0) ? (-dy * 6) : dy;
+              
+              if (dy < 0) {
+                ay *= 6;
+              } else {
+                ax /= 2;
+              }
             }
             
             int chance = 1 + (3 << ax) + (5 << ay);
@@ -769,12 +774,20 @@ void tick_tiles(void) {
       } else if (get_tile(j, i) == tile_vines) {
         int water = (get_water(j, i) / 1.5f) - 12;
         
+        if (get_tile(j - 1, i - 1) == tile_vines) {
+          water -= 2;
+        }
+        
+        if (get_tile(j + 1, i - 1) == tile_vines) {
+          water -= 2;
+        }
+        
         if (get_tile(j - 1, i) == tile_vines) {
-          water -= 8;
+          water -= 10;
         }
         
         if (get_tile(j + 1, i) == tile_vines) {
-          water -= 8;
+          water -= 10;
         }
         
         if (rand() % 512 < water && get_tile(j, i + 1) == tile_air) {
