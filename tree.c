@@ -1,3 +1,9 @@
+#define STBI_NO_STDIO
+#define STBI_ONLY_PNG
+
+// #define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <default.h>
 #include <perlin.h>
 #include <raylib.h>
@@ -246,12 +252,30 @@ static void web_save_file(void) {
     if (date.getSeconds() < 10) filename += "0";
     filename += date.getSeconds();
     
-    filename += ".bin";
+    filename += ".png";
     console.log(filename);
     
     let buffer = new Uint8Array(Module.HEAPU8.buffer, $0, $1);
-    saveAs(new Blob([buffer], {type: "application/octect-stream"}), filename);
-  }, tree_tiles, WIDTH * HEIGHT * sizeof(int));
+    
+    let canvas = document.createElement("canvas");
+    let ctx = canvas.getContext("2d");
+    
+    canvas.width = $2;
+    canvas.height = $3;
+    
+    let image_data = ctx.createImageData($2, $3);
+    image_data.data.set(buffer);
+    
+    for (let i = 3; i < $1; i += 4) {
+      image_data.data[i] = 255;
+    }
+    
+    ctx.putImageData(image_data, 0, 0);
+    
+    canvas.toBlob(function(blob) {
+      saveAs(blob, filename);
+    }, "image/png", 1.0);
+  }, tree_tiles, WIDTH * HEIGHT * sizeof(int), HEIGHT, WIDTH);
 }
 
 EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
@@ -262,13 +286,7 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
     file_selector.style.display = "none";
   );
   
-  if (size > WIDTH * HEIGHT * sizeof(int)) {
-    size = WIDTH * HEIGHT * sizeof(int);
-  }
-  
   memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
-  
-  memcpy(tree_tiles, buffer, size);
   memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
   
   memset(old_tiles, 0, WIDTH * HEIGHT * sizeof(int));
@@ -281,7 +299,21 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
     }
   }
   
+  int width, height, bpp;
+  uint8_t *data = stbi_load_from_memory(buffer, size, &width, &height, &bpp, 4);
+  
+  for (int i = 3; i < WIDTH * HEIGHT * sizeof(int); i += 4) {
+    data[i] = 0;
+  }
+  
+  int size_1 = WIDTH * HEIGHT * sizeof(int);
+  int size_2 = width * height * 4;
+  
+  memcpy(tree_tiles, data, MIN(size_1, size_2));
+  
+  stbi_image_free(data);
   free(buffer);
+  
   return 1;
 }
 #endif

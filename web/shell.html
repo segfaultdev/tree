@@ -44,9 +44,10 @@
   </head>
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-    <input class="file-input" id="file-input" onchange="open_file(event)" type="file" accept=".bin"></input>
+    <input class="file-input" id="file-input" onchange="open_file(event)" type="file" accept=".png"></input>
     
-    <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
+    <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js"></script>
+    <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"></script>
     <script type='text/javascript'>
       function open_file(e) {
         if (e.target.files.length !== 1) return;
@@ -58,6 +59,8 @@
           const data_ptr = Module._malloc(num_bytes);
           const data_on_heap = new Uint8Array(Module.HEAPU8.buffer, data_ptr, num_bytes);
           data_on_heap.set(uint8Arr);
+          
+          console.log(data_on_heap);
           const res = Module.ccall('web_file_loaded', 'number', ['number', 'number'], [data_on_heap.byteOffset, uint8Arr.length]);
         };
         file_reader.readAsArrayBuffer(e.target.files[0]);

@@ -10,6 +10,7 @@
 // tree 0.11 - the ALIVE update:
 // - add plants and more caves to worldgen
 // - add moss(for stone)
+// - fix the bee cornering issue once and for all ):<
 // - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
