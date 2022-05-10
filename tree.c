@@ -19,14 +19,14 @@
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-int *old_tiles = NULL;
-int *old_water = NULL;
+uint32_t *old_tiles = NULL;
+uint32_t *old_water = NULL;
 
-int *tree_tiles = NULL;
-int *tree_water = NULL;
+uint32_t *tree_tiles = NULL;
+uint32_t *tree_water = NULL;
 
-int *empty_map = NULL;
-int *polen_map = NULL;
+uint32_t *empty_map = NULL;
+uint32_t *polen_map = NULL;
 
 int selection = tile_dirt;
 int brush_size = 5;
@@ -275,7 +275,7 @@ static void web_save_file(void) {
     canvas.toBlob(function(blob) {
       saveAs(blob, filename);
     }, "image/png", 1.0);
-  }, tree_tiles, WIDTH * HEIGHT * sizeof(int), HEIGHT, WIDTH);
+  }, tree_tiles, WIDTH * HEIGHT * 4, HEIGHT, WIDTH);
 }
 
 EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
@@ -286,11 +286,11 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
     file_selector.style.display = "none";
   );
   
-  memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
-  memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
+  memset(tree_tiles, 0, WIDTH * HEIGHT * 4);
+  memset(tree_water, 0, WIDTH * HEIGHT * 4);
   
-  memset(old_tiles, 0, WIDTH * HEIGHT * sizeof(int));
-  memset(old_water, 0, WIDTH * HEIGHT * sizeof(int));
+  memset(old_tiles, 0, WIDTH * HEIGHT * 4);
+  memset(old_water, 0, WIDTH * HEIGHT * 4);
   
   for (int i = 0; i < HEIGHT; i++) {
     for (int j = 0; j < WIDTH; j++) {
@@ -302,11 +302,11 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
   int width, height, bpp;
   uint8_t *data = stbi_load_from_memory(buffer, size, &width, &height, &bpp, 4);
   
-  for (int i = 3; i < WIDTH * HEIGHT * sizeof(int); i += 4) {
+  for (int i = 3; i < WIDTH * HEIGHT * 4; i += 4) {
     data[i] = 0;
   }
   
-  int size_1 = WIDTH * HEIGHT * sizeof(int);
+  int size_1 = WIDTH * HEIGHT * 4;
   int size_2 = width * height * 4;
   
   memcpy(tree_tiles, data, MIN(size_1, size_2));
@@ -1417,14 +1417,14 @@ int main(int argc, const char **argv) {
   InitWindow(screen_width, screen_height, "tree");
   SetTargetFPS(30);
   
-  old_tiles = calloc(WIDTH * HEIGHT * sizeof(int), 1);
-  old_water = calloc(WIDTH * HEIGHT * sizeof(int), 1);
+  old_tiles = calloc(WIDTH * HEIGHT * 4, 1);
+  old_water = calloc(WIDTH * HEIGHT * 4, 1);
   
-  tree_tiles = calloc(WIDTH * HEIGHT * sizeof(int), 1);
-  tree_water = calloc(WIDTH * HEIGHT * sizeof(int), 1);
+  tree_tiles = calloc(WIDTH * HEIGHT * 4, 1);
+  tree_water = calloc(WIDTH * HEIGHT * 4, 1);
   
-  empty_map = malloc(WIDTH * HEIGHT * sizeof(int));
-  polen_map = malloc(WIDTH * HEIGHT * sizeof(int));
+  empty_map = malloc(WIDTH * HEIGHT * 4);
+  polen_map = malloc(WIDTH * HEIGHT * 4);
   
   Texture2D background;
   
@@ -1690,11 +1690,11 @@ int main(int argc, const char **argv) {
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 64 && GetMouseY() >= 88 && GetMouseX() < view_width - 6 && GetMouseY() < 114) {
       /*
-      memset(tree_tiles, 0, WIDTH * HEIGHT * sizeof(int));
-      memset(tree_water, 0, WIDTH * HEIGHT * sizeof(int));
+      memset(tree_tiles, 0, WIDTH * HEIGHT * 4);
+      memset(tree_water, 0, WIDTH * HEIGHT * 4);
       
-      memset(old_tiles, 0, WIDTH * HEIGHT * sizeof(int));
-      memset(old_water, 0, WIDTH * HEIGHT * sizeof(int));
+      memset(old_tiles, 0, WIDTH * HEIGHT * 4);
+      memset(old_water, 0, WIDTH * HEIGHT * 4);
       
       for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
@@ -1844,11 +1844,11 @@ int main(int argc, const char **argv) {
       for (int i = 0; i < tick_speed; i++) {
         tick_tiles();
         
-        memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * sizeof(int));
-        memcpy(old_water + copy_start * HEIGHT, tree_water + copy_start * HEIGHT, copy_length * HEIGHT * sizeof(int));
+        memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
+        memcpy(old_water + copy_start * HEIGHT, tree_water + copy_start * HEIGHT, copy_length * HEIGHT * 4);
       }
     } else if (copy_start < WIDTH && copy_end > 0 && copy_length > 0) {
-      memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * sizeof(int));
+      memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
     }
     
     double time_5 = GetTime();
