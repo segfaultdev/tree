@@ -4,11 +4,18 @@
 // seg's wonderful todo list:
 
 // tree 0.09: done!
-
 // tree 0.10: done!
-
 // tree 0.11 - the ALIVE update - done!
-// tree 0.12:
+
+// tree 0.12 - the WORLD update:
+// - divide tiles into categories and add a tabbed menu for them
+// - add roses, tulips, etc.
+// - add lava, explosives and maybe black holes?
+// - add more stone varieties, depending on its placement or deepness
+// - somehow do turing completeness
+// - more ideas?
+
+// future plans:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
 // - write some documentation for making mods
 

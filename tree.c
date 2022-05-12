@@ -1450,10 +1450,14 @@ void tick_dists(int dir) {
   }
 }
 
+int tps = 0;
+
 void *tick_loop(void *data) {
   int dir = 0;
   
   for (;;) {
+    double time_start = GetTime();
+    
     int copy_start = off_x / zoom;
     if (copy_start < 0) copy_start = 0;
     
@@ -1478,26 +1482,33 @@ void *tick_loop(void *data) {
       memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
     }
     
-    msleep(33);
+    double time_end = GetTime();
+    
+    if (time_end - time_start < 0.033) {
+      msleep(1000 * (0.033 - (time_end - time_start)));
+      time_end = GetTime();
+    }
+    
+    tps = tick_speed / (time_end - time_start);
   }
 }
 
 void set_zoom(int new_zoom) {
-  int mid_x = (off_x + view_width / 2) / zoom;
-  int mid_y = (off_y + view_height / 2) / zoom;
+  float mid_x = (float)(off_x + view_width / 2.0f) / (float)(zoom);
+  float mid_y = (float)(off_y + view_height / 2.0f) / (float)(zoom);
   
   zoom = new_zoom;
   
-  off_x = mid_x * zoom - view_width / 2;
-  off_y = mid_y * zoom - view_height / 2;
+  off_x = mid_x * zoom - view_width / 2.0f;
+  off_y = mid_y * zoom - view_height / 2.0f;
 }
 
 int main(int argc, const char **argv) {
   srand(time(0));
   noise_seed = rand();
   
-  screen_width = 1536; // WIDTH * SCALE;
-  screen_height = 940; // HEIGHT * SCALE;
+  screen_width = 1536;
+  screen_height = 940;
   
   int force_screen = 1;
   int phone_ui = 1;
@@ -1994,7 +2005,11 @@ int main(int argc, const char **argv) {
     debug_x += length_5;
 #endif
     
-    DrawFPS(8, 8);
+    char fps_tps_buffer[32];
+    sprintf(fps_tps_buffer, "%d FPS, %d TPS", GetFPS(), tps);
+    
+    DrawText(fps_tps_buffer, 8, 8, 20, WHITE);
+    
     EndDrawing();
     
     #ifndef PLATFORM_WEB
