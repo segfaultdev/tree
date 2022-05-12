@@ -1759,7 +1759,7 @@ int main(int argc, const char **argv) {
     x += tile_x;
     y += tile_y;
     
-    if (IsKeyPressed(KEY_S) && zoom < 16) {
+    if (IsKeyPressed(KEY_S) && zoom < 32) {
       set_zoom(zoom + 1);
     } else if (IsKeyReleased(KEY_A) && zoom > 1) {
       set_zoom(zoom - 1);
@@ -1946,7 +1946,7 @@ int main(int argc, const char **argv) {
     DrawText("Z+", view_width - 300, 86, 20, WHITE);
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 268 && GetMouseY() >= 80 && GetMouseY() < 110) {
-      if (zoom < 16) set_zoom(zoom + 1);
+      if (zoom < 32) set_zoom(zoom + 1);
     }
     
     DrawRectangle(view_width - 264, 80, 40, 30, WHITE);
