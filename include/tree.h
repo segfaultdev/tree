@@ -7,8 +7,7 @@
 
 // tree 0.10: done!
 
-// tree 0.11 - the ALIVE update:
-// - fix the bee cornering issue once and for all ):<
+// tree 0.11 - the ALIVE update: done!
 
 // tree 0.12:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
