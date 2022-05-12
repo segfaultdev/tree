@@ -219,6 +219,11 @@ void del_tile(int x, int y) {
   }
 }
 
+void center_view(void) {
+  off_x = (WIDTH * zoom - view_width) / 2;
+  off_y = (HEIGHT * zoom - view_height) / 2;
+}
+
 #ifdef PLATFORM_WEB
 #include <emscripten.h>
 
@@ -293,6 +298,8 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
   
   memset(old_tiles, 0, WIDTH * HEIGHT * 4);
   memset(old_water, 0, WIDTH * HEIGHT * 4);
+  
+  center_view();
   
   int width, height, bpp;
   uint8_t *data = stbi_load_from_memory(buffer, size, &width, &height, &bpp, 4);
@@ -1502,6 +1509,7 @@ int main(int argc, const char **argv) {
   }
   
   if (WORLD_GEN) world_gen();
+  center_view();
   
   for (int i = 0; i < HEIGHT; i++) {
     for (int j = 0; j < WIDTH; j++) {
