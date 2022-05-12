@@ -1482,6 +1482,16 @@ void *tick_loop(void *data) {
   }
 }
 
+void set_zoom(int new_zoom) {
+  int mid_x = (off_x + view_width / 2) / zoom;
+  int mid_y = (off_y + view_height / 2) / zoom;
+  
+  zoom = new_zoom;
+  
+  off_x = mid_x * zoom - view_width / 2;
+  off_y = mid_y * zoom - view_height / 2;
+}
+
 int main(int argc, const char **argv) {
   srand(time(0));
   noise_seed = rand();
@@ -1733,9 +1743,9 @@ int main(int argc, const char **argv) {
     y += tile_y;
     
     if (IsKeyPressed(KEY_S) && zoom < 16) {
-      zoom++;
+      set_zoom(zoom + 1);
     } else if (IsKeyReleased(KEY_A) && zoom > 1) {
-      zoom--;
+      set_zoom(zoom - 1);
     }
     
     int sel_pos = 0;
@@ -1919,7 +1929,7 @@ int main(int argc, const char **argv) {
     DrawText("Z+", view_width - 300, 86, 20, WHITE);
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 308 && GetMouseX() < view_width - 268 && GetMouseY() >= 80 && GetMouseY() < 110) {
-      if (zoom < 16) zoom++;
+      if (zoom < 16) set_zoom(zoom + 1);
     }
     
     DrawRectangle(view_width - 264, 80, 40, 30, WHITE);
@@ -1928,7 +1938,7 @@ int main(int argc, const char **argv) {
     DrawText("Z-", view_width - 256, 86, 20, WHITE);
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 264 && GetMouseX() < view_width - 224 && GetMouseY() >= 80 && GetMouseY() < 110) {
-      if (zoom > 1) zoom--;
+      if (zoom > 1) set_zoom(zoom - 1);
     }
     
     DrawRectangle(view_width - 220, 80, 48, 30, WHITE);
@@ -1937,7 +1947,7 @@ int main(int argc, const char **argv) {
     DrawText("ZO", view_width - 209, 86, 20, WHITE);
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 220 && GetMouseX() < view_width - 182 && GetMouseY() >= 80 && GetMouseY() < 110) {
-      zoom = SCALE;
+      set_zoom(SCALE);
     }
     
     int wheel_move = GetMouseWheelMove();
