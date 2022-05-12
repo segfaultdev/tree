@@ -1,14 +1,14 @@
 #define STBI_NO_STDIO
 #define STBI_ONLY_PNG
 
-// #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
 #include <default.h>
+#include <pthread.h>
 #include <perlin.h>
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <stdio.h>
 #include <time.h>
 #include <tree.h>
@@ -57,6 +57,25 @@ int view_width = 0;
 int view_height = 0;
 
 int active = 1;
+
+int msleep(size_t ms) {
+  struct timespec ts;
+  int res;
+  
+  if (ms < 0) {
+    errno = EINVAL;
+    return -1;
+  }
+  
+  ts.tv_sec = ms / 1000;
+  ts.tv_nsec = (ms % 1000) * 1000000;
+  
+  do {
+    res = nanosleep(&ts, &ts);
+  } while (res && errno == EINTR);
+  
+  return res;
+}
 
 void set_tile(int x, int y, int tile) {
   if (WORLD_WRAP) {
@@ -410,28 +429,21 @@ void tick_tiles(void) {
     deep[i] = 0;
   }
   
-  for (int j = 0; j < WIDTH; j++) {
-    if (j < off_x / zoom) {
-      continue;
-    } else if (j >= (off_x + view_width) / zoom) {
-      break;
-    }
+  int x_start = off_x / zoom;
+  if (x_start < 0) x_start = 0;
+  
+  int x_end = (off_x + view_width) / zoom;
+  if (x_end > WIDTH) x_end = WIDTH;
+  
+  int x_length = x_end - x_start;
+  
+  for (int _j = 0; _j < x_length; _j++) {
+    int j = x_start + 2 * (_j % (x_length / 2)) + (_j < (x_length / 2));
     
     for (int i = 0; i < HEIGHT; i++) {
-      /*
-      if (i < off_y / zoom) {
-        continue;
-      } else if (i >= (off_y + view_height) / zoom) {
-        break;
-      }
-      */
-      
       int tile = get_tile(j, i);
       
       if (tile < 0 || tile >= tile_count) {
-        // printf("FUCK\n");
-        // exit(1);
-        
         continue;
       }
       
@@ -1286,22 +1298,15 @@ void tick_tiles(void) {
 }
 
 void tick_water(void) {
-  for (int j = 0; j < WIDTH; j++) {
-    if (j < off_x / zoom - 56) {
-      continue;
-    } else if (j >= (off_x + view_width) / zoom + 56) {
+  int x_start = off_x / zoom - 56;
+  if (x_start < 0) x_start = 0;
+  
+  for (int j = x_start; j < WIDTH; j++) {
+    if (j >= (off_x + view_width) / zoom + 56) {
       break;
     }
     
     for (int i = 0; i < HEIGHT; i++) {
-      /*
-      if (i < off_y / zoom) {
-        continue;
-      } else if (i >= (off_y + view_height) / zoom) {
-        break;
-      }
-      */
-      
       if (get_tile_new(j, i) == tile_water) {
         set_water(j, i, 55);
       } else if (get_tile_new(j, i) == tile_air) {
@@ -1335,22 +1340,15 @@ void tick_water(void) {
 }
 
 void tick_dists(void) {
-  for (int j = 0; j < WIDTH; j++) {
-    if (j < off_x / zoom - 112) {
-      continue;
-    } else if (j >= (off_x + view_width) / zoom + 112) {
+  int x_start = off_x / zoom - 112;
+  if (x_start < 0) x_start = 0;
+  
+  for (int j = x_start; j < WIDTH; j++) {
+    if (j >= (off_x + view_width) / zoom + 112) {
       break;
     }
     
     for (int i = 0; i < HEIGHT; i++) {
-      /*
-      if (i < off_y / zoom) {
-        continue;
-      } else if (i >= (off_y + view_height) / zoom) {
-        break;
-      }
-      */
-      
       if (get_tile_new(j, i) == tile_flower_pink || get_tile_new(j, i) == tile_flower_blue || get_tile_new(j, i) == tile_flower_yellow) {
         set_empty(j, i, 0);
       } else if (get_tile_new(j, i) != tile_air) {
@@ -1382,22 +1380,12 @@ void tick_dists(void) {
     }
   }
   
-  for (int j = 0; j < WIDTH; j++) {
-    if (j < off_x / zoom) {
-      continue;
-    } else if (j >= (off_x + view_width) / zoom) {
+  for (int j = x_start; j < WIDTH; j++) {
+    if (j >= (off_x + view_width) / zoom) {
       break;
     }
     
     for (int i = 0; i < HEIGHT; i++) {
-      /*
-      if (i < off_y / zoom) {
-        continue;
-      } else if (i >= (off_y + view_height) / zoom) {
-        break;
-      }
-      */
-      
       if (get_tile_new(j, i) == tile_hive) {
         set_polen(j, i, 0);
       } else if (get_tile_new(j, i) != tile_air) {
@@ -1427,6 +1415,34 @@ void tick_dists(void) {
         }
       }
     }
+  }
+}
+
+void *tick_loop(void *data) {
+  for (;;) {
+    int copy_start = off_x / zoom;
+    if (copy_start < 0) copy_start = 0;
+    
+    int copy_end = (off_x + view_width) / zoom;
+    if (copy_end > WIDTH) copy_end = WIDTH;
+    
+    int copy_length = copy_end - copy_start;
+    
+    if (copy_start < WIDTH && copy_end > 0 && copy_length > 0 && tick_speed) {
+      tick_water();
+      tick_dists();
+      
+      for (int i = 0; i < tick_speed; i++) {
+        tick_tiles();
+        
+        memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
+        memcpy(old_water + copy_start * HEIGHT, tree_water + copy_start * HEIGHT, copy_length * HEIGHT * 4);
+      }
+    } else if (copy_start < WIDTH && copy_end > 0 && copy_length > 0) {
+      memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
+    }
+    
+    msleep(33);
   }
 }
 
@@ -1522,6 +1538,12 @@ int main(int argc, const char **argv) {
   
   int drag_mode = 0;
   
+  pthread_t thread;
+  
+  if (pthread_create(&thread, NULL, tick_loop, NULL)) {
+    exit(1);
+  }
+  
   while (!WindowShouldClose()) {
     BeginDrawing();
     
@@ -1553,15 +1575,25 @@ int main(int argc, const char **argv) {
       deep[i] = 0;
     }
     
-    for (int i = 0; i < HEIGHT; i++) {
+    int y_start = off_y / zoom;
+    if (y_start < 0) y_start = 0;
+    
+    for (int i = y_start; i < HEIGHT; i++) {
+      if (i >= (off_y + view_height) / zoom) {
+        break;
+      }
+      
       Color prev = BLACK;
       
       int length = 0;
       int start = 0;
       
-      for (int j = 0; j < WIDTH; j++) {
-        if (j < off_x / zoom || i < off_y / zoom || j >= (off_x + view_width) / zoom || i >= (off_y + view_height) / zoom) {
-          continue;
+      int x_start = off_x / zoom;
+      if (x_start < 0) x_start = 0;
+      
+      for (int j = x_start; j < WIDTH; j++) {
+        if (j >= (off_x + view_width) / zoom) {
+          break;
         }
         
         int tile = get_tile(j, i);
@@ -1814,8 +1846,8 @@ int main(int argc, const char **argv) {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 218 && GetMouseX() < view_width - 182 && GetMouseY() >= 6 && GetMouseY() < 42) {
       tick_speed++;
       
-      if (tick_speed > 6) {
-        tick_speed = 6;
+      if (tick_speed > 16) {
+        tick_speed = 16;
       }
     }
     
@@ -1889,54 +1921,30 @@ int main(int argc, const char **argv) {
     double time_3 = GetTime();
     double time_4 = time_3;
     
-    int copy_start = off_x / zoom;
-    if (copy_start < 0) copy_start = 0;
-    
-    int copy_end = (off_x + view_width) / zoom;
-    if (copy_end > WIDTH) copy_end = WIDTH;
-    
-    int copy_length = copy_end - copy_start;
-    
-    if (copy_start < WIDTH && copy_end > 0 && copy_length > 0 && tick_speed) {
-      tick_water();
-      tick_dists();
-      
-      time_4 = GetTime();
-      
-      for (int i = 0; i < tick_speed; i++) {
-        tick_tiles();
-        
-        memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
-        memcpy(old_water + copy_start * HEIGHT, tree_water + copy_start * HEIGHT, copy_length * HEIGHT * 4);
-      }
-    } else if (copy_start < WIDTH && copy_end > 0 && copy_length > 0) {
-      memcpy(old_tiles + copy_start * HEIGHT, tree_tiles + copy_start * HEIGHT, copy_length * HEIGHT * 4);
-    }
-    
     double time_5 = GetTime();
     
 #if (DEBUG_MODE)
-    int length_1 = (int)((WIDTH * SCALE) * ((time_1 - time_0) / (time_5 - time_0)) * 0.5f);
-    int length_2 = (int)((WIDTH * SCALE) * ((time_2 - time_1) / (time_5 - time_0)) * 0.5f);
-    int length_3 = (int)((WIDTH * SCALE) * ((time_3 - time_2) / (time_5 - time_0)) * 0.5f);
-    int length_4 = (int)((WIDTH * SCALE) * ((time_4 - time_3) / (time_5 - time_0)) * 0.5f);
-    int length_5 = (int)((WIDTH * SCALE) * ((time_5 - time_4) / (time_5 - time_0)) * 0.5f);
+    int length_1 = (int)((WIDTH * SCALE) * ((time_1 - time_0) / (time_5 - time_0)) * 0.5f); // draw background
+    int length_2 = (int)((WIDTH * SCALE) * ((time_2 - time_1) / (time_5 - time_0)) * 0.5f); // draw world
+    int length_3 = (int)((WIDTH * SCALE) * ((time_3 - time_2) / (time_5 - time_0)) * 0.5f); // draw interface
+    int length_4 = (int)((WIDTH * SCALE) * ((time_4 - time_3) / (time_5 - time_0)) * 0.5f); // update water and distances
+    int length_5 = (int)((WIDTH * SCALE) * ((time_5 - time_4) / (time_5 - time_0)) * 0.5f); // update tiles
     
     int debug_x = 0;
     
-    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_1, 40, RED);
+    DrawRectangle(view_width / 2 + debug_x, 0, length_1, 40, RED);
     debug_x += length_1;
     
-    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_2, 40, YELLOW);
+    DrawRectangle(view_width / 2 + debug_x, 0, length_2, 40, YELLOW);
     debug_x += length_2;
     
-    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_3, 40, GREEN);
+    DrawRectangle(view_width / 2 + debug_x, 0, length_3, 40, GREEN);
     debug_x += length_3;
     
-    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_4, 40, BLUE);
+    DrawRectangle(view_width / 2 + debug_x, 0, length_4, 40, BLUE);
     debug_x += length_4;
     
-    DrawRectangle((WIDTH * SCALE) / 2 + debug_x, 0, length_5, 40, PURPLE);
+    DrawRectangle(view_width / 2 + debug_x, 0, length_5, 40, PURPLE);
     debug_x += length_5;
 #endif
     

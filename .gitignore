@@ -2,5 +2,7 @@ tree
 tree.html
 tree.wasm
 tree.js
+tree.worker.js
 tree.exe
 screen.png
+copy.sh
