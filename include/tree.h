@@ -8,7 +8,6 @@
 // tree 0.10: done!
 
 // tree 0.11 - the ALIVE update:
-// - add plants and more caves to worldgen
 // - fix the bee cornering issue once and for all ):<
 
 // tree 0.12:

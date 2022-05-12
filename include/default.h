@@ -17,7 +17,7 @@
 
 // width and height in tiles(has to be editable in runtime by -w or --world flag, where you specify the screen size)
 static int WIDTH = 3200;
-static int HEIGHT = 240;
+static int HEIGHT = 480;
 
 // pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
 #define SCALE 8

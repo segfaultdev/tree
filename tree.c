@@ -350,35 +350,38 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
 
 void world_gen(void) {
   for (int i = 0; i < WIDTH; i++) {
-    int height = (int)((noise_1(i / 59.7f) * 0.35f + noise_1(i / 61.3f) * 0.25f + noise_1(i / 55.1f) * 0.25f) * HEIGHT);
+    int height = (int)((noise_1(i / 59.7f) * 0.5f + noise_1(i / 61.3f) * 0.25f + noise_1(i / 55.1f) * 0.25f) * 192);
+    int dirt_height = height - ((int)((noise_1(i / 49.7f) * 0.5f + noise_1(i / 51.3f) * 0.25f + noise_1(i / 45.1f) * 0.25f) * 192) + 64);
     
     for (int j = 0; j < HEIGHT; j++) {
-      if (j == HEIGHT - 1 && WORLD_WRAP) {
-        set_tile(i, j, tile_stone);
-        continue;
+      int elevation = (HEIGHT - j) - 0.4f * HEIGHT;
+      
+      if (elevation < height) {
+        if (elevation < dirt_height) {
+          if (noise_2(i / 57.0f, j / 53.0f) >= 0.8f) {
+            set_tile(i, j, tile_dirt);
+          } else {
+            set_tile(i, j, tile_stone);
+          }
+        } else {
+          if (noise_2(i / 47.0f, j / 43.0f) >= 0.7f) {
+            set_tile(i, j, tile_stone);
+          } else if (noise_2(i / 22.0f, j / 18.0f) >= lerp(0.85f, 0.95f, (float)(elevation - (height - 48)) / 48.0f)) {
+            set_tile(i, j, tile_clay);
+          } else if (noise_2(i / 32.0f, j / 28.0f) >= lerp(1.0f, 0.6f, (float)(elevation - (height - 64)) / 64.0f)) {
+            set_tile(i, j, tile_sand);
+          } else {
+            set_tile(i, j, tile_dirt);
+          }
+        }
+      } else if (elevation < 112) {
+        set_tile(i, j, tile_water);
       }
       
-      if (HEIGHT - j < height) {
-        int depth = HEIGHT - j;
-        int solid = 0;
-        
-        if (noise_2(i / 47.0f, j / 43.0f) >= lerp(0.4f, 0.8f, depth / 50.0f)) {
-          set_tile(i, j, tile_stone);
-          solid = 1;
-        } else if (noise_2(i / 55.0f, j / 51.0f) >= lerp(0.6f, 0.9f, (height - depth) / 50.0f)) {
-          set_tile(i, j, tile_sand);
-        } else if (noise_2(i / 46.9f, j / 43.1f) >= lerp(0.35f, 0.7f, depth / 50.0f)) {
-          set_tile(i, j, tile_clay);
-          solid = 1;
-        } else {
-          set_tile(i, j, tile_dirt);
-        }
-        
-        if (solid && noise_2(i / 17.3f, j / 16.2f) >= 0.85f) {
-          set_tile(i, j, (HEIGHT - j < 0.4f * HEIGHT) ? tile_water : tile_air);
-        }
-      } else if (HEIGHT - j < 0.4f * HEIGHT) {
-        set_tile(i, j, tile_water);
+      if (get_tile_new(i, j) != tile_stone && get_tile_new(i, j) != tile_clay) continue;
+      
+      if (noise_2(i / 15.9f, j / 16.1f) >= lerp(0.7f, 0.9f, (float)(elevation) / 160.0f)) {
+        set_tile(i, j, tile_air);
       }
     }
   }
