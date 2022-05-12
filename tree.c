@@ -1501,6 +1501,12 @@ void set_zoom(int new_zoom) {
   
   off_x = mid_x * zoom - view_width / 2.0f;
   off_y = mid_y * zoom - view_height / 2.0f;
+  
+  start_x = GetMouseX();
+  start_y = GetMouseY();
+  
+  old_x = off_x;
+  old_y = off_y;
 }
 
 int main(int argc, const char **argv) {
