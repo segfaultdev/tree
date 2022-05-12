@@ -403,6 +403,22 @@ void swap(int x1, int y1, int x2, int y2) {
   set_water(x2, y2, water);
 }
 
+void clear_empty(void) {
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      empty_map[j + i * WIDTH] = 1048576;
+    }
+  }
+}
+
+void clear_polen(void) {
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      polen_map[j + i * WIDTH] = 1048576;
+    }
+  }
+}
+
 void set_circle(int x, int y, int tile) {
   for (int dx = -brush_size; dx <= brush_size; dx++) {
     for (int dy = -brush_size; dy <= brush_size; dy++) {
@@ -1161,6 +1177,8 @@ void tick_tiles(void) {
                    get_tile(j + x, i + y) == tile_flower_yellow) {
           set_tile(j + x, i + y, tile_polen_bee);
           set_tile(j, i, tile_air);
+          
+          clear_empty();
         }
       } else if (tile == tile_polen_bee) {
         int x = (rand() % 3) - 1;
@@ -1202,6 +1220,8 @@ void tick_tiles(void) {
           } else if (get_tile_new(j + 1, i) == tile_air) {
             set_tile(j + 1, i, tile_honey);
           }
+          
+          clear_polen();
         }
       } else if (tile == tile_ant) {
         int x = 0;
@@ -1342,16 +1362,23 @@ void tick_water(void) {
   }
 }
 
-void tick_dists(void) {
+void tick_dists(int dir) {
   int x_start = off_x / zoom - 112;
   if (x_start < 0) x_start = 0;
   
-  for (int j = x_start; j < WIDTH; j++) {
-    if (j >= (off_x + view_width) / zoom + 112) {
-      break;
-    }
+  int x_end = (off_x + view_width) / zoom + 112;
+  if (x_end > WIDTH) x_end = WIDTH;
+  
+  int x_length = x_end - x_start;
+  
+  for (int _j = x_start; _j < x_end; _j++) {
+    int j = _j;
+    if (dir) j = ((x_end - 1) - (_j - x_start)) + x_start;
     
-    for (int i = 0; i < HEIGHT; i++) {
+    for (int _i = 0; _i < HEIGHT; _i++) {
+      int i = _i;
+      if (dir) i = (HEIGHT - 1) - _i;
+      
       if (get_tile_new(j, i) == tile_flower_pink || get_tile_new(j, i) == tile_flower_blue || get_tile_new(j, i) == tile_flower_yellow) {
         set_empty(j, i, 0);
       } else if (get_tile_new(j, i) != tile_air) {
@@ -1383,12 +1410,14 @@ void tick_dists(void) {
     }
   }
   
-  for (int j = x_start; j < WIDTH; j++) {
-    if (j >= (off_x + view_width) / zoom) {
-      break;
-    }
+  for (int _j = x_start; _j < x_end; _j++) {
+    int j = _j;
+    if (dir) j = ((x_end - 1) - (_j - x_start)) + x_start;
     
-    for (int i = 0; i < HEIGHT; i++) {
+    for (int _i = 0; _i < HEIGHT; _i++) {
+      int i = _i;
+      if (dir) i = (HEIGHT - 1) - _i;
+      
       if (get_tile_new(j, i) == tile_hive) {
         set_polen(j, i, 0);
       } else if (get_tile_new(j, i) != tile_air) {
@@ -1422,6 +1451,8 @@ void tick_dists(void) {
 }
 
 void *tick_loop(void *data) {
+  int dir = 0;
+  
   for (;;) {
     int copy_start = off_x / zoom;
     if (copy_start < 0) copy_start = 0;
@@ -1433,7 +1464,9 @@ void *tick_loop(void *data) {
     
     if (copy_start < WIDTH && copy_end > 0 && copy_length > 0 && tick_speed) {
       tick_water();
-      tick_dists();
+      
+      tick_dists(dir);
+      dir = 1 - dir;
       
       for (int i = 0; i < tick_speed; i++) {
         tick_tiles();
