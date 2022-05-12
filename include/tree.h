@@ -9,7 +9,6 @@
 
 // tree 0.11 - the ALIVE update:
 // - add plants and more caves to worldgen
-// - add moss(for stone)
 // - fix the bee cornering issue once and for all ):<
 // - use "tile" instead of "getTile()" in immense if-else blob
 
@@ -101,6 +100,10 @@ enum {
   tile_orange_fish,
   tile_white_fish,
   tile_pink_fish,
+  tile_moss,
+  tile_caveroom,
+  tile_red_caveroom,
+  tile_brown_caveroom,
   
   tile_count
 };
@@ -180,10 +183,10 @@ static const tile_t tile_types[] = {
   {"Air"           , (Color){51 , 51 , 51 }, (Color){51 , 51 , 51 }, tile_color_none, tile_type_solid   , 1, 1, 1, 0, tile_air  , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 1, 1},
   {"Dirt"          , (Color){127, 63 , 0  }, (Color){119, 59 , 0  }, tile_color_wet , tile_type_powder  , 1, 0, 0, 0, tile_clay , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 0 , 0, 0},
   {"Water"         , (Color){63 , 63 , 255}, (Color){191, 191, 255}, tile_color_ceil, tile_type_liquid  , 1, 0, 1, 0, tile_steam, 15, 15, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 1, 0},
-  {"Grass"         , (Color){63 , 255, 63 }, (Color){63 , 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 1, 0, tile_air  , 0 , 1 , tile_air  , tile_grass         , tile_dirt       , 1, 1, 1, -1, -1, 1, 1},
-  {"Pink Flower"   , (Color){255, 127, 127}, (Color){255, 127, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_soil , tile_grass         , tile_grass      , 1, 1, 0, -1, -1, 1, 0},
-  {"Blue Flower"   , (Color){127, 127, 255}, (Color){127, 127, 255}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_soil , tile_grass         , tile_grass      , 1, 1, 0, -1, -1, 1, 0},
-  {"Yellow Flower" , (Color){255, 255, 63 }, (Color){255, 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 0 , tile_soil , tile_grass         , tile_grass      , 1, 1, 0, -1, -1, 1, 0},
+  {"Grass"         , (Color){63 , 255, 63 }, (Color){63 , 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 1, 0, tile_air  , 3 , 1 , tile_air  , tile_grass         , tile_dirt       , 1, 1, 1, -1, -1, 1, 1},
+  {"Pink Flower"   , (Color){255, 127, 127}, (Color){255, 127, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_soil , tile_grass         , tile_grass      , 1, 1, 0, -1, -1, 1, 0},
+  {"Blue Flower"   , (Color){127, 127, 255}, (Color){127, 127, 255}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_soil , tile_grass         , tile_grass      , 1, 1, 0, -1, -1, 1, 0},
+  {"Yellow Flower" , (Color){255, 255, 63 }, (Color){255, 255, 63 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 3 , 0 , tile_soil , tile_grass         , tile_grass      , 1, 1, 0, -1, -1, 1, 0},
   {"Stone"         , (Color){127, 127, 127}, (Color){119, 119, 119}, tile_color_wet , tile_type_solid   , 1, 0, 0, 0, tile_stone, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Sand"          , (Color){255, 255, 127}, (Color){239, 239, 119}, tile_color_wet , tile_type_powder  , 1, 0, 0, 0, tile_sand , 15, -1, tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 1 , 0, 0},
   {"Iron"          , (Color){191, 191, 191}, (Color){191, 191, 191}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_iron , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
@@ -257,6 +260,10 @@ static const tile_t tile_types[] = {
   {"Orange Fish"   , (Color){255, 143, 63 }, (Color){255, 143, 63 }, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0, 0},
   {"White Fish"    , (Color){203, 203, 203}, (Color){203, 203, 203}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0, 0},
   {"Pink Fish"     , (Color){255, 127, 127}, (Color){255, 127, 127}, tile_color_none, tile_type_ai_water, 1, 1, 0, 0, tile_steam, 3 , 1 , tile_water, tile_water         , tile_water      , 1, 1, 0, -1, -1, 0, 0},
+  {"Moss"          , (Color){7  , 167, 51 }, (Color){7  , 167, 51 }, tile_color_none, tile_type_solid   , 0, 1, 1, 0, tile_air  , 3 , 1 , tile_air  , tile_stone         , tile_stone      , 1, 1, 1, -1, -1, 1, 1},
+  {"Caveroom"      , (Color){223, 191, 223}, (Color){223, 191, 223}, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 1 , tile_air  , tile_stone         , tile_caveroom   , 1, 1, 1, -1, -1, 0, 0},
+  {"Red Caveroom"  , (Color){223, 31 , 95 }, (Color){223, 31 , 95 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_red_caveroom  , tile_caveroom   , 1, 1, 1, -1, -1, 0, 0},
+  {"Brown Caveroom", (Color){191, 127, 127}, (Color){191, 127, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_brown_caveroom, tile_caveroom   , 1, 1, 1, -1, -1, 0, 0},
 };
 
 static const tree_t tree_types[] = {

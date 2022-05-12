@@ -28,6 +28,8 @@ uint32_t *tree_water = NULL;
 uint32_t *empty_map = NULL;
 uint32_t *polen_map = NULL;
 
+int deep[65536];
+
 int selection = tile_dirt;
 int brush_size = 5;
 
@@ -395,6 +397,10 @@ Color get_color(int tile) {
 }
 
 void tick_tiles(void) {
+  for (int i = 0; i < WIDTH; i++) {
+    deep[i] = 0;
+  }
+  
   for (int j = 0; j < WIDTH; j++) {
     if (j < off_x / zoom) {
       continue;
@@ -418,6 +424,12 @@ void tick_tiles(void) {
         // exit(1);
         
         continue;
+      }
+      
+      if ((tile_types[tile].type == tile_type_solid || tile_types[tile].type == tile_type_powder) && !tile_types[tile].weak) {
+        deep[j] += 2;
+      } else if (tile_types[tile].type == tile_type_liquid) {
+        deep[j]++;
       }
       
       int need_dist = tile_types[tile].need_dist;
@@ -801,6 +813,61 @@ void tick_tiles(void) {
         } else if (rand() % 2048 < get_water(j, i)) {
           if (get_tile(j, i + 1) == tile_air) {
             set_tile(j, i + 1, tile_vines);
+          }
+        } else if (rand() % 2048 < get_water(j, i) - 28 && get_water(j, i) > 0 && get_tile(j, i - 1) == tile_air && deep[j] >= 4) {
+          set_tile(j, i - 1, tile_moss);
+        }
+      } else if (tile == tile_caveroom) {
+        if (deep[j] < 4) {
+          del_tile(j, i);
+        } else if (rand() % 256 < get_water(j, i)) {
+          int valid = 1;
+          
+          for (int dx = -5; dx <= 5; dx++) {
+            for (int dy = -5; dy <= 5; dy++) {
+              if (get_tile(j + dx, i + dy) == tile_red_caveroom || get_tile(j + dx, i + dy) == tile_brown_caveroom) {
+                valid = 0;
+                break;
+              }
+              
+              if (dy < 0 && get_tile(j + dx, i + dy) == tile_caveroom) {
+                valid = 0;
+                break;
+              }
+            }
+            
+            if (!valid) break;
+          }
+          
+          if (valid && tile_types[get_tile(j, i - 1)].weak) {
+            if (get_water(j, i) < 48 && get_tile(j - 1, i + 1) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j - 1, i + 2) == tile_air && get_tile(j + 1, i + 2) == tile_air) {
+              switch (rand() % 2) {
+                case 0:
+                  set_tile(j, i - 1, tile_red_caveroom);
+                  break;
+                case 1:
+                  set_tile(j, i - 1, tile_brown_caveroom);
+                  break;
+              }
+            } else {
+              set_tile(j, i - 1, tile_caveroom);
+            }
+          }
+        }
+      } else if (tile == tile_red_caveroom || tile == tile_brown_caveroom) {
+        if (deep[j] < 4 || (rand() % 256 == 0 && get_water(j, i) < 8) || (get_tile(j, i + 1) != tile_air && get_tile(j, i + 1) != tile_caveroom && get_tile(j, i + 1) != tile_red_caveroom && get_tile(j, i + 1) != tile_brown_caveroom)) {
+          set_tile(j, i, tile_air);
+        } else if (get_water(j, i) >= 40 && get_water(j, i) < 44) {
+          if (rand() % 8 == 0 && get_tile(j - 1, i) == tile_air && get_tile(j - 1, i + 1) == tile_air && get_tile(j - 2, i) == tile_air) {
+            set_tile(j - 1, i, tile);
+          }
+          
+          if (rand() % 8 == 0 && get_tile(j + 1, i) == tile_air && get_tile(j + 1, i + 1) == tile_air && get_tile(j + 2, i) == tile_air) {
+            set_tile(j + 1, i, tile);
+          }
+          
+          if (rand() % 32 == 0 && get_tile(j, i - 1) == tile_air) {
+            set_tile(j, i - 1, tile);
           }
         }
       } else if (get_tile(j, i) == tile_vines) {
@@ -1470,8 +1537,6 @@ int main(int argc, const char **argv) {
     double time_1 = GetTime();
     int draw_count = 0;
     
-    int deep[WIDTH];
-    
     for (int i = 0; i < WIDTH; i++) {
       deep[i] = 0;
     }
@@ -1689,21 +1754,6 @@ int main(int argc, const char **argv) {
     DrawRectangle(view_width - 62, 88, 54, 26, BLACK);
     
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && GetMouseX() >= view_width - 64 && GetMouseY() >= 88 && GetMouseX() < view_width - 6 && GetMouseY() < 114) {
-      /*
-      memset(tree_tiles, 0, WIDTH * HEIGHT * 4);
-      memset(tree_water, 0, WIDTH * HEIGHT * 4);
-      
-      memset(old_tiles, 0, WIDTH * HEIGHT * 4);
-      memset(old_water, 0, WIDTH * HEIGHT * 4);
-      
-      for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-          empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
-          polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
-        }
-      }
-      */
-      
       #ifdef PLATFORM_WEB
         web_load_file();
       #endif
