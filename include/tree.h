@@ -10,7 +10,6 @@
 // tree 0.11 - the ALIVE update:
 // - add plants and more caves to worldgen
 // - fix the bee cornering issue once and for all ):<
-// - use "tile" instead of "getTile()" in immense if-else blob
 
 // tree 0.12:
 // - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)

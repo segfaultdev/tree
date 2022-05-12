@@ -294,13 +294,6 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
   memset(old_tiles, 0, WIDTH * HEIGHT * 4);
   memset(old_water, 0, WIDTH * HEIGHT * 4);
   
-  for (int i = 0; i < HEIGHT; i++) {
-    for (int j = 0; j < WIDTH; j++) {
-      empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
-      polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
-    }
-  }
-  
   int width, height, bpp;
   uint8_t *data = stbi_load_from_memory(buffer, size, &width, &height, &bpp, 4);
   
@@ -312,6 +305,15 @@ EMSCRIPTEN_KEEPALIVE int web_file_loaded(uint8_t *buffer, size_t size) {
   int size_2 = width * height * 4;
   
   memcpy(tree_tiles, data, MIN(size_1, size_2));
+  
+  for (int i = 0; i < HEIGHT; i++) {
+    for (int j = 0; j < WIDTH; j++) {
+      int tile = get_tile(j, i);
+      
+      empty_map[j + i * WIDTH] = 1048576 * (tile != tile_flower_pink && tile != tile_flower_blue && tile != tile_flower_yellow);
+      polen_map[j + i * WIDTH] = 1048576 * (tile != tile_hive);
+    }
+  }
   
   stbi_image_free(data);
   free(buffer);
@@ -807,7 +809,7 @@ void tick_tiles(void) {
             set_tile(j, i - 1, tile);
           }
         }
-      } else if (get_tile(j, i) == tile_stone) {
+      } else if (tile == tile_stone) {
         if (rand() % 16384 == 0 && get_water(j, i) >= 54) {
           set_tile(j, i, tile_sand);
         } else if (rand() % 2048 < get_water(j, i)) {
@@ -870,7 +872,7 @@ void tick_tiles(void) {
             set_tile(j, i - 1, tile);
           }
         }
-      } else if (get_tile(j, i) == tile_vines) {
+      } else if (tile == tile_vines) {
         int water = (get_water(j, i) / 1.5f) - 12;
         
         if (get_tile(j - 1, i - 1) == tile_vines) {
@@ -924,7 +926,7 @@ void tick_tiles(void) {
             }
           }
         }
-      } else if (get_tile(j, i) == tile_cacti) {
+      } else if (tile == tile_cacti) {
         if (rand() % 1024 < get_water(j, i) && get_water(j, i) >= 20) {
           if (get_tile(j - 1, i) == tile_cacti && get_tile(j + 1, i) == tile_cacti) continue;
           if (get_tile(j - 1, i) != tile_cacti && get_tile(j - 2, i) == tile_cacti) continue;
@@ -950,7 +952,7 @@ void tick_tiles(void) {
             set_tile(j, i - 1, (rand() % 16 == 0 && get_water(j, i) < 40) ? tile_cacti_flower : tile_cacti);
           }
         }
-      } else if (get_tile(j, i) == tile_willow_leaves) {
+      } else if (tile == tile_willow_leaves) {
         int water = get_water(j, i) - 8;
         
         if (get_tile(j - 1, i) == tile_vines) {
@@ -1260,7 +1262,7 @@ void tick_tiles(void) {
         }
       }
       
-      if (tile_types[get_tile(j, i)].type == tile_type_ai_water) {
+      if (tile_types[tile].type == tile_type_ai_water) {
         int x = (rand() % 3) - 1;
         int y = 0;
         
@@ -1503,8 +1505,10 @@ int main(int argc, const char **argv) {
   
   for (int i = 0; i < HEIGHT; i++) {
     for (int j = 0; j < WIDTH; j++) {
-      empty_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_flower_pink && get_tile(j, i) != tile_flower_blue && get_tile(j, i) != tile_flower_yellow);
-      polen_map[j + i * WIDTH] = 1048576 * (get_tile(j, i) != tile_hive);
+      int tile = get_tile(j, i);
+      
+      empty_map[j + i * WIDTH] = 1048576 * (tile != tile_flower_pink && tile != tile_flower_blue && tile != tile_flower_yellow);
+      polen_map[j + i * WIDTH] = 1048576 * (tile != tile_hive);
     }
   }
   
