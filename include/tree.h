@@ -283,4 +283,30 @@ static const tree_t tree_types[] = {
   {tile_cherry_tree, 4 , tile_cherry_leaves, 43, tile_cherry   , tile_cherry    , 5, 15, 6 , 1 , 39} ,
 };
 
+enum {
+  tile_sect_terrain,
+  tile_sect_flora,
+  tile_sect_fauna, // and fungi!
+  tile_sect_destroy,
+};
+
+static int tile_sects[][64] = {
+  {
+    tile_air, tile_dirt, tile_water, tile_stone, tile_sand, tile_iron, tile_snow, tile_ice, tile_clay, -1
+  },
+  
+  {
+    tile_apple_seed, tile_orange_seed, tile_palm_seed, tile_pine_seed, tile_beech_seed, tile_willow_seed, tile_lemon_seed, tile_birch_seed, tile_ebony_seed,
+    tile_cherry_seed, tile_berry_bush, tile_cacti, tile_mushroom, tile_wheat, tile_carrot, tile_caveroom, -1
+  },
+  
+  {
+    tile_fish, tile_orange_fish, tile_white_fish, tile_pink_fish, tile_empty_bee, tile_hive, tile_ant, -1
+  },
+  
+  {
+    tile_fire, tile_ash, tile_burn, -1
+  },
+};
+
 #endif
