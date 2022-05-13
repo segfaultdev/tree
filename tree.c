@@ -18,6 +18,7 @@
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 uint32_t *old_tiles = NULL;
 uint32_t *old_water = NULL;
@@ -57,6 +58,9 @@ int view_width = 0;
 int view_height = 0;
 
 int active = 1;
+
+int section = tile_sect_terrain;
+int show_sections = SHOW_SECTIONS;
 
 int msleep(size_t ms) {
   struct timespec ts;
@@ -1535,6 +1539,8 @@ int main(int argc, const char **argv) {
   }
   
   int rect_width = 144;
+  int rect_height = 30;
+  
   int rect_count = (screen_width - 20) / rect_width;
   
   if (phone_ui) {
@@ -1542,15 +1548,31 @@ int main(int argc, const char **argv) {
     rect_width = (screen_width - 20) / rect_count;
   }
   
-  int view_count = 0;
+  int view_count;
   
-  for (int i = 0; i < tile_count; i++) {
-    if (tile_types[i].show != 1) continue;
-    view_count++;
+recalc_size:
+  view_count = 0;
+  
+  if (show_sections) {
+    for (int i = 0; i < tile_sect_count; i++) {
+      int curr_count = 0;
+      
+      for (int j = 0; tile_sects[i][j] >= 0; j++) {
+        curr_count++;
+      }
+      
+      if (curr_count > view_count) {
+        view_count = curr_count;
+      }
+    }
+  } else {
+    for (int i = 0; i < tile_count; i++) {
+      if (tile_types[i].show == 1) view_count++;
+    }
   }
   
   total_width = 20 + rect_width;
-  total_height = 20 + 30 * ((view_count + (rect_count - 1)) / rect_count);
+  total_height = 20 + rect_height * (((view_count + (rect_count - 1)) / rect_count) + show_sections);
   
   view_width = screen_width;
   view_height = screen_height;
@@ -1567,6 +1589,11 @@ int main(int argc, const char **argv) {
     } else {
       screen_width += total_width;
     }
+  }
+  
+  if (!show_sections && view_height < 400) {
+    show_sections = 1;
+    goto recalc_size;
   }
   
   InitWindow(screen_width, screen_height, "tree");
@@ -1773,21 +1800,74 @@ int main(int argc, const char **argv) {
       DrawRectangle(view_width, 0, total_width, view_height, BLACK);
     }
     
-    for (int i = 0; i < tile_count; i++) {
-      if (!tile_types[i].show || tile_types[i].show != 1) continue;
+    int rect_x, rect_y;
+    
+    if (show_sections) {
+      int part_width = 40;
+      int title_width = (view_width - 20) - (2 * part_width);
       
-      int rect_x, rect_y;
+      rect_x = 10;
+      rect_y = 10 + view_height;
+      
+      DrawRectangle(rect_x, rect_y, part_width, rect_height + 2, WHITE);
+      DrawRectangle(rect_x + 2, rect_y + 2, part_width - 4, rect_height - 2, BLACK);
+      
+      DrawText("<<", rect_x + 8, rect_y + 2, 30, WHITE);
+      
+      if (GetMouseX() >= rect_x + 2 && GetMouseY() >= rect_y + 2 && GetMouseX() < rect_x + part_width - 2 && GetMouseY() < rect_y + rect_height + 4) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+          section = (section + (tile_sect_count - 1)) % tile_sect_count;
+        }
+      }
+      
+      rect_x += part_width;
+      
+      Color color_1 = tile_sect_colors[2 * section + 0];
+      Color color_2 = tile_sect_colors[2 * section + 1];
+      
+      int light = color_1.r * 0.20f + color_1.g * 0.40f + color_1.b * 0.05f +
+                  color_2.r * 0.10f + color_2.g * 0.20f + color_2.b * 0.05f;
+      
+      DrawRectangleGradientH(rect_x + 2, rect_y + 2, title_width - 4, rect_height - 2, color_1, color_2);
+      DrawText(tile_sect_names[section], rect_x + 6, rect_y + 6, 20, light > 127 ? BLACK : WHITE);
+      
+      rect_x += title_width;
+      
+      DrawRectangle(rect_x, rect_y, part_width, rect_height + 2, WHITE);
+      DrawRectangle(rect_x + 2, rect_y + 2, part_width - 4, rect_height - 2, BLACK);
+      
+      DrawText(">>", rect_x + 10, rect_y + 2, 30, WHITE);
+      
+      if (GetMouseX() >= rect_x + 2 && GetMouseY() >= rect_y + 2 && GetMouseX() < rect_x + part_width - 2 && GetMouseY() < rect_y + rect_height + 4) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+          section = (section + 1) % tile_sect_count;
+        }
+      }
+    }
+    
+    for (int _i = 0;; _i++) {
+      int i;
+      
+      if (show_sections) {
+        i = tile_sects[section][_i];
+        if (i < 0) break;
+      } else {
+        i = _i;
+        if (i >= tile_count) break;
+      }
+      
+      if (!tile_types[i].show || tile_types[i].show != 1) continue;
       
       if (phone_ui) {
         rect_x = rect_width * (sel_pos % rect_count) + 10;
-        rect_y = (sel_pos / rect_count) * 30 + 10 + view_height;
+        rect_y = ((sel_pos / rect_count) + show_sections) * rect_height + 10 + view_height;
       } else {
         rect_x = WIDTH * SCALE + 10;
-        rect_y = sel_pos * 30 + 10;
+        rect_y = sel_pos * rect_height + 10;
       }
       
       if (selection == i) {
-        DrawRectangle(rect_x, rect_y, rect_width, 32, WHITE);
+        DrawRectangle(rect_x, rect_y, rect_width, rect_height + 2, WHITE);
       }
       
       Color color = get_color(i);
@@ -1795,10 +1875,10 @@ int main(int argc, const char **argv) {
       
       color.a = 255;
       
-      DrawRectangle(rect_x + 2, rect_y + 2, rect_width - 4, 28, color);
+      DrawRectangle(rect_x + 2, rect_y + 2, rect_width - 4, rect_height - 2, color);
       DrawText(tile_types[i].name_en, rect_x + 6, rect_y + 6, 20, light > 127 ? BLACK : WHITE);
       
-      if (GetMouseX() >= rect_x + 2 && GetMouseY() >= rect_y + 2 && GetMouseX() < rect_x + rect_width - 2 && GetMouseY() < rect_y + 34) {
+      if (GetMouseX() >= rect_x + 2 && GetMouseY() >= rect_y + 2 && GetMouseX() < rect_x + rect_width - 2 && GetMouseY() < rect_y + rect_height + 4) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
           selection = i;
         }

@@ -40,6 +40,9 @@ static int HEIGHT = 480;
 // if 1, tile coordinates will wrap around(affects performance a lot, not recommended)
 #define WORLD_WRAP 0
 
+// if 1, tiles will be showed on sections instead of on a huge list
+#define SHOW_SECTIONS 0
+
 // alpha, only applies to visible tiles, not to air
 #define ALPHA 255
 

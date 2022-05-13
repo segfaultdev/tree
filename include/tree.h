@@ -8,7 +8,6 @@
 // tree 0.11 - the ALIVE update - done!
 
 // tree 0.12 - the WORLD update:
-// - divide tiles into categories and add a tabbed menu for them
 // - add roses, tulips, etc.
 // - add lava, explosives and maybe black holes?
 // - add more stone varieties, depending on its placement or deepness
@@ -285,27 +284,50 @@ static const tree_t tree_types[] = {
 
 enum {
   tile_sect_terrain,
-  tile_sect_flora,
-  tile_sect_fauna, // and fungi!
+  tile_sect_trees,
+  tile_sect_plants,
+  tile_sect_fauna,
   tile_sect_destroy,
+  
+  tile_sect_count,
 };
 
-static int tile_sects[][64] = {
+static const char *tile_sect_names[] = {
+  "Terrain",
+  "Trees",
+  "Plants",
+  "Fauna & Animal Products",
+  "Destruction",
+};
+
+static const Color tile_sect_colors[] = {
+  (Color){63 , 255, 63 , 255}, (Color){127, 63 , 0  , 255},
+  (Color){31 , 127, 31 , 255}, (Color){63 , 31 , 0  , 255},
+  (Color){247, 132, 24 , 255}, (Color){135, 206, 28 , 255},
+  (Color){255, 255, 15 , 255}, (Color){7  , 0  , 0  , 255},
+  (Color){23 , 23 , 23 , 255}, (Color){255, 159, 31 , 255},
+};
+
+static const int tile_sects[][64] = {
   {
     tile_air, tile_dirt, tile_water, tile_stone, tile_sand, tile_iron, tile_snow, tile_ice, tile_clay, -1
   },
   
   {
-    tile_apple_seed, tile_orange_seed, tile_palm_seed, tile_pine_seed, tile_beech_seed, tile_willow_seed, tile_lemon_seed, tile_birch_seed, tile_ebony_seed,
-    tile_cherry_seed, tile_berry_bush, tile_cacti, tile_mushroom, tile_wheat, tile_carrot, tile_caveroom, -1
+    tile_air, tile_apple_seed, tile_orange_seed, tile_palm_seed, tile_pine_seed, tile_beech_seed, tile_willow_seed, tile_lemon_seed, tile_birch_seed,
+    tile_ebony_seed, tile_cherry_seed, tile_berry_bush, -1
   },
   
   {
-    tile_fish, tile_orange_fish, tile_white_fish, tile_pink_fish, tile_empty_bee, tile_hive, tile_ant, -1
+    tile_cacti, tile_mushroom, tile_wheat, tile_carrot, tile_caveroom, -1
   },
   
   {
-    tile_fire, tile_ash, tile_burn, -1
+    tile_air, tile_fish, tile_orange_fish, tile_white_fish, tile_pink_fish, tile_empty_bee, tile_hive, tile_ant, -1
+  },
+  
+  {
+    tile_air, tile_fire, tile_ash, tile_burn, -1
   },
 };
 
