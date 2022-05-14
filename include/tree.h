@@ -15,7 +15,7 @@
 // - more ideas?
 
 // future plans:
-// - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
+// - add a USTAR file parser, and allow for dynamic mod loading(cos changing  this file to add new blocks is boring)
 // - write some documentation for making mods
 
 typedef struct tile_t tile_t;

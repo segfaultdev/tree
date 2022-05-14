@@ -1642,6 +1642,8 @@ recalc_size:
   while (!WindowShouldClose()) {
     BeginDrawing();
     
+    int true_drag = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL) || drag_mode;
+    
     double time_0 = GetTime();
     
     int tile_x = off_x / zoom;
@@ -1767,13 +1769,13 @@ recalc_size:
     
     double time_2 = GetTime();
     
-    if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) || (drag_mode && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) || (true_drag && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) {
       start_x = GetMouseX();
       start_y = GetMouseY();
       
       old_x = off_x;
       old_y = off_y;
-    } else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) || (drag_mode && IsMouseButtonDown(MOUSE_BUTTON_LEFT))) {
+    } else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) || (true_drag && IsMouseButtonDown(MOUSE_BUTTON_LEFT))) {
       off_x = old_x - (GetMouseX() - start_x);
       off_y = old_y - (GetMouseY() - start_y);
     }
@@ -1906,7 +1908,7 @@ recalc_size:
     if (GetMouseX() >= 0 && GetMouseY() >= 0 && GetMouseX() < view_width && GetMouseY() < view_height) {
       if ((GetMouseX() < view_width - 44 && (GetMouseY() < 80)) || GetMouseY() >= 122 || GetMouseX() < view_width - 130) {
         if (!(GetMouseX() >= view_width - 314 && GetMouseX() < view_width - 166 && GetMouseY() < 116)) {
-          if (!drag_mode) {
+          if (!true_drag) {
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
               set_circle(x, y, selection);
             } else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
@@ -2016,7 +2018,9 @@ recalc_size:
     DrawRectangle(view_width - 308, 46, 136, 30, WHITE);
     DrawRectangle(view_width - 306, 48, 132, 26, BLACK);
     
-    if (drag_mode) {
+    if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+      DrawText("Drag: Ctrl", view_width - 300, 52, 20, WHITE);
+    } else if (drag_mode) {
       DrawText("Drag: Yes", view_width - 300, 52, 20, WHITE);
     } else {
       DrawText("Drag: No", view_width - 300, 52, 20, WHITE);
