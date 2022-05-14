@@ -1307,7 +1307,7 @@ void tick_tiles(void) {
           for (int dy = -1; dy <= 1; dy++) {
             if (!dx && !dy) continue;
             
-            if (get_tile(j + dx, i + dy) == tile_fire) {
+            if (get_tile(j + dx, i + dy) == tile_fire || get_tile(j + dx, i + dy) == tile_wire_head) {
               valid = 1;
               break;
             }
@@ -1329,6 +1329,26 @@ void tick_tiles(void) {
             }
           }
         }
+      } else if (tile == tile_wire) {
+        int count = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy) continue;
+            
+            if (get_tile(j + dx, i + dy) == tile_wire_head) {
+              count++;
+            }
+          }
+        }
+        
+        if (count == 1 || count == 2) {
+          set_tile(j, i, tile_wire_head);
+        }
+      } else if (tile == tile_wire_head) {
+        set_tile(j, i, tile_wire_tail);
+      } else if (tile == tile_wire_tail) {
+        set_tile(j, i, tile_wire);
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
         

@@ -3,23 +3,11 @@
 
 #include <raylib.h>
 
-// nice values:
-// - 160x100,  scale 9
-// - 192x108,  scale 8
-// - 240x150,  scale 6
-// - 256x160,  scale 5 <- default
-// - 320x200,  scale 4
-// - 400x225,  scale 4
-// - 480x300,  scale 3
-// - 640x440,  scale 2
-// - 800x450,  scale 2
-// - 1280x880, scale 1 <- cayden pweease try this
-
-// width and height in tiles(has to be editable in runtime by -w or --world flag, where you specify the screen size)
+// world width and height in tiles
 static int WIDTH = 3200;
 static int HEIGHT = 480;
 
-// pixels per tile(default zoom, making it smaller will make the window smaller, but won't change your min and max zoom)
+// default zoom in pixels per tile
 #define SCALE 8
 
 // if 1, will replace existing non-air blocks with the brush

@@ -9,7 +9,6 @@
 
 // tree 0.12 - the WORLD update:
 // - add roses, tulips, etc.
-// - somehow do turing completeness
 // - more ideas?
 
 // future plans:
@@ -108,6 +107,9 @@ enum {
   tile_boom,
   tile_limestone,
   tile_marble,
+  tile_wire,
+  tile_wire_head,
+  tile_wire_tail,
   
   tile_count
 };
@@ -271,6 +273,9 @@ static const tile_t tile_types[] = {
   {"Boom"          , (Color){255, 0  , 0  }, (Color){255, 0  , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_boom     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 0 , 0, 0},
   {"Limestone"     , (Color){159, 159, 159}, (Color){151, 151, 151}, tile_color_wet , tile_type_solid   , 1, 0, 0, 0, tile_limestone, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Marble"        , (Color){223, 223, 223}, (Color){211, 211, 211}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_marble   , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Wire"          , (Color){255, 223, 63 }, (Color){255, 223, 63 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Electron Head" , (Color){191, 63 , 255}, (Color){191, 63 , 255}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire_head, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Electron Tail" , (Color){255, 95 , 63 }, (Color){255, 95 , 63 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire_tail, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
 };
 
 static const tree_t tree_types[] = {
@@ -293,6 +298,7 @@ enum {
   tile_sect_plants,
   tile_sect_fauna,
   tile_sect_destroy,
+  tile_sect_technology,
   
   tile_sect_count,
 };
@@ -303,6 +309,7 @@ static const char *tile_sect_names[] = {
   "Plants",
   "Animals",
   "Destruction",
+  "Technology",
 };
 
 static const Color tile_sect_colors[] = {
@@ -311,11 +318,12 @@ static const Color tile_sect_colors[] = {
   (Color){247, 132, 24 , 255}, (Color){135, 206, 28 , 255},
   (Color){255, 255, 15 , 255}, (Color){7  , 0  , 0  , 255},
   (Color){23 , 23 , 23 , 255}, (Color){255, 159, 31 , 255},
+  (Color){255, 95 , 63 , 255}, (Color){191, 63 , 255, 255},
 };
 
 static const int tile_sects[][64] = {
   {
-    tile_air, tile_dirt, tile_water, tile_stone, tile_sand, tile_iron, tile_snow, tile_ice, tile_clay, tile_limestone, tile_marble, -1
+    tile_air, tile_dirt, tile_water, tile_stone, tile_sand, tile_snow, tile_ice, tile_clay, tile_limestone, tile_marble, -1
   },
   
   {
@@ -333,6 +341,10 @@ static const int tile_sects[][64] = {
   
   {
     tile_air, tile_fire, tile_ash, tile_burn, tile_boom, -1
+  },
+  
+  {
+    tile_iron, tile_wire, tile_wire_head, tile_wire_tail, -1
   },
 };
 
