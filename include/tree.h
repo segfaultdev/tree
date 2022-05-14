@@ -110,6 +110,7 @@ enum {
   tile_wire,
   tile_wire_head,
   tile_wire_tail,
+  tile_pump,
   
   tile_count
 };
@@ -276,6 +277,7 @@ static const tile_t tile_types[] = {
   {"Wire"          , (Color){255, 223, 63 }, (Color){255, 223, 63 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Electron Head" , (Color){191, 63 , 255}, (Color){191, 63 , 255}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire_head, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Electron Tail" , (Color){255, 95 , 63 }, (Color){255, 95 , 63 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire_tail, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Pump"          , (Color){0  , 207, 255}, (Color){0  , 207, 255}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_pump     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
 };
 
 static const tree_t tree_types[] = {
