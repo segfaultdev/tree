@@ -364,6 +364,8 @@ void world_gen(void) {
         if (elevation < dirt_height) {
           if (noise_2(i / 57.0f, j / 53.0f) >= 0.8f) {
             set_tile(i, j, tile_dirt);
+          } else if (noise_2(i / 21.0f + 0.5f, j / 17.0f + 0.5f) >= lerp(0.90f, 0.95f, (float)(elevation - (height - 48)) / 48.0f)) {
+            set_tile(i, j, tile_marble);
           } else {
             set_tile(i, j, tile_stone);
           }
@@ -372,6 +374,8 @@ void world_gen(void) {
             set_tile(i, j, tile_stone);
           } else if (noise_2(i / 22.0f, j / 18.0f) >= lerp(0.85f, 0.95f, (float)(elevation - (height - 48)) / 48.0f)) {
             set_tile(i, j, tile_clay);
+          } else if (noise_2(i / 21.0f + 0.5f, j / 17.0f + 0.5f) >= lerp(0.90f, 0.95f, (float)(elevation - (height - 48)) / 48.0f)) {
+            set_tile(i, j, tile_limestone);
           } else if (noise_2(i / 32.0f, j / 28.0f) >= lerp(1.0f, 0.6f, (float)(elevation - (height - 64)) / 64.0f)) {
             set_tile(i, j, tile_sand);
           } else {
@@ -382,7 +386,8 @@ void world_gen(void) {
         set_tile(i, j, tile_water);
       }
       
-      if (get_tile_new(i, j) != tile_stone && get_tile_new(i, j) != tile_clay) continue;
+      if (get_tile_new(i, j) != tile_stone && get_tile_new(i, j) != tile_clay &&
+          get_tile_new(i, j) != tile_limestone && get_tile_new(i, j) != tile_marble) continue;
       
       if (noise_2(i / 15.9f, j / 16.1f) >= lerp(0.7f, 0.9f, (float)(elevation) / 160.0f)) {
         set_tile(i, j, tile_air);
