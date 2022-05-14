@@ -1541,6 +1541,11 @@ int main(int argc, const char **argv) {
   int rect_width = 144;
   int rect_height = 30;
   
+  if (!phone_ui) {
+    show_sections = 1;
+    rect_width = 192;
+  }
+  
   int rect_count = (screen_width - 20) / rect_width;
   
   if (phone_ui) {
@@ -1804,10 +1809,19 @@ recalc_size:
     
     if (show_sections) {
       int part_width = 40;
-      int title_width = (view_width - 20) - (2 * part_width);
+      int title_width;
       
-      rect_x = 10;
-      rect_y = 10 + view_height;
+      if (phone_ui) {
+        title_width = (view_width - 20) - (2 * part_width);
+        
+        rect_x = 10;
+        rect_y = 10 + view_height;
+      } else {
+        title_width = rect_width - (2 * part_width);
+        
+        rect_x = view_width + 10;
+        rect_y = 10;
+      }
       
       DrawRectangle(rect_x, rect_y, part_width, rect_height + 2, WHITE);
       DrawRectangle(rect_x + 2, rect_y + 2, part_width - 4, rect_height - 2, BLACK);
@@ -1862,8 +1876,8 @@ recalc_size:
         rect_x = rect_width * (sel_pos % rect_count) + 10;
         rect_y = ((sel_pos / rect_count) + show_sections) * rect_height + 10 + view_height;
       } else {
-        rect_x = WIDTH * SCALE + 10;
-        rect_y = sel_pos * rect_height + 10;
+        rect_x = view_width + 10;
+        rect_y = (sel_pos + show_sections) * rect_height + 10;
       }
       
       if (selection == i) {

@@ -296,7 +296,7 @@ static const char *tile_sect_names[] = {
   "Terrain",
   "Trees",
   "Plants",
-  "Fauna & Animal Products",
+  "Animals",
   "Destruction",
 };
 
