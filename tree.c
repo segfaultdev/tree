@@ -1343,12 +1343,40 @@ void tick_tiles(void) {
         }
         
         if (count == 1 || count == 2) {
-          set_tile(j, i, tile_wire_head);
+          if (get_tile_new(j, i) != tile_air) set_tile(j, i, tile_wire_head);
         }
       } else if (tile == tile_wire_head) {
-        set_tile(j, i, tile_wire_tail);
+        for (int dy = -7; dy <= 7; dy++) {
+          for (int dx = -7; dx <= 7; dx++) {
+            int ax = (dx < 0) ? -dx : dx;
+            int ay = (dy < 0) ? -dy : dy;
+            
+            if ((!dx && !dy) || get_tile_new(j + dx, i + dy) == tile_wire ||
+                get_tile_new(j + dx, i + dy) == tile_wire_head || get_tile_new(j + dx, i + dy) == tile_wire_tail) {
+              continue;
+            }
+            
+            if (tile_types[get_tile(j + dx, i + dy)].type != tile_type_liquid) {
+              if (ax > 1 || ay > 1) continue;
+              
+              if (dy < 0) {
+                ay *= 6;
+              } else {
+                ax /= 2;
+              }
+            }
+            
+            int chance = 1 + (3 << ax) + (5 << ay);
+            
+            if (rand() % chance == 0) {
+              set_tile(j + dx, i + dy, (rand() % 15 < tile_types[get_tile(j + dx, i + dy)].fire_amnt) ? tile_types[get_tile(j + dx, i + dy)].fire_tile : tile_fire);
+            }
+          }
+        }
+        
+        if (get_tile_new(j, i) != tile_air) set_tile(j, i, tile_wire_tail);
       } else if (tile == tile_wire_tail) {
-        set_tile(j, i, tile_wire);
+        if (get_tile_new(j, i) != tile_air) set_tile(j, i, tile_wire);
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
         
