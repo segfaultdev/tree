@@ -2072,11 +2072,19 @@ recalc_size:
     #endif
     
     if (wheel_move > 0) {
-      brush_size += wheel_move;
-      if (brush_size > 40) brush_size = 40;
+      if (true_drag) {
+        if (zoom < 32) set_zoom(zoom + 1);
+      } else {
+        brush_size += wheel_move;
+        if (brush_size > 40) brush_size = 40;
+      }
     } else if (wheel_move < 0) {
-      brush_size += wheel_move;
-      if (brush_size < 1) brush_size = 1;
+      if (true_drag) {
+        if (zoom > 1) set_zoom(zoom - 1);
+      } else {
+        brush_size += wheel_move;
+        if (brush_size < 1) brush_size = 1;
+      }
     }
     
     double time_3 = GetTime();
