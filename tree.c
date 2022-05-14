@@ -1295,6 +1295,35 @@ void tick_tiles(void) {
           
           swap(j, i, j + x, i + y);
         }
+      } else if (tile == tile_boom) {
+        int valid = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy) continue;
+            
+            if (get_tile(j + dx, i + dy) == tile_fire) {
+              valid = 1;
+              break;
+            }
+          }
+          
+          if (valid) break;
+        }
+        
+        const int boom_size = 12;
+        
+        if (valid) {
+          for (int dx = -boom_size; dx <= boom_size; dx++) {
+            for (int dy = -boom_size; dy <= boom_size; dy++) {
+              if (dx * dx + dy * dy < boom_size * boom_size) {
+                if ((dx == 0 && dy == 0) || get_tile_new(j + dx, i + dy) != tile_boom) {
+                  set_tile(j + dx, i + dy, tile_fire);
+                }
+              }
+            }
+          }
+        }
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
         

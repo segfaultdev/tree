@@ -9,7 +9,6 @@
 
 // tree 0.12 - the WORLD update:
 // - add roses, tulips, etc.
-// - add lava, explosives and maybe black holes?
 // - add more stone varieties, depending on its placement or deepness
 // - somehow do turing completeness
 // - more ideas?
@@ -106,6 +105,7 @@ enum {
   tile_caveroom,
   tile_red_caveroom,
   tile_brown_caveroom,
+  tile_boom,
   
   tile_count
 };
@@ -266,6 +266,7 @@ static const tile_t tile_types[] = {
   {"Caveroom"      , (Color){223, 191, 223}, (Color){223, 191, 223}, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_ash  , 3 , 1 , tile_air  , tile_stone         , tile_caveroom   , 1, 1, 1, -1, -1, 0, 0},
   {"Red Caveroom"  , (Color){223, 31 , 95 }, (Color){223, 31 , 95 }, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_red_caveroom  , tile_caveroom   , 1, 1, 1, -1, -1, 0, 0},
   {"Brown Caveroom", (Color){191, 127, 127}, (Color){191, 127, 127}, tile_color_none, tile_type_solid   , 0, 1, 0, 0, tile_air  , 0 , 1 , tile_air  , tile_brown_caveroom, tile_caveroom   , 1, 1, 1, -1, -1, 0, 0},
+  {"Boom"          , (Color){255, 0  , 0  }, (Color){255, 0  , 0  }, tile_color_none, tile_type_solid   , 1, 0, 0, 0, tile_boom , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, 0 , 0, 0},
 };
 
 static const tree_t tree_types[] = {
@@ -327,7 +328,7 @@ static const int tile_sects[][64] = {
   },
   
   {
-    tile_air, tile_fire, tile_ash, tile_burn, -1
+    tile_air, tile_fire, tile_ash, tile_burn, tile_boom, -1
   },
 };
 
