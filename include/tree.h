@@ -8,11 +8,13 @@
 // tree 0.11 - the ALIVE update - done!
 
 // tree 0.12 - the WORLD update:
-// - add roses, tulips, etc.
+// - ADD TULIPS
+// - maybe roses too
+// - and sunflowers?
 // - more ideas?
 
 // future plans:
-// - add a USTAR file parser, and allow for dynamic mod loading(cos changing  this file to add new blocks is boring)
+// - add a USTAR file parser, and allow for dynamic mod loading(cos changing this file to add new blocks is boring)
 // - write some documentation for making mods
 // - multiplayer?
 
@@ -111,6 +113,8 @@ enum {
   tile_wire_head,
   tile_wire_tail,
   tile_pump,
+  tile_gate,
+  tile_swap,
   
   tile_count
 };
@@ -278,6 +282,8 @@ static const tile_t tile_types[] = {
   {"Signal Head"   , (Color){191, 63 , 255}, (Color){191, 63 , 255}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire_head, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Signal Tail"   , (Color){255, 95 , 63 }, (Color){255, 95 , 63 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_wire_tail, 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Pump"          , (Color){0  , 207, 255}, (Color){0  , 207, 255}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_pump     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Gate"          , (Color){0  , 255, 47 }, (Color){0  , 255, 47 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_gate     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Swap"          , (Color){255, 0  , 207}, (Color){255, 0  , 207}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_swap     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
 };
 
 static const tree_t tree_types[] = {
@@ -339,7 +345,7 @@ static const int tile_sects[][64] = {
   },
   
   {
-    tile_iron, tile_wire, tile_wire_head, tile_wire_tail, tile_pump, tile_burn, tile_boom, -1
+    tile_iron, tile_wire, tile_wire_head, tile_wire_tail, tile_pump, tile_gate, tile_swap, tile_burn, tile_boom, -1
   },
 };
 

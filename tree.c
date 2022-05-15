@@ -1395,6 +1395,38 @@ void tick_tiles(void) {
         if (count && get_tile(j, i - 1) == tile_air) {
           swap(j, i - 1, j, i + 1);
         }
+      } else if (tile == tile_gate) {
+        int count = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy) continue;
+            
+            if (get_tile(j + dx, i + dy) == tile_wire_head) {
+              count++;
+            }
+          }
+        }
+        
+        if (count && get_tile(j, i + 1) == tile_air) {
+          swap(j, i + 1, j, i - 1);
+        }
+      } else if (tile == tile_swap) {
+        int count = 0;
+        
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy) continue;
+            
+            if (get_tile(j + dx, i + dy) == tile_wire_head) {
+              count++;
+            }
+          }
+        }
+        
+        if (count) {
+          swap(j - 1, i, j + 1, i);
+        }
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
         
