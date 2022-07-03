@@ -115,6 +115,7 @@ enum {
   tile_pump,
   tile_gate,
   tile_swap,
+  tile_sensor,
   
   tile_count
 };
@@ -284,6 +285,7 @@ static const tile_t tile_types[] = {
   {"Pump"          , (Color){0  , 207, 255}, (Color){0  , 207, 255}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_pump     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Gate"          , (Color){0  , 255, 47 }, (Color){0  , 255, 47 }, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_gate     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
   {"Swap"          , (Color){255, 0  , 207}, (Color){255, 0  , 207}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_swap     , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
+  {"Sensor"        , (Color){15 , 95 , 127}, (Color){15 , 95 , 127}, tile_color_none, tile_type_solid   , 1, 1, 0, 0, tile_sensor   , 15, 0 , tile_air  , tile_air           , tile_air        , 0, 0, 0, -1, -1, 0, 0},
 };
 
 static const tree_t tree_types[] = {
@@ -345,7 +347,7 @@ static const int tile_sects[][64] = {
   },
   
   {
-    tile_iron, tile_wire, tile_wire_head, tile_wire_tail, tile_pump, tile_gate, tile_swap, tile_burn, tile_boom, -1
+    tile_iron, tile_wire, tile_wire_head, tile_wire_tail, tile_pump, tile_gate, tile_swap, tile_burn, tile_boom, tile_sensor, -1
   },
 };
 

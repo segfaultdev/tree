@@ -1348,7 +1348,7 @@ void tick_tiles(void) {
       } else if (tile == tile_wire_head) {
         for (int dy = -1; dy <= 1; dy++) {
           for (int dx = -1; dx <= 1; dx++) {
-            if (dx != 0 && dy != 0) continue;
+            if ((!dx && !dy) || (dx && dy)) continue;
             
             int ax = (dx < 0) ? -dx : dx;
             int ay = (dy < 0) ? -dy : dy;
@@ -1384,7 +1384,7 @@ void tick_tiles(void) {
         
         for (int dx = -1; dx <= 1; dx++) {
           for (int dy = -1; dy <= 1; dy++) {
-            if (!dx && !dy) continue;
+            if ((!dx && !dy) || (dx && dy)) continue;
             
             if (get_tile(j + dx, i + dy) == tile_wire_head) {
               count++;
@@ -1400,7 +1400,7 @@ void tick_tiles(void) {
         
         for (int dx = -1; dx <= 1; dx++) {
           for (int dy = -1; dy <= 1; dy++) {
-            if (!dx && !dy) continue;
+            if ((!dx && !dy) || (dx && dy)) continue;
             
             if (get_tile(j + dx, i + dy) == tile_wire_head) {
               count++;
@@ -1416,7 +1416,7 @@ void tick_tiles(void) {
         
         for (int dx = -1; dx <= 1; dx++) {
           for (int dy = -1; dy <= 1; dy++) {
-            if (!dx && !dy) continue;
+            if ((!dx && !dy) || (dx && dy)) continue;
             
             if (get_tile(j + dx, i + dy) == tile_wire_head) {
               count++;
@@ -1426,6 +1426,19 @@ void tick_tiles(void) {
         
         if (count) {
           swap(j - 1, i, j + 1, i);
+        }
+      } else if (tile == tile_sensor) {
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if ((!dx && !dy) || (dx && dy)) continue;
+            
+            if (!tile_types[get_tile(j + dx, i + dy)].very_weak && get_tile(j + dx, i + dy) != tile_wire &&
+                get_tile(j + dx, i + dy) != tile_wire_head && get_tile(j + dx, i + dy) != tile_wire_tail) {
+              if (get_tile_new(j - dx, i - dy) == tile_wire) {
+                set_tile(j - dx, i - dy, tile_wire_head);
+              }
+            }
+          }
         }
       } else if (tile_types[tile].tree_type >= 0) {
         int tree_type = tile_types[tile].tree_type;
